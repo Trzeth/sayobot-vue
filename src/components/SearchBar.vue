@@ -4,6 +4,7 @@
 
     <div class="search-bar" v-bind:class="{'search-bar-focused':isFocused}">
       <input
+        autocomplete="off"
         spellcheck="false"
         id="search-bar-input"
         type="text"
@@ -102,7 +103,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scope>
+<style lang="scss">
 .search-bar-warpper {
   text-align: center;
   position: relative;
@@ -115,7 +116,6 @@ export default {
     bottom: 0;
     left: 0;
     right: 0;
-    background: transparent;
   }
   .cover-visible {
     display: block;
@@ -209,6 +209,9 @@ export default {
       transform: rotate(-180deg);
       transition: all 0.25s cubic-bezier(0.075, 0.82, 0.165, 1);
     }
+    .search-bar-btn:hover {
+      opacity: 0.25;
+    }
   }
 
   .search-bar-filter {
@@ -216,9 +219,9 @@ export default {
     position: absolute;
     width: 100%;
     border-radius: 10px;
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    box-shadow: 0 0 5px #dddddd;
     margin-top: 5px;
-    padding: 5px 10px;
+    padding: 10px 15px;
     background: #ffffff;
     box-sizing: border-box;
     opacity: 0;

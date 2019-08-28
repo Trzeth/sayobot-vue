@@ -18,17 +18,15 @@
           </router-link>
         </div>
 
-        <!-- 导航栏中间 搜索框 -->
-        <search-bar class="search-bar" v-bind:searchOptine="searchOptine"></search-bar>
+        <!-- 导航栏中间 搜索框 class="search-bar"-->
+        <search-bar v-bind:searchOptine="searchOptine"></search-bar>
 
         <!-- 导航栏右半 工具栏 -->
         <div class="tools-bar">
-          <div class="info-box">
-            <span>Info</span>
-          </div>
-          <div class="setting-box">
-            <a class="btn">Setting</a>
-          </div>
+          <!-- class="notice-bar" -->
+          <notice-bar v-bind:notices="notices"></notice-bar>
+          <!-- class="setting-bar" -->
+          <setting-bar></setting-bar>
         </div>
       </div>
     </header>
@@ -43,12 +41,16 @@
 import axios from "axios";
 import PreviewCardList from "@/components/PreviewCardList";
 import SearchBar from "@/components/SearchBar";
+import SettingBar from "@/components/SettingBar";
+import NoticeBar from "@/components/NoticeBar";
 
 export default {
   name: "home",
   components: {
     PreviewCardList,
-    SearchBar
+    SearchBar,
+    SettingBar,
+    NoticeBar
   },
   data: function() {
     return {
@@ -63,9 +65,9 @@ export default {
         language: [],
         other: ""
       },
-      itemPerPage: 24,
       current: "",
-      beatmapsetList: []
+      beatmapsetList: [],
+      notices: []
     };
   },
   methods: {
@@ -111,6 +113,11 @@ export default {
         });
       }
     }
+  },
+  created: function() {
+    axios.get("https://api.sayobot.cn/static/notice").then(response => {
+      this.notices = response.data.data;
+    });
   }
 };
 </script>
@@ -129,6 +136,11 @@ header {
     justify-content: space-evenly;
     align-content: center;
 
+    .iconfont {
+      font-size: 1.5rem;
+      vertical-align: middle;
+    }
+
     .mode-seletor {
       text-align: center;
       flex: 1;
@@ -137,6 +149,9 @@ header {
         background: #e8f5fe;
         color: #2da8f3;
         padding: 0 20px;
+      }
+      .btn.iconfont {
+        margin-right: 5px;
       }
     }
 
@@ -151,10 +166,15 @@ header {
       > div {
         display: inline-block;
       }
+
+      .setting-bar {
+        margin-left: 20px;
+      }
     }
 
     /* Button Component */
     .btn {
+      user-select: none !important;
       display: inline-block;
       margin: 0 10px;
       height: 50px;
@@ -166,10 +186,7 @@ header {
       transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
       .iconfont {
         display: inline-block;
-        margin-right: 5px;
-        font-size: 1.5rem;
         height: 50px;
-        vertical-align: middle;
       }
     }
 
