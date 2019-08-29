@@ -393,8 +393,8 @@ header {
       flex: 1;
 
       .btn.router-link-exact-active.router-link-active {
-        background: #e8f5fe;
-        color: #2da8f3;
+        background: #fff0f6;
+        color: #f759ab;
         padding: 0 20px;
       }
       .btn.iconfont {
@@ -441,11 +441,11 @@ header {
       color: #000;
     }
     .btn:hover {
-      background: #e8f5fe;
-      color: #2da8f3;
+      background: #fff0f6;
+      color: #f759ab;
     }
     .btn:active {
-      background: #d2ecfc;
+      background: #ffd6e7;
     }
   }
 }

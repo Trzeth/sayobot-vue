@@ -171,7 +171,7 @@ export default {
 
     &.search-bar-focused {
       border-color: transparent;
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+      box-shadow: 0 0 0 2px rgba(247, 89, 171, 0.2);
 
       input {
         padding-right: 10rem;
