@@ -75,7 +75,7 @@ export default {
     img {
       display: block;
       width: 100%;
-      height: auto;
+      height: 83.463px;
     }
     .status {
       position: absolute;

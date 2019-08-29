@@ -225,8 +225,10 @@ export default {
     background: #ffffff;
     box-sizing: border-box;
     opacity: 0;
+    display: none;
     &.search-bar-filter-open {
       opacity: 1;
+      display: block;
     }
   }
 }
