@@ -3,10 +3,20 @@
     <header v-bind:class="{'header-fixed':navFixed}" v-on:wheel="headerScroll">
       <div class="title">
         <h1>Sayobot</h1>
-        <h2>osu!镜像站</h2>
-        <div>支持|当前捐助进度条</div>
-        <h1>当前捐助进度条</h1>
-        <h1>Sayobot</h1>
+        <div class="down">
+          <div class="support">
+            <span class="text">Support</span>
+            <span class="iconfont icon-heart-fill"></span>
+          </div>
+          <div class="right">
+            <h2>osu! #镜像站</h2>
+            <div class="progress">
+              <span class="percentage">40%</span>
+              <div class="space"></div>
+              <span class="data">500RMB / 1000RMB</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div ref="nav" class="nav">
         <!-- 导航栏左半 选择模式 -->
@@ -281,18 +291,92 @@ header {
     box-shadow: 0 0 5px #dedede;
     z-index: 1;
     .title {
-      max-height: 0;
-      opacity: 0;
+      display: none;
     }
   }
 
+  /* Title */
   .title {
     opacity: 1;
-    overflow: hidden;
-    max-height: 400px;
+    height: 328px;
+    box-sizing: border-box;
+    padding: 50px 0;
+
     transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
     text-align: center;
+
+    h1 {
+      font-size: 3.2rem;
+      font-weight: 400;
+      letter-spacing: 2px;
+    }
+    .down {
+      display: flex;
+      justify-content: center;
+
+      .support {
+        margin: 20px;
+        width: 95px;
+        height: 120px;
+        border-radius: 10px;
+        background: #e4007f;
+        color: #ffffff;
+        .text {
+          display: inline-block;
+          font-size: 1.4rem;
+          height: 100%;
+          vertical-align: middle;
+          writing-mode: vertical-rl;
+        }
+        .iconfont {
+          vertical-align: middle;
+          font-size: 2.5rem;
+        }
+      }
+      .right {
+        h2 {
+          margin: 15px 10px 20px 20px;
+          letter-spacing: 1px;
+          font-size: 2.5rem;
+          font-weight: 300;
+          color: #909090;
+        }
+        .progress {
+          text-align: left;
+          height: 50px;
+          width: 100%;
+          border-radius: 25px;
+          background: #fff0f6;
+          span {
+            color: #c41d7f;
+            display: inline-block;
+            height: 100%;
+            line-height: 50px;
+            vertical-align: middle;
+
+            &.percentage {
+              margin: 0 20px 0 15px;
+            }
+            &.data {
+              margin: 0 20px;
+            }
+          }
+
+          .space {
+            vertical-align: middle;
+            height: 100%;
+            display: inline-block;
+
+            width: 10px;
+            transform: skewX(45deg);
+            background: #ffffff;
+          }
+        }
+      }
+    }
   }
+
+  /* Nav */
   .nav {
     margin: 10px;
     display: flex;
@@ -367,7 +451,7 @@ header {
 }
 #main {
   position: fixed;
-  top: 388.2px;
+  top: 393px;
   bottom: 0;
   left: 0;
   right: 0;
