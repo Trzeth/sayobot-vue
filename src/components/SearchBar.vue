@@ -1,6 +1,6 @@
 <template>
   <div class="search-bar-warpper">
-    <div class="cover" v-bind:class="{'cover-visible':isFocused}" v-on:click="isFocused = false;"></div>
+    <div class="cover" v-bind:class="{'cover-visible':isFocused}" v-on:click="unfocus"></div>
 
     <div class="search-bar" v-bind:class="{'search-bar-focused':isFocused}">
       <input
@@ -11,9 +11,14 @@
         v-on:focus="isFocused = true"
         placeholder="输入关键词开始搜索"
         v-model="searchOptine.keyword"
+        v-on:keydown="keyPress"
       />
       <div class="search-bar-icon">
-        <label class="iconfont icon-filter" v-on:click="isFilterOpen =! isFilterOpen;"></label>
+        <label
+          class="iconfont icon-filter"
+          v-on:click="isFilterOpen =! isFilterOpen;"
+          v-bind:class="{'clicked':isFilterOpen}"
+        ></label>
         <label class="iconfont icon-search" for="search-bar-input"></label>
       </div>
       <label v-on:click="search" class="search-bar-btn iconfont icon-arrowright"></label>
@@ -98,6 +103,13 @@ export default {
         })
         // eslint-disable-next-line
         .catch(err => {});
+    },
+    unfocus() {
+      this.isFocused = false;
+      this.isFilterOpen = false;
+    },
+    keyPress(event) {
+      if (event.keyCode == 13) this.search();
     }
   }
 };
@@ -132,7 +144,7 @@ export default {
     align-content: stretch;
     background: #ffffff;
     line-height: 50px;
-    box-shadow: 0 0 0 2px transparent;
+    //box-shadow: 0 0 0 2px transparent;
 
     .search-bar-icon {
       order: 1;
@@ -152,7 +164,15 @@ export default {
       }
       label.icon-filter {
         display: none;
-        color: #000;
+        transition: color 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+        color: #e6e6e6;
+
+        &:hover {
+          color: #f759ab;
+        }
+        &.clicked {
+          color: #f759ab;
+        }
       }
     }
 
@@ -170,8 +190,8 @@ export default {
     }
 
     &.search-bar-focused {
-      border-color: transparent;
-      box-shadow: 0 0 0 2px rgba(247, 89, 171, 0.2);
+      border-color: rgba(247, 89, 171, 0.2);
+      box-shadow: 0 0 3px rgba(255, 133, 192, 0.75);
 
       input {
         padding-right: 10rem;
@@ -191,13 +211,6 @@ export default {
         cursor: pointer;
       }
     }
-    &:hover {
-      .search-bar-icon {
-        .icon-search {
-          color: #d9d9d9;
-        }
-      }
-    }
     .search-bar-btn {
       width: 50px;
       font-size: 1.5rem;
@@ -206,6 +219,7 @@ export default {
       box-sizing: border-box;
       padding: 0 10px;
       opacity: 0;
+      color: #f759ab;
       transform: rotate(-180deg);
       transition: all 0.25s cubic-bezier(0.075, 0.82, 0.165, 1);
     }
