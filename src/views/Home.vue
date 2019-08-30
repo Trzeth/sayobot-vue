@@ -245,7 +245,7 @@ export default {
           var query = this.$route.query;
           this.current.mode = 4;
           this.searchOptine.keyword = query.keyword;
-          this.current.searchOptine = this.searchOptine;
+          this.current.searchOptine = this._.clone(this.searchOptine);
         }
       }
     },
@@ -430,6 +430,8 @@ header {
       line-height: 50px;
       padding: 0 15px;
       font-size: 1rem;
+      color: #000;
+
       transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
       .iconfont {
         display: inline-block;
