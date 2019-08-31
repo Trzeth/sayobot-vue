@@ -1,37 +1,40 @@
 <template>
-  <div class="popup">
-    <div class="cover" v-bind:class="{'visible':isOpen}" v-on:click="close"></div>
+  <div class="popup" v-bind:class="{'popup-open':isOpen}">
+    <div class="cover" v-on:click="close" v-bind:style="coverStyle" v-on:wheel.stop>
+      <slot name="inner"></slot>
+    </div>
     <slot></slot>
   </div>
 </template>
 <script>
 export default {
   name: "popup",
-  data: function() {
-    return {
-      isOpen: false
-    };
-  },
+  props: ["isOpen", "coverStyle"],
   methods: {
     close() {
-      isOpen = false;
+      this.$emit("update:isOpen", false);
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.cover {
-  display: none;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
+.popup {
+  &.popup-open {
+    position: relative;
+    z-index: 1;
 
-  &.visible {
-    display: block;
+    .cover {
+      visibility: visible;
+    }
+  }
+  .cover {
+    visibility: hidden;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 }
 </style>

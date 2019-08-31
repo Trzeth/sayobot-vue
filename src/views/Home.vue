@@ -4,16 +4,16 @@
       <div class="title">
         <h1>Sayobot</h1>
         <div class="down">
-          <div class="support">
-            <span class="text">Support</span>
-            <span class="iconfont icon-heart-fill"></span>
-          </div>
+          <support-bar></support-bar>
           <div class="right">
-            <h2>osu! #镜像站</h2>
+            <h2>
+              osu!
+              <router-link class="package-link" to="/package"># 镜像站</router-link>
+            </h2>
             <div class="progress">
-              <span class="percentage">40%</span>
+              <span class="percentage">{{support.percentage}}%</span>
               <div class="space"></div>
-              <span class="data">500RMB / 1000RMB</span>
+              <span class="data">{{support.total}} RMB / {{support.target}} RMB</span>
             </div>
           </div>
         </div>
@@ -40,7 +40,6 @@
           <notice-bar v-bind:notices="notices"></notice-bar>
           <!-- class="setting-bar" -->
           <setting-bar></setting-bar>
-          <span class="btn" @click="test">Test</span>
         </div>
       </div>
     </header>
@@ -78,6 +77,7 @@ import PreviewCardList from "@/components/PreviewCardList";
 import SearchBar from "@/components/SearchBar";
 import SettingBar from "@/components/SettingBar";
 import NoticeBar from "@/components/NoticeBar";
+import SupportBar from "@/components/SupportBar";
 
 BScroll.use(Pullup);
 BScroll.use(MouseWheel);
@@ -90,10 +90,16 @@ export default {
     PreviewCardList,
     SearchBar,
     SettingBar,
-    NoticeBar
+    NoticeBar,
+    SupportBar
   },
   data: function() {
     return {
+      support: {
+        total: 0,
+        target: 0,
+        percentage: 0
+      },
       titleHeight: 0,
       isFirstView: true,
       navFixed: false,
@@ -119,19 +125,11 @@ export default {
   },
   mounted: function() {
     this.init();
-
-    this.titleHeight = this.$refs.nav.offsetTop;
-    axios.get("https://api.sayobot.cn/static/notice").then(response => {
-      this.notices = response.data.data;
-    });
   },
   beforeDestroy() {
     this.bs.destroy();
   },
   methods: {
-    test() {
-      console.log(this.bs);
-    },
     headerScroll(event) {
       if (event.deltaY > 0) this.bs.scrollTo(0, -1, 300);
     },
@@ -155,7 +153,6 @@ export default {
       this.bs.on("pullingUp", this.pullingUpHandler);
     },
     scrollHandler() {
-      console.log(this.bs.y + " " + this.titleHeight);
       if (this.bs.y < 0) {
         this.navFixed = true;
       } else {
@@ -253,7 +250,6 @@ export default {
       deep: true,
       immediate: true,
       handler: function() {
-        console.log(this.current);
         axios.get(this.toUri(this.current, this.limit)).then(response => {
           this.beatmapsetList = response.data.data;
           this.$nextTick(() => {
@@ -272,9 +268,20 @@ export default {
         this.$nextTick(() => {
           this.bs.refresh();
         });
-        console.log("Re");
       }
     }
+  },
+  created: function() {
+    axios.get("https://api.sayobot.cn/static/notice").then(response => {
+      this.notices = response.data.data;
+    });
+    axios.get("https://api.sayobot.cn/static/support").then(response => {
+      var data = response.data.data;
+      this.support.total = data.total;
+      this.support.target = data.target;
+      this.support.percentage =
+        (this.support.total / this.support.target) * 100;
+    });
   }
 };
 </script>
@@ -314,25 +321,6 @@ header {
       display: flex;
       justify-content: center;
 
-      .support {
-        margin: 20px 20px 20px 100px;
-        width: 95px;
-        height: 120px;
-        border-radius: 10px;
-        background: #e4007f;
-        color: #ffffff;
-        .text {
-          display: inline-block;
-          font-size: 1.4rem;
-          height: 100%;
-          vertical-align: middle;
-          writing-mode: vertical-rl;
-        }
-        .iconfont {
-          vertical-align: middle;
-          font-size: 2.5rem;
-        }
-      }
       .right {
         h2 {
           margin: 15px 10px 20px 20px;
@@ -340,6 +328,24 @@ header {
           font-size: 2.5rem;
           font-weight: 300;
           color: #909090;
+
+          .package-link {
+            font-weight: 400;
+            display: inline-block;
+            color: #909090;
+
+            text-decoration: none;
+            padding: 0 15px;
+            transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+            border-radius: 0;
+          }
+          .package-link:visited {
+            color: #909090;
+          }
+          .package-link:hover {
+            color: #8f8f8f;
+            background: #e5e5e5;
+          }
         }
         .progress {
           text-align: left;

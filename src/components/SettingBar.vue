@@ -1,6 +1,5 @@
 <template>
-  <div class="setting-bar">
-    <div class="cover" v-bind:class="{'cover-visible':isOpen}" v-on:click="isOpen = false;"></div>
+  <popup class="setting-bar" v-bind:isOpen.sync="isOpen">
     <div class="setting-bar-selection" v-bind:class="{'setting-bar-selection-open':isOpen}">
       <ul>
         <li>帮助</li>
@@ -12,15 +11,20 @@
     <span class="btn" v-on:click="isOpen =!isOpen">
       <span class="iconfont icon-setting"></span>
     </span>
-  </div>
+  </popup>
 </template>
 
 <script>
+import Popup from "./Popup";
+
 export default {
   data: function() {
     return {
       isOpen: false
     };
+  },
+  components: {
+    Popup
   },
   name: "setting-bar"
 };
@@ -28,22 +32,7 @@ export default {
 
 <style lang="scss">
 .setting-bar {
-  position: relative;
-
-  .cover {
-    display: none;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1;
-  }
-  .cover-visible {
-    display: block;
-  }
   .setting-bar-selection {
-    z-index: 2;
     display: none;
     position: absolute;
     border-radius: 10px;
