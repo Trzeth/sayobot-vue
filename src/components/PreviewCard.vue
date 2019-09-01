@@ -21,7 +21,7 @@
           </div>
         </div>
         <div class="download-btn-warpper">
-          <span class="iconfont icon-download download-btn"></span>
+          <a class="iconfont icon-download download-btn" v-bind:href="downloadLink"></a>
         </div>
       </div>
     </div>
@@ -38,6 +38,9 @@ export default {
   },
   props: ["beatmapsetInfo"],
   computed: {
+    downloadLink: function() {
+      return "https://txy1.sayobot.cn/download/osz/" + this.beatmapsetInfo.sid;
+    },
     previewCardBackgroundSrc: function() {
       var src = "https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
       return src.replace("${sid}", this.beatmapsetInfo.sid);
@@ -87,7 +90,7 @@ export default {
     img {
       display: block;
       width: 100%;
-      height: 83.463px;
+      height: 84px;
     }
     .badge {
       padding: 3px 10px;
@@ -150,7 +153,12 @@ export default {
         cursor: pointer;
 
         .download-btn {
+          color: #000;
+          text-decoration: none;
           font-size: 2rem;
+        }
+        .download-btn:visited {
+          color: #000;
         }
       }
     }
