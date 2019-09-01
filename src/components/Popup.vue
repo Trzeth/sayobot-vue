@@ -1,6 +1,13 @@
 <template>
   <div class="popup" v-bind:class="{'popup-open':isOpen}">
-    <div class="cover" v-on:click="close" v-bind:style="coverStyle" v-on:wheel.stop>
+    <div
+      class="cover"
+      v-on:click="close"
+      v-bind:style="coverStyle"
+      v-on:wheel.stop
+      v-on:mousedown.stop="close"
+      v-on:mousewheel.stop
+    >
       <slot name="inner"></slot>
     </div>
     <slot></slot>
@@ -12,6 +19,7 @@ export default {
   props: ["isOpen", "coverStyle"],
   methods: {
     close() {
+      console.log("close");
       this.$emit("update:isOpen", false);
     }
   }

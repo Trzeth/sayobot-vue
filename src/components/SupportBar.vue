@@ -4,7 +4,7 @@
     v-bind:coverStyle="{background:'rgba(0,0,0,0.5)',display:'flex','justify-content':'center','align-items': 'stretch'}"
     class="support"
   >
-    <div class="support-btn" v-on:click="isOpen = !isOpen">
+    <div class="support-btn" v-on:click="isOpen = true">
       <span class="text">Support</span>
       <span class="iconfont icon-heart-fill"></span>
     </div>

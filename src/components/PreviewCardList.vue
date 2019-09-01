@@ -1,12 +1,11 @@
 <template>
   <div class="preview-card-list-warpper">
-    <popup>
-      <template v-slot:inner></template>
-    </popup>
+    <detail-card v-bind:isOpen.sync="isOpen"></detail-card>
     <div class="preview-card-list">
       <preview-card
         v-for="(beatmapset,index) in beatmapsetList"
         v-bind:key="index"
+        v-on:click.native="click(beatmapset)"
         v-bind:beatmapsetInfo="beatmapset"
       ></preview-card>
     </div>
@@ -14,22 +13,36 @@
 </template>
 
 <script>
-import Popup from "./Popup";
 import PreviewCard from "./PreviewCard";
+import DetailCard from "./DetailCard";
+
 export default {
   name: "preview-card-list",
   components: {
     PreviewCard,
-    Popup
+    DetailCard
   },
-  props: ["beatmapsetList"]
+  data: function() {
+    return {
+      isOpen: false
+    };
+  },
+  props: ["beatmapsetList"],
+  methods: {
+    click(beatmapset) {
+      console.log(beatmapset);
+      this.isOpen = true;
+    }
+  }
 };
 </script>
-<style>
-.preview-card-list {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-around;
-  flex-wrap: wrap;
+<style lang="scss">
+.preview-card-list-warpper {
+  .preview-card-list {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
 }
 </style>

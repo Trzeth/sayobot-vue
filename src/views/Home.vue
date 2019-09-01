@@ -136,7 +136,7 @@ export default {
     init() {
       this.bs = new BScroll(this.$refs.scroll, {
         scrollY: true,
-        //click: true,
+        click: true,
         probeType: 3,
         observeDom: true,
         scrollbar: true,
