@@ -224,4 +224,14 @@ export default {
     display: block;
   }
 }
+
+@media screen and (max-width: 360px) {
+  .search-bar {
+    &.search-bar-focused {
+      input {
+        padding-right: 1rem;
+      }
+    }
+  }
+}
 </style>

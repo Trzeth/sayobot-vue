@@ -1,6 +1,6 @@
 <template>
   <div class="preview-card-list-warpper">
-    <detail-card v-bind:isOpen.sync="isOpen"></detail-card>
+    <!--<detail-card v-bind:isOpen.sync="isOpen"></detail-card>-->
     <div class="preview-card-list">
       <preview-card
         v-for="(beatmapset,index) in beatmapsetList"
@@ -40,7 +40,7 @@ export default {
 .preview-card-list-warpper {
   .preview-card-list {
     display: flex;
-    align-items: stretch;
+    align-items: flex-start;
     justify-content: space-around;
     flex-wrap: wrap;
   }

@@ -1,7 +1,7 @@
 <template>
   <popup
     v-bind:isOpen.sync="isOpen"
-    v-bind:coverStyle="{background:'rgba(0,0,0,0.5)',display:'flex','justify-content':'center','align-items': 'stretch'}"
+    v-bind:coverStyle="{background:'rgba(0,0,0,0.5)',display:'flex','justify-content':'center','align-items': 'stretch','flex-wrap':'wrap'}"
     class="support"
   >
     <div class="support-btn" v-on:click="isOpen = true">
@@ -25,9 +25,14 @@
 <script>
 import axios from "axios";
 
+import BScroll from "@better-scroll/core";
+import ObserveDom from "@better-scroll/observe-dom";
+
 import Popup from "./Popup";
 import ECharts from "vue-echarts";
 import "echarts-wordcloud";
+
+BScroll.use(ObserveDom);
 
 export default {
   name: "support-bar",
@@ -41,6 +46,31 @@ export default {
       supportList: [],
       supportListOptions: {}
     };
+  },
+  mounted: function() {
+    this.init();
+  },
+  beforeDestroy() {
+    this.bs.destroy();
+  },
+  methods: {
+    init() {
+      this.bs = new BScroll(this.$refs.scroll, {
+        scrollY: true,
+        click: true,
+        probeType: 3,
+        observeDom: true,
+        scrollbar: true,
+        mouseWheel: {
+          speed: 0,
+          invert: false,
+          easeTime: 300
+        },
+        pullUpLoad: {
+          threshold: -100
+        }
+      });
+    }
   },
   created: function() {
     axios.get("https://api.sayobot.cn/static/supportlist").then(response => {
@@ -164,6 +194,24 @@ export default {
       display: inline-block;
       width: 50%;
       height: auto;
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .support {
+    .support-btn {
+      margin-left: 40px;
+    }
+
+    .left {
+      display: none;
+    }
+    .right {
+      flex: none;
+      width: 80%;
+      max-height: 322px;
+      border-radius: 10px;
     }
   }
 }

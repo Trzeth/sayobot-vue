@@ -1,3 +1,4 @@
+<!-- 废弃 -->
 <template>
   <popup
     v-bind:isOpen="isOpenN"
@@ -46,7 +47,7 @@ export default {
   flex: 1;
   background: #fff;
   border-radius: 25px;
-  margin: 20px;
+  margin: 100px;
   overflow: hidden;
 }
 </style>

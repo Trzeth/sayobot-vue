@@ -23,11 +23,11 @@
         <div class="mode-seletor">
           <router-link class="btn" to="new">
             <span class="iconfont icon-fire"></span>
-            最新谱面
+            <span class="text">最新谱面</span>
           </router-link>
           <router-link class="btn" to="hot">
             <span class="iconfont icon-pushpin"></span>
-            热门谱面
+            <span class="text">热门谱面</span>
           </router-link>
         </div>
 
@@ -37,9 +37,9 @@
         <!-- 导航栏右半 工具栏 -->
         <div class="tools-bar">
           <!-- class="notice-bar" -->
-          <notice-bar v-bind:notices="notices"></notice-bar>
+          <notice-bar class="notice-bar" v-bind:notices="notices"></notice-bar>
           <!-- class="setting-bar" -->
-          <setting-bar></setting-bar>
+          <setting-bar class="setting-bar"></setting-bar>
         </div>
       </div>
     </header>
@@ -384,7 +384,7 @@ header {
 
   /* Nav */
   .nav {
-    margin: 10px;
+    margin: 10px auto;
     display: flex;
     justify-content: space-evenly;
     align-content: center;
@@ -480,6 +480,58 @@ header {
       display: inline-block;
       padding: 10px;
       border: 1px dashed #dfdfdf;
+    }
+  }
+}
+@media screen and (max-width: 480px) {
+  header {
+    .title {
+      padding: 20px 0;
+      height: 268px;
+
+      .down {
+        .right {
+          h2 {
+            margin-left: 0;
+          }
+
+          .progress {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .nav {
+      .tools-bar {
+        .notice-bar {
+          display: none;
+        }
+      }
+      .btn {
+        display: none;
+      }
+    }
+  }
+
+  #main {
+    top: 340px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  header {
+    .nav {
+      .tools-bar {
+        .notice-bar {
+          display: none;
+        }
+      }
+      .btn {
+        .text {
+          display: none;
+        }
+      }
     }
   }
 }
