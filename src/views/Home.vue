@@ -59,6 +59,10 @@
         </div>
       </div>
     </div>
+
+    <popup-view v-bind:isOpen.sync="isCurrentViewOpen">
+      <component v-bind:is="currentView" v-bind:optine="popupViewOptine"></component>
+    </popup-view>
   </div>
 </template>
 
@@ -78,6 +82,10 @@ import SearchBar from "@/components/SearchBar";
 import SettingBar from "@/components/SettingBar";
 import NoticeBar from "@/components/NoticeBar";
 import SupportBar from "@/components/SupportBar";
+import PopupView from "@/components/PopupView";
+
+/* Popup Views */
+import Support from "@/components/popupViews/Support.vue";
 
 BScroll.use(Pullup);
 BScroll.use(MouseWheel);
@@ -91,10 +99,15 @@ export default {
     SearchBar,
     SettingBar,
     NoticeBar,
-    SupportBar
+    SupportBar,
+    PopupView,
+    Support
   },
   data: function() {
     return {
+      isCurrentViewOpen: false,
+      currentView: null,
+      popupViewOptine: null,
       support: {
         total: 0,
         target: 0,
@@ -231,6 +244,14 @@ export default {
           case "search":
             //Watch by "$route.query"
             break;
+          case "setting":
+            this.currentView = "setting-bar";
+            this.isCurrentViewOpen = true;
+            break;
+          case "support":
+            this.currentView = "support";
+            this.isCurrentViewOpen = true;
+            break;
         }
       }
     },
@@ -244,6 +265,12 @@ export default {
           this.searchOptine.keyword = query.keyword;
           this.current.searchOptine = this._.clone(this.searchOptine);
         }
+      }
+    },
+    currentView: {
+      immediate: true,
+      handler: function(params) {
+        console.log(this.currentView);
       }
     },
     current: {
@@ -277,6 +304,7 @@ export default {
     });
     axios.get("https://api.sayobot.cn/static/support").then(response => {
       var data = response.data.data;
+
       this.support.total = data.total;
       this.support.target = data.target;
       this.support.percentage =
@@ -482,6 +510,16 @@ header {
       border: 1px dashed #dfdfdf;
     }
   }
+}
+
+#content-page {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
 }
 @media screen and (max-width: 480px) {
   header {

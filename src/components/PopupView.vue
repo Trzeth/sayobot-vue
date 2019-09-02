@@ -5,12 +5,10 @@
       v-on:click="close"
       v-bind:style="coverStyle"
       v-on:wheel.stop
-      v-on:mousedown.stop="close"
       v-on:mousewheel.stop
     >
-      <slot name="inner"></slot>
+      <slot></slot>
     </div>
-    <slot></slot>
   </div>
 </template>
 <script>
@@ -18,7 +16,7 @@ import SupportBar from "./SupportBar";
 import SettingBar from "./SettingBar";
 
 export default {
-  name: "popup",
+  name: "popup-view",
   components: {
     SupportBar,
     SettingBar
@@ -26,7 +24,7 @@ export default {
   props: ["isOpen", "coverStyle"],
   methods: {
     close() {
-      console.log("close");
+      this.$router.go(-1);
       this.$emit("update:isOpen", false);
     }
   }
@@ -50,6 +48,11 @@ export default {
     bottom: 0;
     left: 0;
     right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
   }
 }
 </style>

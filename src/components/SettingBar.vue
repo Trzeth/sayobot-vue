@@ -1,5 +1,5 @@
 <template>
-  <popup class="setting-bar" v-bind:isOpen.sync="isOpen">
+  <div>
     <div class="setting-bar-selection" v-bind:class="{'setting-bar-selection-open':isOpen}">
       <ul>
         <li>帮助</li>
@@ -11,21 +11,11 @@
     <span class="btn" v-on:click="isOpen =!isOpen">
       <span class="iconfont icon-setting"></span>
     </span>
-  </popup>
+  </div>
 </template>
 
 <script>
-import Popup from "./Popup";
-
 export default {
-  data: function() {
-    return {
-      isOpen: false
-    };
-  },
-  components: {
-    Popup
-  },
   name: "setting-bar"
 };
 </script>
