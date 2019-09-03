@@ -14,13 +14,11 @@
 
 <script>
 import PreviewCard from "./PreviewCard";
-import DetailCard from "./DetailCard";
 
 export default {
   name: "preview-card-list",
   components: {
-    PreviewCard,
-    DetailCard
+    PreviewCard
   },
   data: function() {
     return {

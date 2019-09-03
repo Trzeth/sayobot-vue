@@ -1,5 +1,10 @@
 <template>
-  <div class="preview-card" v-on:mouseenter="isHover = true" v-on:mouseleave="isHover = false">
+  <div
+    class="preview-card"
+    v-on:mouseenter="isHover = true"
+    v-on:mouseleave="isHover = false"
+    @click="click"
+  >
     <div class="preview-card-upper">
       <img v-bind:src="previewCardBackgroundSrc" />
 
@@ -37,6 +42,14 @@ export default {
     };
   },
   props: ["beatmapsetInfo"],
+  methods: {
+    click() {
+      this.$router.push({
+        path: "beatmapset",
+        query: { sid: this.beatmapsetInfo.sid }
+      });
+    }
+  },
   computed: {
     downloadLink: function() {
       return "https://txy1.sayobot.cn/download/osz/" + this.beatmapsetInfo.sid;

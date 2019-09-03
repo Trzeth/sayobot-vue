@@ -39,7 +39,9 @@
           <!-- class="notice-bar" -->
           <notice-bar class="notice-bar" v-bind:notices="notices"></notice-bar>
           <!-- class="setting-bar" -->
-          <setting-bar class="setting-bar"></setting-bar>
+          <router-link class="setting-bar btn" to="setting">
+            <span class="iconfont icon-setting"></span>
+          </router-link>
         </div>
       </div>
     </header>
@@ -79,13 +81,14 @@ import ObserveDom from "@better-scroll/observe-dom";
 /* Components */
 import PreviewCardList from "@/components/PreviewCardList";
 import SearchBar from "@/components/SearchBar";
-import SettingBar from "@/components/SettingBar";
 import NoticeBar from "@/components/NoticeBar";
 import SupportBar from "@/components/SupportBar";
 import PopupView from "@/components/PopupView";
 
 /* Popup Views */
 import Support from "@/components/popupViews/Support.vue";
+import DetailCard from "@/components/popupViews/DetailCard.vue";
+import Setting from "@/components/popupViews/Setting.vue";
 
 BScroll.use(Pullup);
 BScroll.use(MouseWheel);
@@ -97,17 +100,19 @@ export default {
   components: {
     PreviewCardList,
     SearchBar,
-    SettingBar,
     NoticeBar,
     SupportBar,
     PopupView,
-    Support
+    Support,
+    DetailCard,
+    Setting
   },
   data: function() {
     return {
       isCurrentViewOpen: false,
       currentView: null,
       popupViewOptine: null,
+
       support: {
         total: 0,
         target: 0,
@@ -245,12 +250,15 @@ export default {
             //Watch by "$route.query"
             break;
           case "setting":
-            this.currentView = "setting-bar";
+            this.currentView = "setting";
             this.isCurrentViewOpen = true;
             break;
           case "support":
             this.currentView = "support";
             this.isCurrentViewOpen = true;
+            break;
+          case "beatmapset":
+            //Handled by "$route.query"
             break;
         }
       }
@@ -264,6 +272,12 @@ export default {
           this.current.mode = 4;
           this.searchOptine.keyword = query.keyword;
           this.current.searchOptine = this._.clone(this.searchOptine);
+        }
+        if (this.$route.params.queryMode == "beatmapset") {
+          var query = this.$route.query;
+          this.popupViewOptine = { sid: query.sid };
+          this.currentView = "detail-card";
+          this.isCurrentViewOpen = true;
         }
       }
     },
