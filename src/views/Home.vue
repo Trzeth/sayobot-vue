@@ -39,7 +39,9 @@
           <!-- class="notice-bar" -->
           <notice-bar class="notice-bar" v-bind:notices="notices"></notice-bar>
           <!-- class="setting-bar" -->
-          <setting-bar class="setting-bar"></setting-bar>
+          <router-link class="setting-bar btn" to="setting">
+            <span class="iconfont icon-setting"></span>
+          </router-link>
         </div>
       </div>
     </header>
@@ -79,13 +81,14 @@ import ObserveDom from "@better-scroll/observe-dom";
 /* Components */
 import PreviewCardList from "@/components/PreviewCardList";
 import SearchBar from "@/components/SearchBar";
-import SettingBar from "@/components/SettingBar";
 import NoticeBar from "@/components/NoticeBar";
 import SupportBar from "@/components/SupportBar";
 import PopupView from "@/components/PopupView";
 
 /* Popup Views */
 import Support from "@/components/popupViews/Support.vue";
+import DetailCard from "@/components/popupViews/DetailCard.vue";
+import Setting from "@/components/popupViews/Setting.vue";
 
 BScroll.use(Pullup);
 BScroll.use(MouseWheel);
@@ -97,23 +100,24 @@ export default {
   components: {
     PreviewCardList,
     SearchBar,
-    SettingBar,
     NoticeBar,
     SupportBar,
     PopupView,
-    Support
+    Support,
+    DetailCard,
+    Setting
   },
   data: function() {
     return {
       isCurrentViewOpen: false,
       currentView: null,
       popupViewOptine: null,
+
       support: {
         total: 0,
         target: 0,
         percentage: 0
       },
-      titleHeight: 0,
       isFirstView: true,
       navFixed: false,
       limit: 24,
@@ -236,21 +240,26 @@ export default {
       handler: function() {
         switch (this.$route.params.queryMode) {
           case "hot":
-            this.current.mode = 1;
+            //判定是否相等 防止视图刷新
+            //Finding a better way to detail with
+            this.current.mode == 1 ? 0 : (this.current.mode = 1);
             break;
           case "new":
-            this.current.mode = 2;
+            this.current.mode == 2 ? 0 : (this.current.mode = 2);
             break;
           case "search":
             //Watch by "$route.query"
             break;
           case "setting":
-            this.currentView = "setting-bar";
+            this.currentView = "setting";
             this.isCurrentViewOpen = true;
             break;
           case "support":
             this.currentView = "support";
             this.isCurrentViewOpen = true;
+            break;
+          case "beatmapset":
+            //Handled by "$route.query"
             break;
         }
       }
@@ -261,9 +270,22 @@ export default {
         //Only watch search mode
         if (this.$route.params.queryMode == "search") {
           var query = this.$route.query;
-          this.current.mode = 4;
-          this.searchOptine.keyword = query.keyword;
-          this.current.searchOptine = this._.clone(this.searchOptine);
+
+          //Finding a better way to detail with
+          if (
+            this.current.mode != 4 ||
+            this.searchOptine.keyword != query.keyword
+          ) {
+            this.current.mode = 4;
+            this.searchOptine.keyword = query.keyword;
+            this.current.searchOptine = this._.clone(this.searchOptine);
+          }
+        }
+        if (this.$route.params.queryMode == "beatmapset") {
+          var query = this.$route.query;
+          this.popupViewOptine = { sid: query.sid };
+          this.currentView = "detail-card";
+          this.isCurrentViewOpen = true;
         }
       }
     },
@@ -274,8 +296,8 @@ export default {
       }
     },
     current: {
-      deep: true,
       immediate: true,
+      deep: true,
       handler: function() {
         axios.get(this.toUri(this.current, this.limit)).then(response => {
           this.beatmapsetList = response.data.data;

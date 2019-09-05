@@ -122,6 +122,7 @@ export default {
   align-content: stretch;
   background: #ffffff;
   line-height: 50px;
+  position: relative;
   //box-shadow: 0 0 0 2px transparent;
 
   .search-bar-icon {
