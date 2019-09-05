@@ -5,7 +5,6 @@
     <div class="down">
       <div class="left">
         <span class="play-btn iconfont icon-caret-right"></span>
-
         <h2 class="title">{{title}}</h2>
         <h2 class="artist">{{artist}}</h2>
         <h2 class="creator">{{beatmapsetDetail.creator}}</h2>
@@ -213,6 +212,7 @@ export default {
 
   .down {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
 
     .left {
