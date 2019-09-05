@@ -118,7 +118,6 @@ export default {
         target: 0,
         percentage: 0
       },
-      titleHeight: 0,
       isFirstView: true,
       navFixed: false,
       limit: 24,
@@ -241,10 +240,12 @@ export default {
       handler: function() {
         switch (this.$route.params.queryMode) {
           case "hot":
-            this.current.mode = 1;
+            //判定是否相等 防止视图刷新
+            //Finding a better way to detail with
+            this.current.mode == 1 ? 0 : (this.current.mode = 1);
             break;
           case "new":
-            this.current.mode = 2;
+            this.current.mode == 2 ? 0 : (this.current.mode = 2);
             break;
           case "search":
             //Watch by "$route.query"
@@ -269,9 +270,16 @@ export default {
         //Only watch search mode
         if (this.$route.params.queryMode == "search") {
           var query = this.$route.query;
-          this.current.mode = 4;
-          this.searchOptine.keyword = query.keyword;
-          this.current.searchOptine = this._.clone(this.searchOptine);
+
+          //Finding a better way to detail with
+          if (
+            this.current.mode != 4 ||
+            this.searchOptine.keyword != query.keyword
+          ) {
+            this.current.mode = 4;
+            this.searchOptine.keyword = query.keyword;
+            this.current.searchOptine = this._.clone(this.searchOptine);
+          }
         }
         if (this.$route.params.queryMode == "beatmapset") {
           var query = this.$route.query;
@@ -288,8 +296,8 @@ export default {
       }
     },
     current: {
-      deep: true,
       immediate: true,
+      deep: true,
       handler: function() {
         axios.get(this.toUri(this.current, this.limit)).then(response => {
           this.beatmapsetList = response.data.data;

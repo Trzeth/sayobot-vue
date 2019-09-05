@@ -8,7 +8,9 @@ import router from "./router";
 
 Vue.config.productionTip = false;
 Vue.prototype._ = _;
-Vue.use(VueLocalStorage);
+Vue.use(VueLocalStorage, {
+  bind: true
+});
 
 new Vue({
   router,

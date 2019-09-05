@@ -18,8 +18,8 @@
     <div class="preview-card-down">
       <div class="info-warpper">
         <div class="base-info">
-          <h2 class="hidden-overflow" v-bind:title="beatmapsetInfo.title">{{beatmapsetInfo.title}}</h2>
-          <h3 class="hidden-overflow">{{beatmapsetInfo.artist}}</h3>
+          <h2 class="hidden-overflow" v-bind:title="title">{{title}}</h2>
+          <h3 class="hidden-overflow" v-bind:title="artist">{{artist}}</h3>
 
           <div class="detail" v-show="isHover">
             <h3>Creator: {{beatmapsetInfo.creator}}</h3>
@@ -41,7 +41,10 @@ export default {
       isHover: false
     };
   },
-  props: ["beatmapsetInfo"],
+  props: {
+    beatmapsetInfo: Object,
+    isUnicode: Boolean
+  },
   methods: {
     click() {
       this.$router.push({
@@ -51,6 +54,20 @@ export default {
     }
   },
   computed: {
+    title: function() {
+      if (this.isUnicode == true && this.beatmapsetInfo.titleU != "") {
+        return this.beatmapsetInfo.titleU;
+      } else {
+        return this.beatmapsetInfo.title;
+      }
+    },
+    artist: function() {
+      if (this.isUnicode == true && this.beatmapsetInfo.artistU != "") {
+        return this.beatmapsetInfo.artistU;
+      } else {
+        return this.beatmapsetInfo.artist;
+      }
+    },
     downloadLink: function() {
       return "https://txy1.sayobot.cn/download/osz/" + this.beatmapsetInfo.sid;
     },

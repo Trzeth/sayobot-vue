@@ -6,8 +6,8 @@
       <div class="left">
         <span class="play-btn iconfont icon-caret-right"></span>
 
-        <h2 class="title">{{beatmapsetDetail.title}}</h2>
-        <h2 class="artist">{{beatmapsetDetail.artist}}</h2>
+        <h2 class="title">{{title}}</h2>
+        <h2 class="artist">{{artist}}</h2>
         <h2 class="creator">{{beatmapsetDetail.creator}}</h2>
         <div class="timeline">
           <h3>Last Update: {{beatmapsetDetail.last_update}}</h3>
@@ -138,6 +138,12 @@ export default {
       }
     };
   },
+  localStorage: {
+    isUnicode: {
+      type: Boolean,
+      default: false
+    }
+  },
   components: {
     ModeSelector,
     ProgressBar
@@ -158,6 +164,20 @@ export default {
     }
   },
   computed: {
+    title: function() {
+      if (this.isUnicode == true && this.beatmapsetDetail.titleU != "") {
+        return this.beatmapsetDetail.titleU;
+      } else {
+        return this.beatmapsetDetail.title;
+      }
+    },
+    artist: function() {
+      if (this.isUnicode == true && this.beatmapsetDetail.artistU != "") {
+        return this.beatmapsetDetail.artistU;
+      } else {
+        return this.beatmapsetDetail.artist;
+      }
+    },
     detailCardBackgroundSrc: function() {
       var src = "https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
       return src.replace("${sid}", this.optine.sid);
