@@ -25,7 +25,7 @@
             <h3>Creator: {{beatmapsetInfo.creator}}</h3>
           </div>
         </div>
-        <div class="download-btn-warpper">
+        <div class="download-btn-warpper" v-on:click.stop>
           <a class="iconfont icon-download download-btn" v-bind:href="downloadLink"></a>
         </div>
       </div>

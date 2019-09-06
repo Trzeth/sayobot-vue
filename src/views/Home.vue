@@ -63,7 +63,11 @@
     </div>
 
     <popup-view v-bind:isOpen.sync="isCurrentViewOpen">
-      <component v-bind:is="currentView" v-bind:optine="popupViewOptine"></component>
+      <component
+        v-bind:is="currentView"
+        v-bind:isOpen="isCurrentViewOpen"
+        v-bind:optine="popupViewOptine"
+      ></component>
     </popup-view>
   </div>
 </template>
@@ -248,6 +252,7 @@ export default {
             this.current.mode == 2 ? 0 : (this.current.mode = 2);
             break;
           case "search":
+            this.isCurrentViewOpen = false;
             //Watch by "$route.query"
             break;
           case "setting":

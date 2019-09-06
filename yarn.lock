@@ -8222,6 +8222,11 @@ watchpack@^1.6.0:
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
 
+wavesurfer.js@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npm.taobao.org/wavesurfer.js/download/wavesurfer.js-3.0.0.tgz#35f36d76d59c749dca453cf4e10ee0ec49f454f8"
+  integrity sha1-NfNtdtWcdJ3KRTz04Q7g7En0VPg=
+
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"
   resolved "https://registry.npm.taobao.org/wbuf/download/wbuf-1.7.3.tgz#c1d8d149316d3ea852848895cb6a0bfe887b87df"

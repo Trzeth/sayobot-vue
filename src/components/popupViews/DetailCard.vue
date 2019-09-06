@@ -4,10 +4,15 @@
 
     <div class="down">
       <div class="left">
-        <span class="play-btn iconfont icon-caret-right"></span>
+        <span
+          class="play-btn iconfont icon-caret-right"
+          v-bind:class="{'clicked':isWsClicked}"
+          @click="play"
+        ></span>
+        <div ref="waveform"></div>
         <h2 class="title">{{title}}</h2>
-        <h2 class="artist">{{artist}}</h2>
-        <h2 class="creator">{{beatmapsetDetail.creator}}</h2>
+        <h2 class="artist" @click="artistClick">{{artist}}</h2>
+        <h2 class="creator" @click="creatorClick">{{beatmapsetDetail.creator}}</h2>
         <div class="timeline">
           <h3>Last Update: {{beatmapsetDetail.last_update}}</h3>
           <h3>Approved:{{beatmapsetDetail.approved_date}}</h3>
@@ -27,7 +32,7 @@
           </li>
         </ul>
         <div class="beatmapset-detail">
-          <span class="iconfont icon-time-circle" title="Length">{{currentBeatmapDetail.length}}</span>
+          <span class="iconfont icon-time-circle" title="Length">{{length}}</span>
           <span class="iconfont icon-bell" title="BPM">{{beatmapsetDetail.bpm}}</span>
           <span class="iconfont icon-circle circle" title="Circles">{{currentBeatmapDetail.circles}}</span>
           <span class="iconfont icon-sliders" title="Sliders">{{currentBeatmapDetail.sliders}}</span>
@@ -116,13 +121,13 @@
       </div>
     </div>
 
-    <span class="download-btn iconfont icon-vertical-align-botto"></span>
+    <a class="download-btn iconfont icon-vertical-align-botto" v-bind:href="downloadLink"></a>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-
+import WaveSurfer from "wavesurfer.js";
 import ModeSelector from "./ModeSelector";
 import ProgressBar from "./ProgressBar";
 
@@ -134,7 +139,8 @@ export default {
       beatmapsetDetail: {
         //去除 error
         bid_data: [{}]
-      }
+      },
+      isWsClicked: false
     };
   },
   localStorage: {
@@ -147,8 +153,29 @@ export default {
     ModeSelector,
     ProgressBar
   },
-  props: ["optine"],
+  props: ["optine", "isOpen"],
+  mounted: function() {
+    this.init();
+  },
   watch: {
+    currentBeatmapIndex: {
+      immediate: true,
+      handler: function() {
+        this.$router.replace({
+          query: {
+            sid: this.beatmapsetDetail.sid,
+            bid: this.currentBeatmapDetail.bid
+          }
+        });
+      }
+    },
+    isOpen: {
+      immediate: true,
+      handler: function() {
+        this.isWsClicked = false;
+        this.ws.empty();
+      }
+    },
     optine: {
       immediate: true,
       handler: function() {
@@ -163,6 +190,14 @@ export default {
     }
   },
   computed: {
+    length: function() {
+      var second = 0,
+        minute = 0;
+      var length = this.currentBeatmapDetail.length;
+      second = length % 60;
+      minute = (length - second) / 60;
+      return minute + ":" + second;
+    },
     title: function() {
       if (this.isUnicode == true && this.beatmapsetDetail.titleU != "") {
         return this.beatmapsetDetail.titleU;
@@ -177,6 +212,11 @@ export default {
         return this.beatmapsetDetail.artist;
       }
     },
+    downloadLink: function() {
+      return (
+        "https://txy1.sayobot.cn/download/osz/" + this.beatmapsetDetail.sid
+      );
+    },
     detailCardBackgroundSrc: function() {
       var src = "https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
       return src.replace("${sid}", this.optine.sid);
@@ -188,6 +228,41 @@ export default {
   methods: {
     valueToPectange(value) {
       return value * 10 + "%";
+    },
+    init() {
+      this.ws = WaveSurfer.create({
+        container: this.$refs.waveform,
+        height: 128,
+        barWidth: 2,
+        barHeight: 1,
+        barGap: null
+      });
+    },
+    play() {
+      if (!this.isWsClicked) {
+        var src = "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
+        src = src.replace("${sid}", this.beatmapsetDetail.sid);
+        this.isWsClicked = true;
+        this.ws.load(src);
+      } else {
+        this.ws.playPause();
+      }
+    },
+    artistClick() {
+      this.$router.push({
+        path: "search",
+        query: {
+          keyword: this.beatmapsetDetail.artist
+        }
+      });
+    },
+    creatorClick() {
+      this.$router.push({
+        path: "search",
+        query: {
+          keyword: this.beatmapsetDetail.creator
+        }
+      });
     }
   }
 };
@@ -216,13 +291,19 @@ export default {
     justify-content: space-between;
 
     .left {
-      max-width: 50%;
+      flex: 1;
       padding: 10px 0 0 10px;
       .play-btn {
         cursor: pointer;
         display: inline-block;
         margin: 10px;
         font-size: 5rem;
+        position: absolute;
+        z-index: 1;
+        transition: font-size 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+        &.clicked {
+          font-size: 2rem;
+        }
       }
       .title {
         margin-top: 40px;
@@ -289,6 +370,7 @@ export default {
     }
   }
   .download-btn {
+    text-decoration: none;
     display: block;
     cursor: pointer;
     color: #bfbfbf;
