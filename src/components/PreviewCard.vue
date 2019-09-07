@@ -1,9 +1,13 @@
 <template>
-  <div class="preview-card" v-on:mouseenter="isHover = true" v-on:mouseleave="isHover = false">
+  <div class="preview-card">
     <header class="header">
       <div class="title-artist-warpper">
-        <h2 class="title" v-bind:title="title">{{title}}</h2>
-        <h3 class="artist" v-bind:title="artist">{{artist}}</h3>
+        <h2 class="title overflow-clip" v-bind:title="title">
+          <router-link v-bind:to="beatmapsetInfoLink">{{title}}</router-link>
+        </h2>
+        <h3 class="artist overflow-clip" v-bind:title="artist">
+          <router-link v-bind:to="searchArtistLink">{{artist}}</router-link>
+        </h3>
       </div>
 
       <div class="download-btn-warpper" v-on:click.stop>
@@ -12,12 +16,16 @@
     </header>
 
     <div class="banner">
-      <img v-bind:src="previewCardBackgroundSrc" />
+      <router-link v-bind:to="beatmapsetInfoLink">
+        <img v-bind:src="previewCardBackgroundSrc" />
+      </router-link>
     </div>
     <footer class="footer">
-      <span class="status badge">{{approvedStatus}}</span>
-      <span class="favourite_count">{{beatmapsetInfo.favourite_count}}</span>
-      <span class="play_count">{{beatmapsetInfo.order}}</span>
+      <router-link v-bind:to="searchCreatorLink" class="overflow-clip">@{{beatmapsetInfo.creator}}</router-link>
+      <span class="iconfont icon-heart-fill">{{beatmapsetInfo.favourite_count}}</span>
+      <span class="iconfont icon-play-circle-fill">{{beatmapsetInfo.order}}</span>
+
+      <!-- <span class="status badge">{{approvedStatus}}</span>-->
     </footer>
   </div>
 </template>
@@ -25,11 +33,6 @@
 <script>
 export default {
   name: "preview-card",
-  data: function() {
-    return {
-      isHover: false
-    };
-  },
   props: {
     beatmapsetInfo: Object,
     isUnicode: Boolean
@@ -43,6 +46,15 @@ export default {
     }
   },
   computed: {
+    beatmapsetInfoLink: function() {
+      return "beatmapset?sid=" + this.beatmapsetInfo.sid;
+    },
+    searchArtistLink: function() {
+      return "search?keyword=" + this.beatmapsetInfo.artist;
+    },
+    searchCreatorLink: function() {
+      return "search?keyword=" + this.beatmapsetInfo.creator;
+    },
     title: function() {
       if (this.isUnicode == true && this.beatmapsetInfo.titleU != "") {
         return this.beatmapsetInfo.titleU;
@@ -103,6 +115,12 @@ export default {
   height: 100%;
   width: 100%;
 
+  .overflow-clip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &::after {
     content: "";
     position: absolute;
@@ -130,16 +148,27 @@ export default {
 
       .title {
         width: 95%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
         font-size: 1.3rem;
         font-weight: 500;
       }
       .artist {
+        width: 95%;
+        color: #262626;
         font-size: 1rem;
         font-weight: 400;
+        margin-left: -1ch;
+        transition: margin 0.3s ease;
+        &::before {
+          content: "#";
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        &:hover {
+          margin-left: 0;
+          &::before {
+            opacity: 1;
+          }
+        }
       }
     }
 
@@ -170,29 +199,39 @@ export default {
     position: absolute;
     bottom: -1.5rem;
     left: 5px;
+    right: 5px;
     order: 3;
     display: flex;
 
-    > span {
+    > a,
+    span {
       display: block;
       transform: translateY(-50%);
       opacity: 0;
       transition: all 0.5s ease;
+      margin-right: 10px;
+      border-radius: 5px;
     }
     :nth-child(1) {
+      cursor: pointer;
+      color: #d26;
     }
 
     :nth-child(2) {
+      color: #666;
       transition-delay: 0.1s;
     }
 
     :nth-child(3) {
+      color: #666;
+
       transition-delay: 0.2s;
     }
   }
 
   &:hover .footer {
-    > span {
+    > a,
+    span {
       opacity: 1;
 
       transform: translateY(0);
