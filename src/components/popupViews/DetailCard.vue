@@ -157,6 +157,8 @@ import "vue-range-slider/dist/vue-range-slider.css";
 import BScroll from "@better-scroll/core";
 import MouseWheel from "@better-scroll/mouse-wheel";
 
+BScroll.use(MouseWheel);
+
 export default {
   name: "detail-card",
   data: function() {

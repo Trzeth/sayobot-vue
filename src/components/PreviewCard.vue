@@ -1,35 +1,24 @@
 <template>
-  <div
-    class="preview-card"
-    v-on:mouseenter="isHover = true"
-    v-on:mouseleave="isHover = false"
-    @click="click"
-  >
-    <div class="preview-card-upper">
+  <div class="preview-card" v-on:mouseenter="isHover = true" v-on:mouseleave="isHover = false">
+    <header class="header">
+      <div class="title-artist-warpper">
+        <h2 class="title" v-bind:title="title">{{title}}</h2>
+        <h3 class="artist" v-bind:title="artist">{{artist}}</h3>
+      </div>
+
+      <div class="download-btn-warpper" v-on:click.stop>
+        <a class="iconfont icon-download download-btn" v-bind:href="downloadLink"></a>
+      </div>
+    </header>
+
+    <div class="banner">
       <img v-bind:src="previewCardBackgroundSrc" />
-
+    </div>
+    <footer class="footer">
       <span class="status badge">{{approvedStatus}}</span>
-      <div class="count">
-        <span class="favourite_count">{{beatmapsetInfo.favourite_count}}</span>
-        <br />
-        <span class="play_count">{{beatmapsetInfo.order}}</span>
-      </div>
-    </div>
-    <div class="preview-card-down">
-      <div class="info-warpper">
-        <div class="base-info">
-          <h2 class="hidden-overflow" v-bind:title="title">{{title}}</h2>
-          <h3 class="hidden-overflow" v-bind:title="artist">{{artist}}</h3>
-
-          <div class="detail" v-show="isHover">
-            <h3>Creator: {{beatmapsetInfo.creator}}</h3>
-          </div>
-        </div>
-        <div class="download-btn-warpper" v-on:click.stop>
-          <a class="iconfont icon-download download-btn" v-bind:href="downloadLink"></a>
-        </div>
-      </div>
-    </div>
+      <span class="favourite_count">{{beatmapsetInfo.favourite_count}}</span>
+      <span class="play_count">{{beatmapsetInfo.order}}</span>
+    </footer>
   </div>
 </template>
 
@@ -108,89 +97,105 @@ export default {
 
 <style lang="scss">
 .preview-card {
-  width: 20%;
-  margin: 10px 10px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 
-  .preview-card-upper {
-    position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: -1rem;
+    left: 0;
+    right: 0;
+    border-radius: 10px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    transition: all 0.3s ease;
+  }
+  &:hover::after {
+    bottom: -2rem;
+  }
 
-    img {
-      display: block;
-      width: 100%;
-      height: 84px;
-    }
-    .badge {
-      padding: 3px 10px;
-      font-size: 0.8rem;
-      letter-spacing: 1px;
-      font-weight: 500;
-      border-radius: 25px;
-      background: rgba(0, 0, 0, 0.5);
-      color: #ffffff;
-    }
-    .status {
-      position: absolute;
-      left: 5px;
-      top: 5px;
-    }
-    .count {
-      position: absolute;
-      right: 5px;
-      top: 5px;
-      text-align: right;
-      .favourite_count {
-        color: white;
+  .header {
+    order: 2;
+    display: flex;
+    align-items: center;
+    .title-artist-warpper {
+      flex: 1;
+      overflow: hidden;
+      margin: 5px 0 0 5px;
+
+      .title {
+        width: 95%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        font-size: 1.3rem;
+        font-weight: 500;
       }
-      .play_count {
-        color: white;
+      .artist {
+        font-size: 1rem;
+        font-weight: 400;
+      }
+    }
+
+    .download-btn-warpper {
+      .download-btn {
+        font-size: 2rem;
+        color: black;
       }
     }
   }
-  .preview-card-down {
-    padding: 5px 10px;
 
-    .info-warpper {
-      position: relative;
+  .banner {
+    order: 1;
+    position: relative;
+    padding-top: 28%;
+    height: 0;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    img {
+      position: absolute;
+      width: 100%;
+      height: auto;
+      top: 0;
+    }
+  }
 
-      .base-info {
-        flex: 2;
+  .footer {
+    position: absolute;
+    bottom: -1.5rem;
+    left: 5px;
+    order: 3;
+    display: flex;
 
-        .hidden-overflow {
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-        h2 {
-          font-size: 1.3rem;
-          font-weight: 500;
-        }
-        h3 {
-          font-size: 1rem;
-          font-weight: 400;
-        }
-      }
-      .download-btn-warpper {
-        display: flex;
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        align-items: center;
-        background: #ffffff;
-        cursor: pointer;
+    > span {
+      display: block;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+    :nth-child(1) {
+    }
 
-        .download-btn {
-          color: #000;
-          text-decoration: none;
-          font-size: 2rem;
-        }
-        .download-btn:visited {
-          color: #000;
-        }
-      }
+    :nth-child(2) {
+      transition-delay: 0.1s;
+    }
+
+    :nth-child(3) {
+      transition-delay: 0.2s;
+    }
+  }
+
+  &:hover .footer {
+    > span {
+      opacity: 1;
+
+      transform: translateY(0);
     }
   }
 }

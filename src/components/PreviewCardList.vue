@@ -30,11 +30,12 @@ export default {
 </script>
 <style lang="scss">
 .preview-card-list-warpper {
+  padding: 3rem 2rem;
   .preview-card-list {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-around;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
+    align-items: start;
+    grid-gap: 3rem 3rem;
   }
 }
 </style>
