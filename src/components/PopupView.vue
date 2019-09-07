@@ -1,7 +1,7 @@
 <template>
   <div class="popup-view" v-bind:class="{'popup-open':isOpen}">
     <div class="cover" v-on:click="close" v-on:wheel.stop v-on:mousewheel.stop>
-      <slot></slot>
+      <slot v-bind:style="{'hidden':!isOpen}"></slot>
     </div>
   </div>
 </template>
@@ -25,11 +25,13 @@ export default {
     z-index: 1;
 
     .cover {
-      visibility: visible;
+      clip: unset;
     }
   }
   .cover {
-    visibility: hidden;
+    //display:none;
+    //使用clip 修复transition时不消失
+    clip: rect(0, 0, 0, 0);
     position: fixed;
     top: 0;
     bottom: 0;
