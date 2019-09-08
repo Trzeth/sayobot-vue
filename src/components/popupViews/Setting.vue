@@ -17,6 +17,11 @@
         <label class="title" for="is-auto-select-checkbox">自动选择最适合难度</label>
         <span class="note">打开图谱面板后，符合条件的图谱</span>
       </div>
+      <div class="selection">
+        <label class="title" for="is-auto-select-checkbox">调整预览音频声音</label>
+        <span class="note">调整后将在网站全局生效</span>
+        <range-slider class="slider" min="0" max="1" step="0.01" v-model="volume"></range-slider>
+      </div>
     </div>
 
     <div class="about-page">
@@ -33,6 +38,9 @@
 </template>
 
 <script>
+import RangeSlider from "vue-range-slider";
+import "vue-range-slider/dist/vue-range-slider.css";
+
 export default {
   name: "setting",
   localStorage: {
@@ -47,7 +55,14 @@ export default {
     defaultServer: {
       type: Boolean,
       default: false
+    },
+    volume: {
+      type: Number,
+      default: 1.0
     }
+  },
+  components: {
+    RangeSlider
   }
 };
 </script>

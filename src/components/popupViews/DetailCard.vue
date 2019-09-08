@@ -16,14 +16,10 @@
               v-bind:class="{'inited':isWsInited,'playing':isWsPlaying}"
               @click="pause"
             ></span>
-            <range-slider
-              class="slider"
+            <span
+              class="progress-bar"
               v-bind:class="{'inited':isWsInited}"
-              min="0"
-              max="1"
-              step="0.01"
-              v-model="wsVolume"
-            ></range-slider>
+            >{{length(currentDuration)}} / {{length(totalDuration)}}</span>
             <div ref="waveform" class="waveform"></div>
 
             <h2 class="title">{{title}}</h2>
@@ -35,8 +31,6 @@
             </div>
           </div>
           <div class="right">
-            <!--<mode-selector v-bind:beatmaps="beatmapsetDetail.bid_data"></mode-selector>
-            -->
             <ul>
               <li
                 v-for="(beatmap,index) in beatmapsetDetail.bid_data"
@@ -48,7 +42,10 @@
               </li>
             </ul>
             <div class="beatmapset-detail">
-              <span class="iconfont icon-time-circle" title="Length">{{length}}</span>
+              <span
+                class="iconfont icon-time-circle"
+                title="Length"
+              >{{length(currentBeatmapDetail.length)}}</span>
               <span class="iconfont icon-bell" title="BPM">{{beatmapsetDetail.bpm}}</span>
               <span
                 class="iconfont icon-circle circle"
@@ -110,7 +107,7 @@
                   </td>
                   <td class="value">{{currentBeatmapDetail.AR}}</td>
                 </tr>
-                <tr v-if="beatmapsetDetail.aim != 0">
+                <tr v-if="currentBeatmapDetail.aim != 0">
                   <th class="title">Aim</th>
                   <td class="progress">
                     <progress-bar
@@ -122,7 +119,7 @@
                   </td>
                   <td class="value">{{currentBeatmapDetail.aim}}</td>
                 </tr>
-                <tr v-if="beatmapsetDetail.speed !== 0">
+                <tr v-if="currentBeatmapDetail.speed != 0">
                   <th class="title">Speed</th>
                   <td class="progress">
                     <progress-bar
@@ -150,8 +147,6 @@
 import axios from "axios";
 import WaveSurfer from "wavesurfer.js";
 import ProgressBar from "./ProgressBar";
-import RangeSlider from "vue-range-slider";
-import "vue-range-slider/dist/vue-range-slider.css";
 
 /* Better Scroll Bar */
 import BScroll from "@better-scroll/core";
@@ -170,27 +165,28 @@ export default {
       },
       isWsInited: false,
       isWsPlaying: false,
-      wsVolume: 1
+      totalDuration: 0,
+      currentDuration: 0
     };
   },
   localStorage: {
     isUnicode: {
       type: Boolean,
       default: false
+    },
+    volume: {
+      type: Number,
+      default: 1.0
     }
   },
   components: {
-    ProgressBar,
-    RangeSlider
+    ProgressBar
   },
   props: ["optine", "isOpen"],
   mounted: function() {
     this.init();
   },
   watch: {
-    wsVolume: function(newValue) {
-      this.ws.setVolume(newValue);
-    },
     currentBeatmapIndex: function() {
       this.$router.replace({
         query: {
@@ -219,14 +215,6 @@ export default {
     }
   },
   computed: {
-    length: function() {
-      var second = 0,
-        minute = 0;
-      var length = this.currentBeatmapDetail.length;
-      second = length % 60;
-      minute = (length - second) / 60;
-      return minute + ":" + second;
-    },
     title: function() {
       if (this.isUnicode == true && this.beatmapsetDetail.titleU != "") {
         return this.beatmapsetDetail.titleU;
@@ -256,6 +244,14 @@ export default {
     }
   },
   methods: {
+    length: function(value) {
+      var second = 0,
+        minute = 0;
+      var length = parseFloat(value);
+      second = length % 60;
+      minute = (length - second) / 60;
+      return minute + ":" + second;
+    },
     valueToPectange(value) {
       return value * 10 + "%";
     },
@@ -267,6 +263,7 @@ export default {
         barHeight: 1,
         barGap: null
       });
+      this.ws.setVolume(this.volume);
       this.bs = new BScroll(this.$refs.scroll, {
         scrollY: true,
         click: true,
@@ -279,8 +276,10 @@ export default {
       });
     },
     intiWaveSurfer() {
-      var src = "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
-      src = "/audio/${sid}.mp3";
+      var src =
+        process.env.NODE_ENV == "development"
+          ? "/audio/${sid}.mp3"
+          : "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
       src = src.replace("${sid}", this.beatmapsetDetail.sid);
       this.ws.load(src);
       this.ws.on("play", () => {
@@ -291,6 +290,15 @@ export default {
       });
       this.ws.on("ready", () => {
         this.ws.play();
+        this.totalDuration = parseFloat(this.ws.getDuration()).toFixed(1);
+      });
+      this.ws.on("audioprocess", value => {
+        this.currentDuration = parseFloat(value).toFixed(1);
+      });
+      this.ws.on("seek", value => {
+        this.currentDuration = parseFloat(value * this.totalDuration).toFixed(
+          1
+        );
       });
     },
     play() {
@@ -400,9 +408,10 @@ export default {
         }
       }
 
-      .slider {
+      .progress-bar {
         position: absolute;
         right: 0;
+        text-align: right;
         visibility: hidden;
 
         &.inited {

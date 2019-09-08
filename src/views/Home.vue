@@ -37,7 +37,7 @@
         <!-- 导航栏右半 工具栏 -->
         <div class="tools-bar">
           <!-- class="notice-bar" -->
-          <notice-bar class="notice-bar" v-bind:notices="notices"></notice-bar>
+          <notice-bar class="notice-bar-warpper" v-bind:notices="notices"></notice-bar>
           <!-- class="setting-bar" -->
           <router-link class="setting-bar btn" to="setting">
             <span class="iconfont icon-setting"></span>
@@ -126,6 +126,7 @@ export default {
       navFixed: false,
       limit: 24,
       offset: 0,
+      //Binding to SearchBar changed with input
       searchOptine: {
         keyword: "",
         subType: [],
@@ -135,6 +136,7 @@ export default {
         language: [],
         other: ""
       },
+      //Current View SearchOptine
       current: {
         mode: "",
         searchOptine: {}
@@ -271,18 +273,22 @@ export default {
     },
     "$route.query": {
       immediate: true,
+      deep: true,
       handler: function() {
         //Only watch search mode
         if (this.$route.params.queryMode == "search") {
           var query = this.$route.query;
 
           //Finding a better way to detail with
+          //防止触发页面刷新
+          console.log(this.current.mode);
+          console.log(this.searchOptine.keyword);
+          console.log(query.keyword);
           if (
             this.current.mode != 4 ||
-            this.searchOptine.keyword != query.keyword
+            this.current.searchOptine.keyword != query.keyword
           ) {
             this.current.mode = 4;
-            this.searchOptine.keyword = query.keyword;
             this.current.searchOptine = this._.clone(this.searchOptine);
           }
         }
@@ -569,7 +575,7 @@ header {
 
     .nav {
       .tools-bar {
-        .notice-bar {
+        .notice-bar-warpper {
           display: none;
         }
       }
@@ -588,7 +594,7 @@ header {
   header {
     .nav {
       .tools-bar {
-        .notice-bar {
+        .notice-bar-warpper {
           display: none;
         }
       }

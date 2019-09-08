@@ -5,6 +5,7 @@
         autocomplete="off"
         spellcheck="false"
         id="search-bar-input"
+        ref="input"
         type="text"
         v-on:focus="isFocused = true"
         placeholder="输入关键词开始搜索"
@@ -97,6 +98,7 @@ export default {
   methods: {
     search() {
       this.isFocused = false;
+      this.$refs.input.blur();
       this.$router
         .push({
           path: "search",

@@ -19,13 +19,23 @@
       <router-link v-bind:to="beatmapsetInfoLink">
         <img v-bind:src="previewCardBackgroundSrc" />
       </router-link>
+      <div class="left-top-warpper">
+        <span class="status">{{approvedStatus}}</span>
+        <span
+          class="play-btn iconfont"
+          v-bind:class="{'icon-caret-right':!isPreviewAudioPlaying,'icon-pause':isPreviewAudioPlaying}"
+          @click="playPreviewAudio"
+        ></span>
+
+        <audio ref="preview" preload="none">
+          <source v-bind:src="previewAudioSrc" type="audio/mp3" />
+        </audio>
+      </div>
     </div>
     <footer class="footer">
       <router-link v-bind:to="searchCreatorLink" class="overflow-clip">@{{beatmapsetInfo.creator}}</router-link>
       <span class="iconfont icon-heart-fill">{{beatmapsetInfo.favourite_count}}</span>
       <span class="iconfont icon-play-circle-fill">{{beatmapsetInfo.order}}</span>
-
-      <!-- <span class="status badge">{{approvedStatus}}</span>-->
     </footer>
   </div>
 </template>
@@ -37,15 +47,45 @@ export default {
     beatmapsetInfo: Object,
     isUnicode: Boolean
   },
+  data: function() {
+    return {
+      isPreviewAudioPlaying: false
+    };
+  },
   methods: {
-    click() {
-      this.$router.push({
-        path: "beatmapset",
-        query: { sid: this.beatmapsetInfo.sid }
-      });
+    playPreviewAudio() {
+      var preview = this.$refs.preview;
+      if (this.isPreviewAudioPlaying) {
+        this.isPreviewAudioPlaying = false;
+        preview.pause();
+      } else {
+        this.isPreviewAudioPlaying = true;
+        preview.play();
+      }
     }
   },
+  localStorage: {
+    volume: {
+      type: Number,
+      default: 1.0
+    }
+  },
+  watch: {
+    volume: function() {
+      this.$refs.preview.volume = this.volume;
+    }
+  },
+  mounted: function() {
+    this.$refs.preview.onended = () => {
+      this.isPreviewAudioPlaying = false;
+    };
+  },
   computed: {
+    previewAudioSrc: function() {
+      var src = "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
+      src = src.replace("${sid}", this.beatmapsetInfo.sid);
+      return src;
+    },
     beatmapsetInfoLink: function() {
       return "beatmapset?sid=" + this.beatmapsetInfo.sid;
     },
@@ -156,17 +196,16 @@ export default {
         color: #262626;
         font-size: 1rem;
         font-weight: 400;
-        margin-left: -1ch;
-        transition: margin 0.3s ease;
-        &::before {
+        > a::before {
           content: "#";
           opacity: 0;
-          transition: opacity 0.3s ease;
+          margin-left: -1ch;
+          transition: all 0.3s ease;
         }
-        &:hover {
-          margin-left: 0;
+        > a:hover {
           &::before {
             opacity: 1;
+            margin-left: 0;
           }
         }
       }
@@ -174,7 +213,7 @@ export default {
 
     .download-btn-warpper {
       .download-btn {
-        font-size: 2rem;
+        font-size: 2.5rem;
         color: black;
       }
     }
@@ -187,6 +226,36 @@ export default {
     height: 0;
     border-radius: 10px 10px 0 0;
     overflow: hidden;
+    .left-top-warpper {
+      position: absolute;
+      left: 5px;
+      top: 5px;
+
+      .status {
+        position: absolute;
+
+        display: block;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 2px 10px;
+        font-size: 0.8rem;
+        border-radius: 15px;
+        transition: opacity 0.3s ease;
+      }
+      .play-btn {
+        position: absolute;
+        font-size: 3.2rem;
+        color: #ffffff;
+        opacity: 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 1);
+        &:hover {
+          color: #ffcc22;
+        }
+      }
+    }
+
     img {
       position: absolute;
       width: 100%;
@@ -229,12 +298,24 @@ export default {
     }
   }
 
-  &:hover .footer {
-    > a,
-    span {
-      opacity: 1;
+  &:hover {
+    .banner {
+      .left-top-warpper {
+        .status {
+          opacity: 0;
+        }
+        .play-btn {
+          opacity: 1;
+        }
+      }
+    }
+    .footer {
+      > a,
+      span {
+        opacity: 1;
 
-      transform: translateY(0);
+        transform: translateY(0);
+      }
     }
   }
 }
