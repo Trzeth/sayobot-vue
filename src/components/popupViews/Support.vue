@@ -15,9 +15,6 @@
 
 <script>
 import BScroll from "@better-scroll/core";
-import ObserveDom from "@better-scroll/observe-dom";
-
-// Todo: Use Better Scroll
 import axios from "axios";
 
 import ECharts from "vue-echarts";
@@ -36,10 +33,7 @@ export default {
   },
   mounted: function() {
     axios.get("https://api.sayobot.cn/static/supportlist").then(response => {
-      console.log(response);
-
       axios.get(response.data.data[0].link).then(response => {
-        console.log(response);
         var supportList = [];
         response.data.data.forEach(element => {
           var object = {

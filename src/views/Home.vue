@@ -21,11 +21,13 @@
       <div ref="nav" class="nav">
         <!-- 导航栏左半 选择模式 -->
         <div class="mode-seletor">
-          <router-link class="btn" to="new">
+          <span class="iconfont btn icon-home" @click="homeBtnClick"></span>
+
+          <router-link class="btn new" to="new">
             <span class="iconfont icon-fire"></span>
             <span class="text">最新谱面</span>
           </router-link>
-          <router-link class="btn" to="hot">
+          <router-link class="btn hot" to="hot">
             <span class="iconfont icon-pushpin"></span>
             <span class="text">热门谱面</span>
           </router-link>
@@ -37,7 +39,7 @@
         <!-- 导航栏右半 工具栏 -->
         <div class="tools-bar">
           <!-- class="notice-bar" -->
-          <notice-bar class="notice-bar" v-bind:notices="notices"></notice-bar>
+          <notice-bar class="notice-bar-warpper" v-bind:notices="notices"></notice-bar>
           <!-- class="setting-bar" -->
           <router-link class="setting-bar btn" to="setting">
             <span class="iconfont icon-setting"></span>
@@ -65,7 +67,7 @@
     <popup-view v-bind:isOpen.sync="isCurrentViewOpen">
       <component
         v-bind:is="currentView"
-        v-bind:isOpen="isCurrentViewOpen"
+        v-bind:isOpen.sync="isCurrentViewOpen"
         v-bind:optine="popupViewOptine"
       ></component>
     </popup-view>
@@ -126,6 +128,7 @@ export default {
       navFixed: false,
       limit: 24,
       offset: 0,
+      //Binding to SearchBar changed with input
       searchOptine: {
         keyword: "",
         subType: [],
@@ -135,6 +138,7 @@ export default {
         language: [],
         other: ""
       },
+      //Current View SearchOptine
       current: {
         mode: "",
         searchOptine: {}
@@ -232,12 +236,24 @@ export default {
     },
     sum(params) {
       var sum = 0;
-      params.forEach(element => {
-        sum += Number(element);
-      });
+      if (params != null) {
+        params.forEach(element => {
+          sum += Number(element);
+        });
+      }
+
       return sum;
+    },
+    homeBtnClick() {
+      if (this.bs.y != -1) {
+        this.bs.scrollTo(0, -1, 300);
+      } else {
+        if (this.current.mode != 1) this.$router.push("hot");
+        else if (this.current.mode != 2) this.$router.push("new");
+      }
     }
   },
+
   watch: {
     "$route.params.queryMode": {
       immediate: true,
@@ -271,15 +287,20 @@ export default {
     },
     "$route.query": {
       immediate: true,
+      deep: true,
       handler: function() {
         //Only watch search mode
         if (this.$route.params.queryMode == "search") {
           var query = this.$route.query;
 
           //Finding a better way to detail with
+          //防止触发页面刷新
+          //console.log(this.current.mode);
+          //console.log(this.searchOptine.keyword);
+          //console.log(query.keyword);
           if (
             this.current.mode != 4 ||
-            this.searchOptine.keyword != query.keyword
+            this.current.searchOptine.keyword != query.keyword
           ) {
             this.current.mode = 4;
             this.searchOptine.keyword = query.keyword;
@@ -292,12 +313,6 @@ export default {
           this.currentView = "detail-card";
           this.isCurrentViewOpen = true;
         }
-      }
-    },
-    currentView: {
-      immediate: true,
-      handler: function(params) {
-        console.log(this.currentView);
       }
     },
     current: {
@@ -345,7 +360,7 @@ export default {
 header {
   background: #ffffff;
   &.header-fixed {
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     top: 0;
@@ -453,6 +468,11 @@ header {
       text-align: center;
       flex: 1;
 
+      .icon-home {
+        font-size: 1.5rem;
+        display: none;
+      }
+
       .btn.router-link-exact-active.router-link-active {
         background: #fff0f6;
         color: #f759ab;
@@ -548,7 +568,8 @@ header {
   background: rgba(0, 0, 0, 0.75);
   display: flex;
 }
-@media screen and (max-width: 480px) {
+
+@media screen and (max-width: 1050px) {
   header {
     .title {
       padding: 20px 0;
@@ -568,13 +589,25 @@ header {
     }
 
     .nav {
-      .tools-bar {
-        .notice-bar {
+      .mode-seletor {
+        .icon-home {
+          display: inline-block;
+        }
+        .hot {
           display: none;
         }
+        .new {
+          display: none;
+        }
+        .btn {
+          padding: 0 15px;
+        }
       }
-      .btn {
-        display: none;
+
+      .tools-bar {
+        .notice-bar-warpper {
+          display: none;
+        }
       }
     }
   }
@@ -588,7 +621,7 @@ header {
   header {
     .nav {
       .tools-bar {
-        .notice-bar {
+        .notice-bar-warpper {
           display: none;
         }
       }

@@ -18,7 +18,6 @@ export default {
   props: ["isOpen"],
   methods: {
     close() {
-      console.log("close");
       this.$emit("update:isOpen", false);
     }
   }

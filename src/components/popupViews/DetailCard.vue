@@ -1,146 +1,143 @@
 <template>
-  <div class="detail-card" v-on:click.stop>
-    <div ref="scroll" class="scroll">
-      <div>
-        <img class="head-img" v-bind:src="detailCardBackgroundSrc" />
+  <div class="detail-card-warpper">
+    <div class="detail-card" v-on:click.stop>
+      <span class="close-btn iconfont icon-close" @click="close"></span>
 
-        <div class="down">
-          <div class="left">
-            <span
-              class="play-btn iconfont icon-caret-right"
-              v-bind:class="{'inited':isWsInited,'playing':isWsPlaying}"
-              @click="play"
-            ></span>
-            <span
-              class="pause-btn iconfont icon-pause"
-              v-bind:class="{'inited':isWsInited,'playing':isWsPlaying}"
-              @click="pause"
-            ></span>
-            <range-slider
-              class="slider"
-              v-bind:class="{'inited':isWsInited}"
-              min="0"
-              max="1"
-              step="0.01"
-              v-model="wsVolume"
-            ></range-slider>
-            <div ref="waveform" class="waveform"></div>
+      <div ref="scroll" class="scroll">
+        <div>
+          <div class="img-warpper">
+            <img class="head-img" v-bind:src="detailCardBackgroundSrc" />
+          </div>
+          <div class="down">
+            <div class="left">
+              <span
+                class="play-btn iconfont"
+                v-bind:class="{'inited':isWsInited,'icon-caret-right':!isWsPlaying,'icon-pause':isWsPlaying}"
+                @click="play"
+              ></span>
+              <span
+                class="progress-bar"
+                v-bind:class="{'inited':isWsInited}"
+              >{{length(currentDuration)}} / {{length(totalDuration)}}</span>
+              <div ref="waveform" class="waveform"></div>
 
-            <h2 class="title">{{title}}</h2>
-            <h2 class="artist" @click="artistClick">{{artist}}</h2>
-            <h2 class="creator" @click="creatorClick">{{beatmapsetDetail.creator}}</h2>
-            <div class="timeline">
-              <h3>Last Update: {{beatmapsetDetail.last_update}}</h3>
-              <h3>Approved:{{beatmapsetDetail.approved_date}}</h3>
+              <h2 class="title">{{title}}</h2>
+              <h2 class="artist" @click="artistClick">{{artist}}</h2>
+              <h2 class="creator" @click="creatorClick">{{beatmapsetDetail.creator}}</h2>
+              <div class="timeline">
+                <h3>Last Update: {{beatmapsetDetail.last_update}}</h3>
+                <h3>Approved:{{beatmapsetDetail.approved_date}}</h3>
+              </div>
+            </div>
+            <div class="right">
+              <ul>
+                <li
+                  v-for="(beatmap,index) in beatmapsetDetail.bid_data"
+                  @click="currentBeatmapIndex = index"
+                  v-bind:key="beatmap.bid"
+                  class="mode-li"
+                >
+                  <div class="background">{{star(beatmap.star)}}*</div>
+                </li>
+              </ul>
+              <div class="beatmapset-detail">
+                <span
+                  class="iconfont icon-time-circle"
+                  title="Length"
+                >{{length(currentBeatmapDetail.length)}}</span>
+                <span class="iconfont icon-bell" title="BPM">{{beatmapsetDetail.bpm}}</span>
+                <span
+                  class="iconfont icon-circle circle"
+                  title="Circles"
+                >{{currentBeatmapDetail.circles}}</span>
+                <span class="iconfont icon-sliders" title="Sliders">{{currentBeatmapDetail.sliders}}</span>
+                <span
+                  class="iconfont icon-spinner3 circle"
+                  title="Spinners"
+                >{{currentBeatmapDetail.spinners}}</span>
+              </div>
+              <table class="beatmap-detail-table">
+                <tbody>
+                  <tr>
+                    <th class="title">Circle Size</th>
+                    <td class="progress">
+                      <progress-bar
+                        background-color="black"
+                        height="5px"
+                        color="white"
+                        v-bind:progress="valueToPectange(currentBeatmapDetail.CS)"
+                      ></progress-bar>
+                    </td>
+                    <td class="value">{{currentBeatmapDetail.CS}}</td>
+                  </tr>
+                  <tr>
+                    <th class="title">Overall Difficulty</th>
+                    <td class="progress">
+                      <progress-bar
+                        background-color="black"
+                        height="5px"
+                        color="white"
+                        v-bind:progress="valueToPectange(currentBeatmapDetail.OD)"
+                      ></progress-bar>
+                    </td>
+                    <td class="value">{{currentBeatmapDetail.OD}}</td>
+                  </tr>
+                  <tr>
+                    <th class="title">HP Drain</th>
+                    <td class="progress">
+                      <progress-bar
+                        background-color="black"
+                        height="5px"
+                        color="white"
+                        v-bind:progress="valueToPectange(currentBeatmapDetail.HP)"
+                      ></progress-bar>
+                    </td>
+                    <td class="value">{{currentBeatmapDetail.HP}}</td>
+                  </tr>
+                  <tr>
+                    <th class="title">Approach Rate</th>
+                    <td class="progress">
+                      <progress-bar
+                        background-color="black"
+                        height="5px"
+                        color="white"
+                        v-bind:progress="valueToPectange(currentBeatmapDetail.AR)"
+                      ></progress-bar>
+                    </td>
+                    <td class="value">{{currentBeatmapDetail.AR}}</td>
+                  </tr>
+                  <tr v-if="currentBeatmapDetail.aim != 0">
+                    <th class="title">Aim</th>
+                    <td class="progress">
+                      <progress-bar
+                        background-color="black"
+                        height="5px"
+                        color="white"
+                        v-bind:progress="valueToPectange(currentBeatmapDetail.aim)"
+                      ></progress-bar>
+                    </td>
+                    <td class="value">{{currentBeatmapDetail.aim}}</td>
+                  </tr>
+                  <tr v-if="currentBeatmapDetail.speed != 0">
+                    <th class="title">Speed</th>
+                    <td class="progress">
+                      <progress-bar
+                        background-color="black"
+                        height="5px"
+                        color="white"
+                        v-bind:progress="valueToPectange(currentBeatmapDetail.speed)"
+                      ></progress-bar>
+                    </td>
+                    <td class="value">{{currentBeatmapDetail.speed}}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div></div>
             </div>
           </div>
-          <div class="right">
-            <!--<mode-selector v-bind:beatmaps="beatmapsetDetail.bid_data"></mode-selector>
-            -->
-            <ul>
-              <li
-                v-for="(beatmap,index) in beatmapsetDetail.bid_data"
-                @click="currentBeatmapIndex = index"
-                v-bind:key="beatmap.bid"
-                class="mode-li"
-              >
-                <div class="background">{{star(beatmap.star)}}*</div>
-              </li>
-            </ul>
-            <div class="beatmapset-detail">
-              <span class="iconfont icon-time-circle" title="Length">{{length}}</span>
-              <span class="iconfont icon-bell" title="BPM">{{beatmapsetDetail.bpm}}</span>
-              <span
-                class="iconfont icon-circle circle"
-                title="Circles"
-              >{{currentBeatmapDetail.circles}}</span>
-              <span class="iconfont icon-sliders" title="Sliders">{{currentBeatmapDetail.sliders}}</span>
-              <span
-                class="iconfont icon-spinner3 circle"
-                title="Spinners"
-              >{{currentBeatmapDetail.spinners}}</span>
-            </div>
-            <table class="beatmap-detail-table">
-              <tbody>
-                <tr>
-                  <th class="title">Circle Size</th>
-                  <td class="progress">
-                    <progress-bar
-                      background-color="black"
-                      height="5px"
-                      color="white"
-                      v-bind:progress="valueToPectange(currentBeatmapDetail.CS)"
-                    ></progress-bar>
-                  </td>
-                  <td class="value">{{currentBeatmapDetail.CS}}</td>
-                </tr>
-                <tr>
-                  <th class="title">Overall Difficulty</th>
-                  <td class="progress">
-                    <progress-bar
-                      background-color="black"
-                      height="5px"
-                      color="white"
-                      v-bind:progress="valueToPectange(currentBeatmapDetail.OD)"
-                    ></progress-bar>
-                  </td>
-                  <td class="value">{{currentBeatmapDetail.OD}}</td>
-                </tr>
-                <tr>
-                  <th class="title">HP Drain</th>
-                  <td class="progress">
-                    <progress-bar
-                      background-color="black"
-                      height="5px"
-                      color="white"
-                      v-bind:progress="valueToPectange(currentBeatmapDetail.HP)"
-                    ></progress-bar>
-                  </td>
-                  <td class="value">{{currentBeatmapDetail.HP}}</td>
-                </tr>
-                <tr>
-                  <th class="title">Approach Rate</th>
-                  <td class="progress">
-                    <progress-bar
-                      background-color="black"
-                      height="5px"
-                      color="white"
-                      v-bind:progress="valueToPectange(currentBeatmapDetail.AR)"
-                    ></progress-bar>
-                  </td>
-                  <td class="value">{{currentBeatmapDetail.AR}}</td>
-                </tr>
-                <tr v-if="beatmapsetDetail.aim != 0">
-                  <th class="title">Aim</th>
-                  <td class="progress">
-                    <progress-bar
-                      background-color="black"
-                      height="5px"
-                      color="white"
-                      v-bind:progress="valueToPectange(currentBeatmapDetail.aim)"
-                    ></progress-bar>
-                  </td>
-                  <td class="value">{{currentBeatmapDetail.aim}}</td>
-                </tr>
-                <tr v-if="beatmapsetDetail.speed !== 0">
-                  <th class="title">Speed</th>
-                  <td class="progress">
-                    <progress-bar
-                      background-color="black"
-                      height="5px"
-                      color="white"
-                      v-bind:progress="valueToPectange(currentBeatmapDetail.speed)"
-                    ></progress-bar>
-                  </td>
-                  <td class="value">{{currentBeatmapDetail.speed}}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div></div>
-          </div>
+
+          <a class="download-btn iconfont icon-vertical-align-botto" v-bind:href="downloadLink"></a>
         </div>
-
-        <a class="download-btn iconfont icon-vertical-align-botto" v-bind:href="downloadLink"></a>
       </div>
     </div>
   </div>
@@ -150,8 +147,6 @@
 import axios from "axios";
 import WaveSurfer from "wavesurfer.js";
 import ProgressBar from "./ProgressBar";
-import RangeSlider from "vue-range-slider";
-import "vue-range-slider/dist/vue-range-slider.css";
 
 /* Better Scroll Bar */
 import BScroll from "@better-scroll/core";
@@ -170,27 +165,28 @@ export default {
       },
       isWsInited: false,
       isWsPlaying: false,
-      wsVolume: 1
+      totalDuration: 0,
+      currentDuration: 0
     };
   },
   localStorage: {
     isUnicode: {
       type: Boolean,
       default: false
+    },
+    volume: {
+      type: Number,
+      default: 1.0
     }
   },
   components: {
-    ProgressBar,
-    RangeSlider
+    ProgressBar
   },
   props: ["optine", "isOpen"],
   mounted: function() {
     this.init();
   },
   watch: {
-    wsVolume: function(newValue) {
-      this.ws.setVolume(newValue);
-    },
     currentBeatmapIndex: function() {
       this.$router.replace({
         query: {
@@ -214,19 +210,14 @@ export default {
           )
           .then(response => {
             this.beatmapsetDetail = response.data.data;
+            this.$nextTick(() => {
+              this.bs.refresh();
+            });
           });
       }
     }
   },
   computed: {
-    length: function() {
-      var second = 0,
-        minute = 0;
-      var length = this.currentBeatmapDetail.length;
-      second = length % 60;
-      minute = (length - second) / 60;
-      return minute + ":" + second;
-    },
     title: function() {
       if (this.isUnicode == true && this.beatmapsetDetail.titleU != "") {
         return this.beatmapsetDetail.titleU;
@@ -256,6 +247,18 @@ export default {
     }
   },
   methods: {
+    close: function() {
+      this.$emit("update:isOpen", false);
+      this.$router.go(-1);
+    },
+    length: function(value) {
+      var second = 0,
+        minute = 0;
+      var length = parseFloat(value);
+      second = length % 60;
+      minute = (length - second) / 60;
+      return minute + ":" + second;
+    },
     valueToPectange(value) {
       return value * 10 + "%";
     },
@@ -267,6 +270,7 @@ export default {
         barHeight: 1,
         barGap: null
       });
+      this.ws.setVolume(this.volume);
       this.bs = new BScroll(this.$refs.scroll, {
         scrollY: true,
         click: true,
@@ -279,8 +283,10 @@ export default {
       });
     },
     intiWaveSurfer() {
-      var src = "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
-      src = "/audio/${sid}.mp3";
+      var src =
+        process.env.NODE_ENV == "development"
+          ? "/audio/${sid}.mp3"
+          : "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
       src = src.replace("${sid}", this.beatmapsetDetail.sid);
       this.ws.load(src);
       this.ws.on("play", () => {
@@ -291,6 +297,15 @@ export default {
       });
       this.ws.on("ready", () => {
         this.ws.play();
+        this.totalDuration = parseFloat(this.ws.getDuration()).toFixed(1);
+      });
+      this.ws.on("audioprocess", value => {
+        this.currentDuration = parseFloat(value).toFixed(1);
+      });
+      this.ws.on("seek", value => {
+        this.currentDuration = parseFloat(value * this.totalDuration).toFixed(
+          1
+        );
       });
     },
     play() {
@@ -299,7 +314,7 @@ export default {
         this.isWsInited = true;
         this.isWsPlaying = true;
       } else {
-        this.ws.play();
+        this.ws.playPause();
       }
     },
     pause() {
@@ -329,26 +344,47 @@ export default {
 </script>
 
 <style lang="scss">
+.detail-card-warpper {
+  padding: 20px;
+  width: 55%;
+  min-width: 450px;
+  height: 100%;
+  box-sizing: border-box;
+}
 .detail-card {
   box-sizing: border-box;
-  max-width: 50%;
-  overflow: hidden;
-  margin: 20px;
+  height: 100%;
   border-radius: 25px;
   background: #ffffff;
-  max-height: 100%;
+  position: relative;
+  overflow: hidden;
 
   .scroll {
-    position: relative;
-    max-height: 100%;
+    height: 100%;
   }
-  .head-img {
+
+  .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 5px;
+    font-size: 2rem;
+    z-index: 1;
+    text-shadow: 0 0 1px black;
+  }
+
+  .img-warpper {
     position: relative;
-    left: 0;
-    right: 0;
-    text-align: center;
-    min-width: 100%;
-    height: 200px;
+    padding-top: 28%;
+    overflow: hidden;
+    height: 0;
+
+    .head-img {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: auto;
+    }
   }
 
   .down {
@@ -367,6 +403,8 @@ export default {
         font-size: 5rem;
         position: absolute;
         z-index: 1;
+        transition: font-size 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+
         &.inited {
           margin: 0;
           font-size: 2rem;
@@ -383,26 +421,10 @@ export default {
         visibility: visible;
       }
 
-      .pause-btn {
-        cursor: pointer;
-        margin: 10px;
-        font-size: 5rem;
-        position: absolute;
-        visibility: hidden;
-        transition: font-size 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-        &.inited {
-          margin: 0;
-          font-size: 2rem;
-        }
-
-        &.playing {
-          visibility: visible;
-        }
-      }
-
-      .slider {
+      .progress-bar {
         position: absolute;
         right: 0;
+        text-align: right;
         visibility: hidden;
 
         &.inited {
@@ -496,6 +518,12 @@ export default {
     &:hover {
       color: #000000;
     }
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .detail-card-warpper {
+    max-width: 100%;
   }
 }
 </style>
