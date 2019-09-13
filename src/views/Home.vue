@@ -295,9 +295,9 @@ export default {
 
           //Finding a better way to detail with
           //防止触发页面刷新
-          console.log(this.current.mode);
-          console.log(this.searchOptine.keyword);
-          console.log(query.keyword);
+          //console.log(this.current.mode);
+          //console.log(this.searchOptine.keyword);
+          //console.log(query.keyword);
           if (
             this.current.mode != 4 ||
             this.current.searchOptine.keyword != query.keyword
@@ -313,12 +313,6 @@ export default {
           this.currentView = "detail-card";
           this.isCurrentViewOpen = true;
         }
-      }
-    },
-    currentView: {
-      immediate: true,
-      handler: function(params) {
-        console.log(this.currentView);
       }
     },
     current: {
