@@ -214,7 +214,12 @@ export default {
     .download-btn-warpper {
       .download-btn {
         font-size: 2.5rem;
-        color: black;
+        color: #bfbfbf;
+        transition: color 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+        &:hover {
+          color: #262626;
+        }
       }
     }
   }
@@ -322,7 +327,6 @@ export default {
 
 @media screen and (max-width: 480px) {
   .preview-card {
-    width: 80%;
   }
 }
 </style>
