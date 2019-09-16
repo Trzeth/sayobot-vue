@@ -76,6 +76,7 @@
 
 <script>
 import axios from "axios";
+import { SearchtoUri, NoticeUri, SupportUri } from "@/util/api.js";
 
 /* Better Scroll Bar */
 import BScroll from "@better-scroll/core";
@@ -176,6 +177,23 @@ export default {
       });
       this.bs.on("scroll", this.scrollHandler);
       this.bs.on("pullingUp", this.pullingUpHandler);
+
+      if (
+        this.$refs.scroll.firstElementChild.clientHeight < window.innerHeight
+      ) {
+        this.offset += this.limit;
+
+        axios
+          .get(SearchtoUri(this.current, this.limit, this.offset))
+          .then(response => {
+            this.beatmapsetList = this.beatmapsetList.concat(
+              response.data.data
+            );
+            this.$nextTick(() => {
+              this.bs.refresh();
+            });
+          });
+      }
     },
     scrollHandler() {
       if (this.bs.y < 0) {
@@ -196,53 +214,13 @@ export default {
         this.offset += this.limit;
 
         const newData = await axios.get(
-          this.toUri(this.current, this.limit, this.offset)
+          SearchtoUri(this.current, this.limit, this.offset)
         );
         this.beatmapsetList = this.beatmapsetList.concat(newData.data.data);
       } catch (err) {}
     },
     clear() {
       this.beatmapsetList = [];
-    },
-    toUri(params, limit, offset = 0) {
-      var host = "https://api.sayobot.cn";
-      var uri = host + "/beatmaplist";
-
-      uri += "?0=" + limit;
-      uri += "&";
-      uri += "1=" + offset;
-      uri += "&";
-      uri += "2=" + params.mode;
-      if (params.mode == 4) {
-        var searchOptine = params.searchOptine;
-        uri += "&";
-        uri += "3=" + searchOptine.keyword;
-
-        var temp = 0;
-        temp = this.sum(searchOptine.subType);
-        uri += temp ? "&4=" + temp : "";
-        temp = this.sum(searchOptine.mode);
-        uri += temp ? "&5=" + temp : "";
-        temp = this.sum(searchOptine.class);
-        uri += temp ? "&6=" + temp : "";
-        temp = this.sum(searchOptine.genre);
-        uri += temp ? "&7=" + temp : "";
-        temp = this.sum(searchOptine.language);
-        uri += temp ? "&8=" + temp : "";
-
-        // To do other paramer
-      }
-      return uri;
-    },
-    sum(params) {
-      var sum = 0;
-      if (params != null) {
-        params.forEach(element => {
-          sum += Number(element);
-        });
-      }
-
-      return sum;
     },
     homeBtnClick() {
       if (this.bs.y != -1) {
@@ -295,9 +273,7 @@ export default {
 
           //Finding a better way to detail with
           //防止触发页面刷新
-          //console.log(this.current.mode);
-          //console.log(this.searchOptine.keyword);
-          //console.log(query.keyword);
+
           if (
             this.current.mode != 4 ||
             this.current.searchOptine.keyword != query.keyword
@@ -319,7 +295,7 @@ export default {
       immediate: true,
       deep: true,
       handler: function() {
-        axios.get(this.toUri(this.current, this.limit)).then(response => {
+        axios.get(SearchtoUri(this.current, this.limit)).then(response => {
           this.beatmapsetList = response.data.data;
           this.$nextTick(() => {
             this.bs.refresh();
@@ -341,10 +317,10 @@ export default {
     }
   },
   created: function() {
-    axios.get("https://api.sayobot.cn/static/notice").then(response => {
+    axios.get(NoticeUri).then(response => {
       this.notices = response.data.data;
     });
-    axios.get("https://api.sayobot.cn/static/support").then(response => {
+    axios.get(SupportUri).then(response => {
       var data = response.data.data;
 
       this.support.total = data.total;
@@ -546,12 +522,14 @@ header {
   .scroll {
     position: relative;
     height: 100%;
+    min-height: 100%;
   }
   .pullup-wrapper {
     padding: 20px 0 50px 0;
     text-align: center;
-
     .pullup-txt {
+      cursor: pointer;
+
       display: inline-block;
       padding: 10px;
       border: 1px dashed #dfdfdf;
@@ -591,6 +569,8 @@ header {
     .nav {
       .mode-seletor {
         .icon-home {
+          margin: 0;
+          margin-right: 5px;
           display: inline-block;
         }
         .hot {
@@ -608,29 +588,16 @@ header {
         .notice-bar-warpper {
           display: none;
         }
+        .setting-bar {
+          margin: 0;
+          margin-left: 5px;
+        }
       }
     }
   }
 
   #main {
     top: 340px;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  header {
-    .nav {
-      .tools-bar {
-        .notice-bar-warpper {
-          display: none;
-        }
-      }
-      .btn {
-        .text {
-          display: none;
-        }
-      }
-    }
   }
 }
 </style>

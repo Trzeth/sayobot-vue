@@ -164,6 +164,7 @@ export default {
     transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
     outline: 0;
     height: 100%;
+    width: 100%;
     border: none;
     font-size: 1rem;
   }
