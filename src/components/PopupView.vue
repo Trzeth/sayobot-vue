@@ -1,6 +1,12 @@
 <template>
   <div class="popup-view" v-bind:class="{'popup-open':isOpen}">
-    <div class="cover" v-on:click="close" v-on:wheel.stop v-on:mousewheel.stop>
+    <div
+      class="cover"
+      v-on:click="close"
+      v-bind:style="{justifyContent:justifyContent,alignItems:alignItems}"
+      v-on:wheel.stop
+      v-on:mousewheel.stop
+    >
       <slot v-bind:style="{'hidden':!isOpen}"></slot>
     </div>
   </div>
@@ -8,11 +14,19 @@
 <script>
 export default {
   name: "popup-view",
-  props: ["isOpen"],
+  props: ["isOpen", "optine"],
   methods: {
     close() {
       this.$router.go(-1);
       this.$emit("update:isOpen", false);
+    }
+  },
+  computed: {
+    justifyContent: function() {
+      return (this.optine && this.optine.justifyContent) || "center";
+    },
+    alignItems: function() {
+      return (this.optine && this.optine.alignItems) || "stretch";
     }
   }
 };
@@ -39,8 +53,6 @@ export default {
     right: 0;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
-    justify-content: center;
-    align-items: stretch;
     flex-wrap: wrap;
   }
 }

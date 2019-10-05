@@ -1,31 +1,28 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home";
-import Package from "./views/Package";
-
+import Login from "./views/Login";
+import DefaultView from "./views/homeViews/DefaultView";
+import PackageView from "./views/homeViews/PackageView";
 Vue.use(Router);
 
 export default new Router({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: "/home/:queryMode",
-      name: "home",
-      component: Home
-    },
-    {
-      path: "/Package",
-      name: "package",
-      component: Package
-    },
-    {
-      path: "/home",
-      redirect: "/home/new"
-    },
-    {
-      path: "/",
-      redirect: "/home"
-    }
-  ]
+	mode: "history",
+	base: process.env.BASE_URL,
+	routes: [
+		{
+			path: "/login",
+			name: "login",
+			component: Login
+		},
+		{
+			path: "/",
+			name: "home",
+			component: Home,
+			children: [
+				{ path: "", component: DefaultView },
+				{ path: "package/:id", component: PackageView }
+			]
+		}
+	]
 });
