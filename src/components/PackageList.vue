@@ -10,7 +10,7 @@ import Package from "@/components/Package.vue";
 
 var Mock = require("mockjs");
 
-Mock.mock("/api/package", {
+Mock.mock("/api/packagelist", {
   status: 0,
   "data|2": [
     {
@@ -55,7 +55,7 @@ export default {
     Package
   },
   mounted: function() {
-    axios.get("/api/package").then(response => {
+    axios.get("/api/packagelist").then(response => {
       this.packageData = response.data.data;
     });
   }

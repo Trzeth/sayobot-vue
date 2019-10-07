@@ -28,7 +28,7 @@ export default {
   props: ["packageData"],
   computed: {
     packageUrl: function() {
-      return "package/" + this.packageData.pid;
+      return "/package/" + this.packageData.pid;
     }
   }
 };
@@ -59,7 +59,7 @@ export default {
       height: 100%;
       top: 0;
       transform-origin: 100% 50%;
-      z-index: -1;
+
       border-radius: 5px;
       transition: right 0.2s ease-in-out, transform 0.2s ease-in-out;
     }
@@ -77,8 +77,6 @@ export default {
     }
 
     .preview-image {
-      transition: background-position 0.8s ease-in-out;
-      transition-delay: 0.1s;
       background-position: center;
       background-size: cover;
       border-radius: 5px;
@@ -86,6 +84,8 @@ export default {
       width: 200px;
       height: 150px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
   }
 

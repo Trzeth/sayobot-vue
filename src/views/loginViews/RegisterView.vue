@@ -72,6 +72,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "register-view",
   data: function() {
@@ -97,7 +98,7 @@ export default {
       return false;
     },
     isOsuNameValid: function() {
-      let reg = /^[A-Z0-9a-z\[\]\ ]{3,20}$/;
+      let reg = /^[A-Z0-9a-z\[\]\ \_]{3,20}$/;
       if (this.osuname == null) return true;
       else if (reg.test(this.osuname)) return true;
       return false;
@@ -125,7 +126,34 @@ export default {
     toView: function(i) {
       this.$emit("update:currentView", i);
     },
-    register: function() {}
+    register: function() {
+      if (!this.isInputValid) return;
+      let combineString = "";
+      let passWd = this.password;
+      let userName = this.username.replace(" ", "_");
+      let md5Key, sha1Key;
+      for (let i = 0; i != 100; i++) {
+        combineString += userName;
+        combineString += passWd;
+      }
+      var md5 = require("js-md5");
+      var sha1 = require("js-sha1");
+      md5Key = md5(combineString);
+      sha1Key = sha1(combineString);
+      console.log(md5Key);
+      console.log(sha1Key);
+      axios
+        .post("/api/register", {
+          user_name: this.username,
+          pwd_md5: md5Key,
+          pwd_sha1: sha1Key,
+          email: this.email,
+          osu_id: this.osuname
+        })
+        .then(function(response) {
+          console.log(response);
+        });
+    }
   }
 };
 </script>

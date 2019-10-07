@@ -21,6 +21,8 @@
             placeholder="搜索谱面"
             spellcheck="false"
             autocomplete="off"
+            v-on:keydown.enter="search"
+            v-model="searchOptine"
           />
         </div>
       </div>
@@ -42,13 +44,9 @@
 
     <router-view></router-view>
 
-    <popup-view v-bind:isOpen.sync="isCurrentViewOpen" v-bind:optine="popupViewOptine">
-      <component
-        v-bind:is="currentView"
-        v-bind:isOpen.sync="isCurrentViewOpen"
-        v-bind:optine="popupComponentOptine"
-      ></component>
-    </popup-view>
+    <div class="player-warpper">
+      <music-player></music-player>
+    </div>
   </div>
 </template>
 
@@ -64,13 +62,7 @@ import MouseWheel from "@better-scroll/mouse-wheel";
 import ObserveDom from "@better-scroll/observe-dom";
 
 /* Components */
-import PopupView from "@/components/PopupView";
-
-/* Popup Views */
-import Support from "./popupViews/Support.vue";
-import DetailCard from "./popupViews/DetailCard.vue";
-import Setting from "./popupViews/Setting.vue";
-import PackageView from "./popupViews/PackageView.vue";
+import MusicPlayer from "@/components/MusicPlayer";
 
 BScroll.use(Pullup);
 BScroll.use(MouseWheel);
@@ -80,10 +72,7 @@ BScroll.use(ObserveDom);
 export default {
   name: "home",
   components: {
-    PopupView,
-    DetailCard,
-    Setting,
-    PackageView
+    MusicPlayer
   },
   data: function() {
     return {
@@ -91,140 +80,34 @@ export default {
       currentView: null,
       popupComponentOptine: null,
       packageData: null,
-      popupViewOptine: null
+      popupViewOptine: null,
+      searchOptine: null
     };
   },
-  methods: {},
-
-  watch: {
-    "$route.params.queryMode": {
-      immediate: true,
-      handler: function() {
-        switch (this.$route.params.queryMode) {
-          case "hot":
-            //判定是否相等 防止视图刷新
-            //Finding a better way to detail with
-            this.current.mode == 1 ? 0 : (this.current.mode = 1);
-            break;
-          case "new":
-            this.current.mode == 2 ? 0 : (this.current.mode = 2);
-            break;
-          case "search":
-            this.isCurrentViewOpen = false;
-            //Watch by "$route.query"
-            break;
-          case "setting":
-            this.currentView = "setting";
-            this.isCurrentViewOpen = true;
-            break;
-          case "support":
-            this.currentView = "support";
-            this.isCurrentViewOpen = true;
-            break;
-          case "beatmapset":
-            //Handled by "$route.query"
-            break;
-        }
-      }
-    },
-    "$route.query": {
-      immediate: true,
-      deep: true,
-      handler: function() {
-        //Only watch search mode
-        if (this.$route.params.queryMode == "search") {
-          var query = this.$route.query;
-
-          //Finding a better way to detail with
-          //防止触发页面刷新
-
-          if (
-            this.current.mode != 4 ||
-            this.current.searchOptine.keyword != query.keyword
-          ) {
-            this.current.mode = 4;
-            this.searchOptine.keyword = query.keyword;
-            this.current.searchOptine = this._.clone(this.searchOptine);
-          }
-        }
-        if (this.$route.params.queryMode == "package") {
-          var query = this.$route.query;
-          this.popupComponentOptine = { pid: query.pid };
-          this.currentView = "package-view";
-          this.isCurrentViewOpen = true;
-          this.popupViewOptine = { justifyContent: "flex-end" };
-        }
-      }
-    },
-    current: {
-      immediate: true,
-      deep: true,
-      handler: function() {
-        axios.get(SearchtoUri(this.current, this.limit)).then(response => {
-          this.beatmapsetList = response.data.data;
-        });
-      }
-    },
-    navFixed: {}
+  methods: {
+    search: function() {
+      this.$router.push("/search?keyword=" + this.searchOptine);
+    }
   },
-  created: function() {
-    axios.get(NoticeUri).then(response => {
-      this.notices = response.data.data;
-    });
-    axios.get(SupportUri).then(response => {
-      var data = response.data.data;
-
-      this.support.total = data.total;
-      this.support.target = data.target;
-      this.support.percentage =
-        (this.support.total / this.support.target) * 100;
-    });
+  watch: {
+    "$route.query.key": {
+      immediate: true,
+      deep: true,
+      handler: function() {
+        this.searchOptine = this.$route.query.keyword;
+      }
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.btn {
-  user-select: none !important;
-  display: inline-block;
-  margin: auto 10px;
-  height: 50px;
-  border-radius: 25px;
-  text-decoration: none;
-  line-height: 50px;
-  padding: 0 15px;
-  font-size: 1rem;
-  color: #000;
-  transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-  > .iconfont {
-    font-size: 1.5rem;
-    display: inline-block;
-    height: 50px;
-  }
-  > .text {
-    margin-left: 5px;
-    font-size: 1rem;
-    vertical-align: top;
-    line-height: 50px;
-  }
-  &:visited {
-    color: #000;
-  }
-  &:hover {
-    background: #fff0f6;
-    color: #f759ab;
-  }
-  &:active {
-    background: #ffd6e7;
-  }
-}
-
-$navHeight: 72px;
+@import "@/assets/style/view.scss";
 
 .nav {
   position: fixed;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   height: $navHeight;
   display: flex;
@@ -310,5 +193,11 @@ $navHeight: 72px;
       font-size: 1.2rem;
     }
   }
+}
+
+.player-warpper {
+  position: fixed;
+  bottom: 50px;
+  left: 150px;
 }
 </style>

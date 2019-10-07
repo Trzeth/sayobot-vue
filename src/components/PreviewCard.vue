@@ -87,7 +87,7 @@ export default {
       return src;
     },
     beatmapsetInfoLink: function() {
-      return "beatmapset?sid=" + this.beatmapsetInfo.sid;
+      return "beatmapset/" + this.beatmapsetInfo.sid;
     },
     searchArtistLink: function() {
       return "search?keyword=" + this.beatmapsetInfo.artist;

@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "login-view",
   data: function() {
@@ -49,7 +50,7 @@ export default {
   },
   computed: {
     isUserNameValid: function() {
-      let reg = /^[A-Z0-9a-z\[\]\ ]{3,20}$/;
+      let reg = /^[A-Z0-9a-z\[\]\ \_]{3,20}$/;
       if (this.username == null) return true;
       else if (reg.test(this.username)) return true;
       return false;
@@ -91,7 +92,7 @@ export default {
       if (!this.isInputValid) return;
       let combineString = "";
       let passWd = this.password;
-      let userName = this.username;
+      let userName = this.username.replace(" ", "_");
       let md5Key, sha1Key;
       for (let i = 0; i != 100; i++) {
         combineString += userName;
@@ -101,7 +102,15 @@ export default {
       var sha1 = require("js-sha1");
       md5Key = md5(combineString);
       sha1Key = sha1(combineString);
-
+      axios
+        .post("/api/login", {
+          user_name: this.username,
+          pwd_md5: md5Key,
+          pwd_sha1: sha1Key
+        })
+        .then(function(response) {
+          console.log(response);
+        });
       console.log(combineString);
       console.log(md5Key);
       console.log(sha1Key);

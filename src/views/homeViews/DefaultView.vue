@@ -1,40 +1,16 @@
 <template>
   <div>
-    <div class="side-bar-warpper">
+    <div class="side-bar">
       <div class="upper">
         <div class="links">
-          <a class="link active">推荐</a>
-          <a class="link">排行榜</a>
-          <a class="link">图包</a>
-          <a class="link">艺人</a>
-          <a class="link">曲风流派</a>
-          <a class="link">专辑</a>
-          <a class="link">支持小夜</a>
-          <a class="link">下载客户端</a>
-        </div>
-      </div>
-      <div class="lower">
-        <div class="player-warpper">
-          <h2>Now Playing</h2>
-          <div class="player">
-            <span>Black Night Town (TV Size)</span>
-            <div class="control-bar">
-              <div class="left">
-                <span class="iconfont icon-step-backward"></span>
-                <span class="iconfont icon-caret-right"></span>
-                <span class="iconfont icon-step-forward"></span>
-              </div>
-              <div class="right">
-                <span class="iconfont icon-heart"></span>
-                <span class="iconfont icon-download"></span>
-              </div>
-            </div>
-            <div class="slider-warpper">
-              <span class="iconfont icon-shengyin"></span>
-              <span class="iconfont icon-speaker-mute" style="display:none"></span>
-              <range-slider class="slider" min="0" max="1" step="0.01" v-model="volume"></range-slider>
-            </div>
-          </div>
+          <router-link class="link active" to="/">推荐</router-link>
+          <router-link class="link" to="/board">排行榜</router-link>
+          <router-link class="link" to="/list/package">图包</router-link>
+          <router-link class="link" to="/list/artist">艺人</router-link>
+          <router-link class="link" to="/genre">曲风流派</router-link>
+          <!-- <router-link class="link" to="/">专辑</router-link> -->
+          <router-link class="link" to="/support">支持小夜</router-link>
+          <router-link class="link" to="/download">下载客户端</router-link>
         </div>
       </div>
     </div>
@@ -69,28 +45,24 @@ import PackageList from "@/components/PackageList";
 import ArtistBar from "@/components/ArtistBar";
 import GenreBar from "@/components/GenreBar";
 
-import RangeSlider from "vue-range-slider";
-import "vue-range-slider/dist/vue-range-slider.css";
-
 export default {
   name: "default-view",
   components: {
     RecommendBar,
     PackageList,
-    RangeSlider,
     ArtistBar,
     GenreBar
   }
 };
 </script>
 
-<style lang="scss">
-$navHeight: 72px;
+<style lang="scss" scoped>
+@import "@/assets/style/view.scss";
 
 $sideBarLeft: 100px;
 $sideBarWidth: 250px;
 
-.side-bar-warpper {
+.side-bar {
   position: fixed;
   left: $sideBarLeft;
   top: $navHeight + 50px;

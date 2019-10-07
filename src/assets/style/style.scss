@@ -12,3 +12,48 @@ a:visited,
 a:active {
     color: #000000;
 }
+
+.btn {
+    user-select: none !important;
+    display: inline-block;
+    margin: auto 0;
+    height: 50px;
+    border-radius: 25px;
+    text-decoration: none;
+    line-height: 50px;
+    padding: 0 15px;
+    font-size: 1rem;
+    color: #000;
+    transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+    >.iconfont {
+        font-size: 1.5rem;
+        display: inline-block;
+        height: 50px;
+    }
+
+    >.text {
+        margin-left: 5px;
+        font-size: 1rem;
+        vertical-align: top;
+        line-height: 50px;
+    }
+
+    &:visited {
+        color: #000;
+    }
+
+    &:hover {
+        background: #fff0f6;
+        color: #f759ab;
+    }
+
+    &:active {
+        background: #ffd6e7;
+    }
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}

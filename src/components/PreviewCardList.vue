@@ -1,13 +1,11 @@
 <template>
-  <div class="preview-card-list-warpper">
-    <div class="preview-card-list">
-      <preview-card
-        v-for="(beatmapset) in beatmapsetList"
-        v-bind:key="beatmapset.sid"
-        v-bind:beatmapsetInfo="beatmapset"
-        v-bind:isUnicode="isUnicode"
-      ></preview-card>
-    </div>
+  <div class="preview-card-list">
+    <preview-card
+      v-for="(beatmapset) in beatmapsetList"
+      v-bind:key="beatmapset.sid"
+      v-bind:beatmapsetInfo="beatmapset"
+      v-bind:isUnicode="isUnicode"
+    ></preview-card>
   </div>
 </template>
 
@@ -29,13 +27,10 @@ export default {
 };
 </script>
 <style lang="scss">
-.preview-card-list-warpper {
-  padding: 3rem 2rem;
-  .preview-card-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    align-items: start;
-    grid-gap: 3rem 3rem;
-  }
+.preview-card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  align-items: start;
+  grid-gap: 3rem 3rem;
 }
 </style>
