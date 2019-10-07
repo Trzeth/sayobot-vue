@@ -127,7 +127,6 @@ export default {
     background: #ffffff;
   }
   .right {
-    flex: 1;
     margin: 20px;
     border-radius: 25px;
     background: #ffffff;

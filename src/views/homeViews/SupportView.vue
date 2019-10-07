@@ -120,8 +120,13 @@ export default {
     }
   }
   .right {
-    align-self: stretch;
+    position: absolute;
     overflow: hidden;
+    top: $navHeight;
+    bottom: 0;
+    right: 0;
+    left: $sidebarLeftMargin + $sidebarWidth;
+    margin-left: 0;
   }
 }
 </style>

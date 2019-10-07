@@ -26,10 +26,6 @@
           v-bind:class="{'icon-caret-right':!isPreviewAudioPlaying,'icon-pause':isPreviewAudioPlaying}"
           @click="playPreviewAudio"
         ></span>
-
-        <audio ref="preview" preload="none">
-          <source v-bind:src="previewAudioSrc" type="audio/mp3" />
-        </audio>
       </div>
     </div>
     <footer class="footer">
@@ -54,14 +50,11 @@ export default {
   },
   methods: {
     playPreviewAudio() {
-      var preview = this.$refs.preview;
-      if (this.isPreviewAudioPlaying) {
-        this.isPreviewAudioPlaying = false;
-        preview.pause();
-      } else {
-        this.isPreviewAudioPlaying = true;
-        preview.play();
-      }
+      this.$store.commit("addMusic", {
+        sid: this.beatmapsetInfo.sid,
+        title: this.beatmapsetInfo.title,
+        artist: this.beatmapsetInfo.artist
+      });
     }
   },
   localStorage: {
@@ -69,16 +62,6 @@ export default {
       type: Number,
       default: 1.0
     }
-  },
-  watch: {
-    volume: function() {
-      this.$refs.preview.volume = this.volume;
-    }
-  },
-  mounted: function() {
-    this.$refs.preview.onended = () => {
-      this.isPreviewAudioPlaying = false;
-    };
   },
   computed: {
     previewAudioSrc: function() {

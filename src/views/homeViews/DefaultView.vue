@@ -1,40 +1,41 @@
 <template>
   <div>
-    <div class="side-bar">
-      <div class="upper">
-        <div class="links">
-          <router-link class="link active" to="/">推荐</router-link>
-          <router-link class="link" to="/board">排行榜</router-link>
-          <router-link class="link" to="/list/package">图包</router-link>
-          <router-link class="link" to="/list/artist">艺人</router-link>
-          <router-link class="link" to="/genre">曲风流派</router-link>
-          <!-- <router-link class="link" to="/">专辑</router-link> -->
-          <router-link class="link" to="/support">支持小夜</router-link>
-          <router-link class="link" to="/download">下载客户端</router-link>
+    <div class="side-bar view">
+      <div class="left">
+        <div class="upper">
+          <div class="links">
+            <router-link class="link active" to="/">推荐</router-link>
+            <router-link class="link" to="/board">排行榜</router-link>
+            <router-link class="link" to="/list/package">图包</router-link>
+            <router-link class="link" to="/list/artist">艺人</router-link>
+            <router-link class="link" to="/genre">曲风流派</router-link>
+            <!-- <router-link class="link" to="/">专辑</router-link> -->
+            <router-link class="link" to="/support">支持小夜</router-link>
+            <router-link class="link" to="/download">下载客户端</router-link>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="right">
+        <div class="recommend-bar-warpper warpper">
+          <h2 class="title">最新单曲</h2>
 
-    <div id="main">
-      <div class="recommend-bar-warpper warpper">
-        <h2 class="title">最新单曲</h2>
+          <recommend-bar></recommend-bar>
+        </div>
+        <div class="package-list-warpper warpper">
+          <h2 class="title">热门图包</h2>
+          <package-list></package-list>
+        </div>
 
-        <recommend-bar></recommend-bar>
-      </div>
-      <div class="package-list-warpper warpper">
-        <h2 class="title">热门图包</h2>
-        <package-list></package-list>
-      </div>
+        <div class="artist-bar-warpper warpper">
+          <h2 class="title">热门艺人</h2>
+          <artist-bar></artist-bar>
+        </div>
 
-      <div class="artist-bar-warpper warpper">
-        <h2 class="title">热门艺人</h2>
-        <artist-bar></artist-bar>
-      </div>
-
-      <!-- <div class="genre-bar-warpper warpper">
+        <!-- <div class="genre-bar-warpper warpper">
         <h2 class="title">曲风流派</h2>
         <genre-bar></genre-bar>
-      </div>-->
+        </div>-->
+      </div>
     </div>
   </div>
 </template>
@@ -59,15 +60,8 @@ export default {
 <style lang="scss" scoped>
 @import "@/assets/style/view.scss";
 
-$sideBarLeft: 100px;
-$sideBarWidth: 250px;
-
 .side-bar {
-  position: fixed;
-  left: $sideBarLeft;
-  top: $navHeight + 50px;
   box-sizing: border-box;
-  width: $sideBarWidth;
   bottom: 0px;
   z-index: 1;
 
@@ -120,11 +114,10 @@ $sideBarWidth: 250px;
     }
   }
 }
-#main {
-  padding-top: $navHeight;
+.right {
+  flex-basis: 0;
+  flex-shrink: 1;
   .warpper {
-    padding-left: $sideBarLeft + $sideBarWidth;
-
     > .title {
       font-weight: 500;
       margin-bottom: 25px;

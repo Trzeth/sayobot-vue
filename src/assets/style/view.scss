@@ -1,17 +1,17 @@
 $navHeight: 72px;
 $sidebarLeftMargin:150px;
+$sidebarWidth:256px;
 
 .view {
     margin-top: $navHeight;
-    display: flex;
 
     >.left {
-        flex: none;
-        width: 256px;
-        margin-left: $sidebarLeftMargin;
+        position: fixed;
+        width: $sidebarWidth;
+        left: $sidebarLeftMargin;
     }
 
     >.right {
-        flex: 1;
+        margin-left: $sidebarLeftMargin + $sidebarWidth;
     }
 }

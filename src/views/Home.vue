@@ -76,11 +76,6 @@ export default {
   },
   data: function() {
     return {
-      isCurrentViewOpen: false,
-      currentView: null,
-      popupComponentOptine: null,
-      packageData: null,
-      popupViewOptine: null,
       searchOptine: null
     };
   },
@@ -197,6 +192,7 @@ export default {
 
 .player-warpper {
   position: fixed;
+  z-index: 1;
   bottom: 50px;
   left: 150px;
 }
