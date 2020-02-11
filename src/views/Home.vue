@@ -342,7 +342,7 @@ export default {
   },
   created: function() {
     axios.get("https://api.sayobot.cn/static/notice").then(response => {
-      this.notices = response.data.data;
+      this.notices = response.data.data[0];
     });
     axios.get("https://api.sayobot.cn/static/support").then(response => {
       var data = response.data.data;

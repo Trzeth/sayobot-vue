@@ -6,6 +6,7 @@
         v-bind:key="beatmapset.sid"
         v-bind:beatmapsetInfo="beatmapset"
         v-bind:isUnicode="isUnicode"
+        v-bind:useCDN="useCDN"
       ></preview-card>
     </div>
   </div>
@@ -21,6 +22,10 @@ export default {
   },
   localStorage: {
     isUnicode: {
+      type: Boolean,
+      default: false
+    },
+    useCDN: {
       type: Boolean,
       default: false
     }

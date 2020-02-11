@@ -7,7 +7,7 @@
     </div>
     <div class="notice-bar" @click="isOpen = true">
       <span class="iconfont icon-infomation"></span>
-      {{notices.summary}}
+      {{notices.title}}
     </div>
   </popup>
 </template>

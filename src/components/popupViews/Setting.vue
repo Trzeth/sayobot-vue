@@ -11,9 +11,9 @@
               <span class="note">当标题为日文时 不再使用罗马音显示</span>
             </div>
             <div class="selection">
-              <input type="checkbox" disabled v-model="defaultServer" id="default-server-checkbox" />
-              <label class="title" for="default-server-checkbox">使用香港WTT线路作为默认服务器</label>
-              <span class="note">如果您在国内，请不要选择这个选项</span>
+              <input type="checkbox" v-model="useCDN" id="default-server-checkbox" />
+              <label class="title" for="default-server-checkbox">使用CDN加速</label>
+              <span class="note">如果下载速度还不错请不要开启这个选项，可能存在过时的旧图</span>
             </div>
             <div class="selection">
               <input type="checkbox" disabled v-model="isAutoSelet" id="is-auto-select-checkbox" />
@@ -30,7 +30,7 @@
           <div class="about-page">
             <h2>关于</h2>
 
-            <p>Sayobot.cn是全球最大、地图存储量最多（超过2000GB）的第三方osu!镜像站（不接受反驳，血猫全站才300GB多一点，且无法下载收藏数量小于2的图包或最新上传的图）， 致力于为广大玩家提供osu!周边的服务，包括但不限于osu!地图的搜索下载、提供osu!外设（小键盘和数位板）、图包&皮肤分享/下载、osu! QQ机器人等。本网站由_BlackC（夜麻麻）和 SoulDee & Trzeth 等人共同维护（SoulDee & Trzeth：_BlackC你的API又双叒叕炸掉了）</p>
+            <p>Sayobot.cn是全球最大、地图存储量最多（超过2000GB）的第三方osu!镜像站， 致力于为广大玩家提供osu!周边的服务，包括但不限于osu!地图的搜索下载、提供osu!外设（小键盘和数位板）、图包&皮肤分享/下载、osu! QQ机器人等。本网站由_BlackC（夜麻麻）和 SoulDee & Trzeth 等人共同维护（SoulDee & Trzeth：_BlackC你的API又双叒叕炸掉了）</p>
           </div>
           <h2>Alpha Test Version -- Start at 2019.8</h2>
           <h2>
@@ -62,7 +62,7 @@ export default {
       type: Boolean,
       default: false
     },
-    defaultServer: {
+    useCDN: {
       type: Boolean,
       default: false
     },

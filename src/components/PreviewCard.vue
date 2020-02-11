@@ -45,7 +45,8 @@ export default {
   name: "preview-card",
   props: {
     beatmapsetInfo: Object,
-    isUnicode: Boolean
+    isUnicode: Boolean,
+    useCDN: Boolean
   },
   data: function() {
     return {
@@ -110,7 +111,12 @@ export default {
       }
     },
     downloadLink: function() {
-      return "https://txy1.sayobot.cn/download/osz/" + this.beatmapsetInfo.sid;
+      var uri =
+        "https://txy1.sayobot.cn/download/osz/" + this.beatmapsetInfo.sid;
+      if (this.useCDN == true) {
+        uri += "?server=CDN";
+      }
+      return uri;
     },
     previewCardBackgroundSrc: function() {
       var src = "https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
