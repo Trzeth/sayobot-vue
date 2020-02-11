@@ -3,7 +3,6 @@
     <div
       class="cover"
       v-on:click="close"
-      v-bind:style="coverStyle"
       v-on:wheel.stop
       v-on:mousedown.stop="close"
       v-on:mousewheel.stop
@@ -14,19 +13,11 @@
   </div>
 </template>
 <script>
-import SupportBar from "./SupportBar";
-import SettingBar from "./SettingBar";
-
 export default {
   name: "popup",
-  components: {
-    SupportBar,
-    SettingBar
-  },
-  props: ["isOpen", "coverStyle"],
+  props: ["isOpen"],
   methods: {
     close() {
-      console.log("close");
       this.$emit("update:isOpen", false);
     }
   }

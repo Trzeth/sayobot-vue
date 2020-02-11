@@ -1,27 +1,14 @@
 <template>
-  <div class="popup" v-bind:class="{'popup-open':isOpen}">
-    <div
-      class="cover"
-      v-on:click="close"
-      v-bind:style="coverStyle"
-      v-on:wheel.stop
-      v-on:mousewheel.stop
-    >
-      <slot></slot>
+  <div class="popup-view" v-bind:class="{'popup-open':isOpen}">
+    <div class="cover" v-on:click="close" v-on:wheel.stop v-on:mousewheel.stop>
+      <slot v-bind:style="{'hidden':!isOpen}"></slot>
     </div>
   </div>
 </template>
 <script>
-import SupportBar from "./SupportBar";
-import SettingBar from "./SettingBar";
-
 export default {
   name: "popup-view",
-  components: {
-    SupportBar,
-    SettingBar
-  },
-  props: ["isOpen", "coverStyle"],
+  props: ["isOpen"],
   methods: {
     close() {
       this.$router.go(-1);
@@ -32,17 +19,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.popup {
+.popup-view {
   &.popup-open {
     position: relative;
     z-index: 1;
 
     .cover {
-      visibility: visible;
+      clip: unset;
     }
   }
   .cover {
-    visibility: hidden;
+    //display:none;
+    //使用clip 修复transition时不消失
+    clip: rect(0, 0, 0, 0);
     position: fixed;
     top: 0;
     bottom: 0;

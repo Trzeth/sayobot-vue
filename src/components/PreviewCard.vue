@@ -1,43 +1,114 @@
 <template>
-  <div class="preview-card" v-on:mouseenter="isHover = true" v-on:mouseleave="isHover = false">
-    <div class="preview-card-upper">
-      <img v-bind:src="previewCardBackgroundSrc" />
+  <div class="preview-card">
+    <header class="header">
+      <div class="title-artist-warpper">
+        <h2 class="title overflow-clip" v-bind:title="title">
+          <router-link v-bind:to="beatmapsetInfoLink">{{title}}</router-link>
+        </h2>
+        <h3 class="artist overflow-clip" v-bind:title="artist">
+          <router-link v-bind:to="searchArtistLink">{{artist}}</router-link>
+        </h3>
+      </div>
 
-      <span class="status badge">{{approvedStatus}}</span>
-      <div class="count">
-        <span class="favourite_count">{{beatmapsetInfo.favourite_count}}</span>
-        <br />
-        <span class="play_count">{{beatmapsetInfo.order}}</span>
+      <div class="download-btn-warpper" v-on:click.stop>
+        <a class="iconfont icon-download download-btn" v-bind:href="downloadLink"></a>
+      </div>
+    </header>
+
+    <div class="banner">
+      <router-link v-bind:to="beatmapsetInfoLink">
+        <img v-bind:src="previewCardBackgroundSrc" />
+      </router-link>
+      <div class="left-top-warpper">
+        <span class="status">{{approvedStatus}}</span>
+        <span
+          class="play-btn iconfont"
+          v-bind:class="{'icon-caret-right':!isPreviewAudioPlaying,'icon-pause':isPreviewAudioPlaying}"
+          @click="playPreviewAudio"
+        ></span>
+
+        <audio ref="preview" preload="none">
+          <source v-bind:src="previewAudioSrc" type="audio/mp3" />
+        </audio>
       </div>
     </div>
-    <div class="preview-card-down">
-      <div class="info-warpper">
-        <div class="base-info">
-          <h2 class="hidden-overflow" v-bind:title="beatmapsetInfo.title">{{beatmapsetInfo.title}}</h2>
-          <h3 class="hidden-overflow">{{beatmapsetInfo.artist}}</h3>
-
-          <div class="detail" v-show="isHover">
-            <h3>Creator: {{beatmapsetInfo.creator}}</h3>
-          </div>
-        </div>
-        <div class="download-btn-warpper">
-          <a class="iconfont icon-download download-btn" v-bind:href="downloadLink"></a>
-        </div>
-      </div>
-    </div>
+    <footer class="footer">
+      <router-link v-bind:to="searchCreatorLink" class="overflow-clip">@{{beatmapsetInfo.creator}}</router-link>
+      <span class="iconfont icon-heart-fill">{{beatmapsetInfo.favourite_count}}</span>
+      <span class="iconfont icon-play-circle-fill">{{beatmapsetInfo.order}}</span>
+    </footer>
   </div>
 </template>
 
 <script>
 export default {
   name: "preview-card",
+  props: {
+    beatmapsetInfo: Object,
+    isUnicode: Boolean
+  },
   data: function() {
     return {
-      isHover: false
+      isPreviewAudioPlaying: false
     };
   },
-  props: ["beatmapsetInfo"],
+  methods: {
+    playPreviewAudio() {
+      var preview = this.$refs.preview;
+      if (this.isPreviewAudioPlaying) {
+        this.isPreviewAudioPlaying = false;
+        preview.pause();
+      } else {
+        this.isPreviewAudioPlaying = true;
+        preview.play();
+      }
+    }
+  },
+  localStorage: {
+    volume: {
+      type: Number,
+      default: 1.0
+    }
+  },
+  watch: {
+    volume: function() {
+      this.$refs.preview.volume = this.volume;
+    }
+  },
+  mounted: function() {
+    this.$refs.preview.onended = () => {
+      this.isPreviewAudioPlaying = false;
+    };
+  },
   computed: {
+    previewAudioSrc: function() {
+      var src = "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
+      src = src.replace("${sid}", this.beatmapsetInfo.sid);
+      return src;
+    },
+    beatmapsetInfoLink: function() {
+      return "beatmapset?sid=" + this.beatmapsetInfo.sid;
+    },
+    searchArtistLink: function() {
+      return "search?keyword=" + this.beatmapsetInfo.artist;
+    },
+    searchCreatorLink: function() {
+      return "search?keyword=" + this.beatmapsetInfo.creator;
+    },
+    title: function() {
+      if (this.isUnicode == true && this.beatmapsetInfo.titleU != "") {
+        return this.beatmapsetInfo.titleU;
+      } else {
+        return this.beatmapsetInfo.title;
+      }
+    },
+    artist: function() {
+      if (this.isUnicode == true && this.beatmapsetInfo.artistU != "") {
+        return this.beatmapsetInfo.artistU;
+      } else {
+        return this.beatmapsetInfo.artist;
+      }
+    },
     downloadLink: function() {
       return "https://txy1.sayobot.cn/download/osz/" + this.beatmapsetInfo.sid;
     },
@@ -78,88 +149,177 @@ export default {
 
 <style lang="scss">
 .preview-card {
-  width: 20%;
-  margin: 10px 10px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 
-  .preview-card-upper {
-    position: relative;
+  .overflow-clip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    img {
-      display: block;
-      width: 100%;
-      height: 84px;
-    }
-    .badge {
-      padding: 3px 10px;
-      font-size: 0.8rem;
-      letter-spacing: 1px;
-      font-weight: 500;
-      border-radius: 25px;
-      background: rgba(0, 0, 0, 0.5);
-      color: #ffffff;
-    }
-    .status {
-      position: absolute;
-      left: 5px;
-      top: 5px;
-    }
-    .count {
-      position: absolute;
-      right: 5px;
-      top: 5px;
-      text-align: right;
-      .favourite_count {
-        color: white;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: -1rem;
+    left: 0;
+    right: 0;
+    border-radius: 10px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    transition: all 0.3s ease;
+  }
+  &:hover::after {
+    bottom: -2rem;
+  }
+
+  .header {
+    order: 2;
+    display: flex;
+    align-items: center;
+    .title-artist-warpper {
+      flex: 1;
+      overflow: hidden;
+      margin: 5px 0 0 5px;
+
+      .title {
+        width: 95%;
+        font-size: 1.3rem;
+        font-weight: 500;
       }
-      .play_count {
-        color: white;
+      .artist {
+        width: 95%;
+        color: #262626;
+        font-size: 1rem;
+        font-weight: 400;
+        > a::before {
+          content: "#";
+          opacity: 0;
+          margin-left: -1ch;
+          transition: all 0.3s ease;
+        }
+        > a:hover {
+          &::before {
+            opacity: 1;
+            margin-left: 0;
+          }
+        }
+      }
+    }
+
+    .download-btn-warpper {
+      .download-btn {
+        font-size: 2.5rem;
+        color: #bfbfbf;
+        transition: color 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+        &:hover {
+          color: #262626;
+        }
       }
     }
   }
-  .preview-card-down {
-    padding: 5px 10px;
 
-    .info-warpper {
-      position: relative;
+  .banner {
+    order: 1;
+    position: relative;
+    padding-top: 28%;
+    height: 0;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    .left-top-warpper {
+      position: absolute;
+      left: 5px;
+      top: 5px;
 
-      .base-info {
-        flex: 2;
+      .status {
+        position: absolute;
 
-        .hidden-overflow {
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-        h2 {
-          font-size: 1.3rem;
-          font-weight: 500;
-        }
-        h3 {
-          font-size: 1rem;
-          font-weight: 400;
+        display: block;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 2px 10px;
+        font-size: 0.8rem;
+        border-radius: 15px;
+        transition: opacity 0.3s ease;
+      }
+      .play-btn {
+        position: absolute;
+        font-size: 3.2rem;
+        color: #ffffff;
+        opacity: 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 1);
+        &:hover {
+          color: #ffcc22;
         }
       }
-      .download-btn-warpper {
-        display: flex;
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        align-items: center;
-        background: #ffffff;
-        cursor: pointer;
+    }
 
-        .download-btn {
-          color: #000;
-          text-decoration: none;
-          font-size: 2rem;
+    img {
+      position: absolute;
+      width: 100%;
+      height: auto;
+      top: 0;
+    }
+  }
+
+  .footer {
+    position: absolute;
+    bottom: -1.5rem;
+    left: 5px;
+    right: 5px;
+    order: 3;
+    display: flex;
+
+    > a,
+    span {
+      display: block;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: all 0.5s ease;
+      margin-right: 10px;
+      border-radius: 5px;
+    }
+    :nth-child(1) {
+      cursor: pointer;
+      color: #d26;
+    }
+
+    :nth-child(2) {
+      color: #666;
+      transition-delay: 0.1s;
+    }
+
+    :nth-child(3) {
+      color: #666;
+
+      transition-delay: 0.2s;
+    }
+  }
+
+  &:hover {
+    .banner {
+      .left-top-warpper {
+        .status {
+          opacity: 0;
         }
-        .download-btn:visited {
-          color: #000;
+        .play-btn {
+          opacity: 1;
         }
+      }
+    }
+    .footer {
+      > a,
+      span {
+        opacity: 1;
+
+        transform: translateY(0);
       }
     }
   }
@@ -167,7 +327,6 @@ export default {
 
 @media screen and (max-width: 480px) {
   .preview-card {
-    width: 80%;
   }
 }
 </style>

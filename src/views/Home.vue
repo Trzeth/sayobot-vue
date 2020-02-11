@@ -21,11 +21,13 @@
       <div ref="nav" class="nav">
         <!-- 导航栏左半 选择模式 -->
         <div class="mode-seletor">
-          <router-link class="btn" to="new">
+          <span class="iconfont btn icon-home" @click="homeBtnClick"></span>
+
+          <router-link class="btn new" to="new">
             <span class="iconfont icon-fire"></span>
             <span class="text">最新谱面</span>
           </router-link>
-          <router-link class="btn" to="hot">
+          <router-link class="btn hot" to="hot">
             <span class="iconfont icon-pushpin"></span>
             <span class="text">热门谱面</span>
           </router-link>
@@ -37,9 +39,11 @@
         <!-- 导航栏右半 工具栏 -->
         <div class="tools-bar">
           <!-- class="notice-bar" -->
-          <notice-bar class="notice-bar" v-bind:notices="notices"></notice-bar>
+          <notice-bar class="notice-bar-warpper" v-bind:notices="notices"></notice-bar>
           <!-- class="setting-bar" -->
-          <setting-bar class="setting-bar"></setting-bar>
+          <router-link class="setting-bar btn" to="setting">
+            <span class="iconfont icon-setting"></span>
+          </router-link>
         </div>
       </div>
     </header>
@@ -61,7 +65,11 @@
     </div>
 
     <popup-view v-bind:isOpen.sync="isCurrentViewOpen">
-      <component v-bind:is="currentView" v-bind:optine="popupViewOptine"></component>
+      <component
+        v-bind:is="currentView"
+        v-bind:isOpen.sync="isCurrentViewOpen"
+        v-bind:optine="popupViewOptine"
+      ></component>
     </popup-view>
   </div>
 </template>
@@ -79,13 +87,14 @@ import ObserveDom from "@better-scroll/observe-dom";
 /* Components */
 import PreviewCardList from "@/components/PreviewCardList";
 import SearchBar from "@/components/SearchBar";
-import SettingBar from "@/components/SettingBar";
 import NoticeBar from "@/components/NoticeBar";
 import SupportBar from "@/components/SupportBar";
 import PopupView from "@/components/PopupView";
 
 /* Popup Views */
 import Support from "@/components/popupViews/Support.vue";
+import DetailCard from "@/components/popupViews/DetailCard.vue";
+import Setting from "@/components/popupViews/Setting.vue";
 
 BScroll.use(Pullup);
 BScroll.use(MouseWheel);
@@ -97,27 +106,29 @@ export default {
   components: {
     PreviewCardList,
     SearchBar,
-    SettingBar,
     NoticeBar,
     SupportBar,
     PopupView,
-    Support
+    Support,
+    DetailCard,
+    Setting
   },
   data: function() {
     return {
       isCurrentViewOpen: false,
       currentView: null,
       popupViewOptine: null,
+
       support: {
         total: 0,
         target: 0,
         percentage: 0
       },
-      titleHeight: 0,
       isFirstView: true,
       navFixed: false,
       limit: 24,
       offset: 0,
+      //Binding to SearchBar changed with input
       searchOptine: {
         keyword: "",
         subType: [],
@@ -127,6 +138,7 @@ export default {
         language: [],
         other: ""
       },
+      //Current View SearchOptine
       current: {
         mode: "",
         searchOptine: {}
@@ -224,58 +236,88 @@ export default {
     },
     sum(params) {
       var sum = 0;
-      params.forEach(element => {
-        sum += Number(element);
-      });
+      if (params != null) {
+        params.forEach(element => {
+          sum += Number(element);
+        });
+      }
+
       return sum;
+    },
+    homeBtnClick() {
+      if (this.bs.y != -1) {
+        this.bs.scrollTo(0, -1, 300);
+      } else {
+        if (this.current.mode != 1) this.$router.push("hot");
+        else if (this.current.mode != 2) this.$router.push("new");
+      }
     }
   },
+
   watch: {
     "$route.params.queryMode": {
       immediate: true,
       handler: function() {
         switch (this.$route.params.queryMode) {
           case "hot":
-            this.current.mode = 1;
+            //判定是否相等 防止视图刷新
+            //Finding a better way to detail with
+            this.current.mode == 1 ? 0 : (this.current.mode = 1);
             break;
           case "new":
-            this.current.mode = 2;
+            this.current.mode == 2 ? 0 : (this.current.mode = 2);
             break;
           case "search":
+            this.isCurrentViewOpen = false;
             //Watch by "$route.query"
             break;
           case "setting":
-            this.currentView = "setting-bar";
+            this.currentView = "setting";
             this.isCurrentViewOpen = true;
             break;
           case "support":
             this.currentView = "support";
             this.isCurrentViewOpen = true;
             break;
+          case "beatmapset":
+            //Handled by "$route.query"
+            break;
         }
       }
     },
     "$route.query": {
       immediate: true,
+      deep: true,
       handler: function() {
         //Only watch search mode
         if (this.$route.params.queryMode == "search") {
           var query = this.$route.query;
-          this.current.mode = 4;
-          this.searchOptine.keyword = query.keyword;
-          this.current.searchOptine = this._.clone(this.searchOptine);
+
+          //Finding a better way to detail with
+          //防止触发页面刷新
+          //console.log(this.current.mode);
+          //console.log(this.searchOptine.keyword);
+          //console.log(query.keyword);
+          if (
+            this.current.mode != 4 ||
+            this.current.searchOptine.keyword != query.keyword
+          ) {
+            this.current.mode = 4;
+            this.searchOptine.keyword = query.keyword;
+            this.current.searchOptine = this._.clone(this.searchOptine);
+          }
+        }
+        if (this.$route.params.queryMode == "beatmapset") {
+          var query = this.$route.query;
+          this.popupViewOptine = { sid: query.sid };
+          this.currentView = "detail-card";
+          this.isCurrentViewOpen = true;
         }
       }
     },
-    currentView: {
-      immediate: true,
-      handler: function(params) {
-        console.log(this.currentView);
-      }
-    },
     current: {
-      deep: true,
       immediate: true,
+      deep: true,
       handler: function() {
         axios.get(this.toUri(this.current, this.limit)).then(response => {
           this.beatmapsetList = response.data.data;
@@ -314,11 +356,11 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 header {
   background: #ffffff;
   &.header-fixed {
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     top: 0;
@@ -426,6 +468,11 @@ header {
       text-align: center;
       flex: 1;
 
+      .icon-home {
+        font-size: 1.5rem;
+        display: none;
+      }
+
       .btn.router-link-exact-active.router-link-active {
         background: #fff0f6;
         color: #f759ab;
@@ -521,7 +568,8 @@ header {
   background: rgba(0, 0, 0, 0.75);
   display: flex;
 }
-@media screen and (max-width: 480px) {
+
+@media screen and (max-width: 1050px) {
   header {
     .title {
       padding: 20px 0;
@@ -541,13 +589,25 @@ header {
     }
 
     .nav {
-      .tools-bar {
-        .notice-bar {
+      .mode-seletor {
+        .icon-home {
+          display: inline-block;
+        }
+        .hot {
           display: none;
         }
+        .new {
+          display: none;
+        }
+        .btn {
+          padding: 0 15px;
+        }
       }
-      .btn {
-        display: none;
+
+      .tools-bar {
+        .notice-bar-warpper {
+          display: none;
+        }
       }
     }
   }
@@ -561,7 +621,7 @@ header {
   header {
     .nav {
       .tools-bar {
-        .notice-bar {
+        .notice-bar-warpper {
           display: none;
         }
       }
