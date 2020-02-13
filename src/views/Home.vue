@@ -20,10 +20,10 @@
 								>{{ support.percentage }}%</span
 							>
 							<div class="space"></div>
-							<span class="data"
-								>{{ support.total }} RMB /
-								{{ support.target }} RMB</span
-							>
+							<span class="data">
+								{{ support.total }} RMB /
+								{{ support.target }} RMB
+							</span>
 						</div>
 					</div>
 				</div>
@@ -168,7 +168,8 @@ export default {
 			},
 			beatmapsetList: [],
 			notices: [],
-			isPullUpLoad: false
+			isPullUpLoad: false,
+			isHeaderScroll: 0
 		};
 	},
 	mounted: function() {
@@ -179,14 +180,17 @@ export default {
 	},
 	methods: {
 		headerScroll(event) {
-			if (event.deltaY > 0) this.bs.scrollTo(0, -1, 300);
+			if (event.deltaY > 0) {
+				this.bs.scrollTo(0, -1, 300);
+				console.log("headerScroll");
+			}
 		},
 		init() {
 			this.bs = new BScroll(this.$refs.scroll, {
 				scrollY: true,
 				click: true,
 				probeType: 3,
-				observeDom: true,
+				observeDom: false,
 				scrollbar: true,
 				mouseWheel: {
 					speed: 0,
@@ -201,10 +205,18 @@ export default {
 			this.bs.on("pullingUp", this.pullingUpHandler);
 		},
 		scrollHandler() {
+			console.log(this.bs.y);
+			console.log(this.isHeaderScroll);
 			if (this.bs.y < 0) {
 				this.navFixed = true;
 			} else {
-				this.navFixed = false;
+				//不要问我为什么这么改 我也不知道 Hard Code
+				if (this.isHeaderScroll != 2) {
+					this.isHeaderScroll += 1;
+				} else {
+					this.navFixed = false;
+					this.isHeaderScroll = 0;
+				}
 			}
 		},
 		async pullingUpHandler() {
