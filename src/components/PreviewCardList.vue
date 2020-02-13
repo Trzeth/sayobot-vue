@@ -38,7 +38,7 @@ export default {
   padding: 3rem 2rem;
   .preview-card-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
     align-items: start;
     grid-gap: 3rem 3rem;
   }
