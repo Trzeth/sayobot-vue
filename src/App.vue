@@ -1,55 +1,114 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+	<v-app>
+		<v-navigation-drawer :mini-variant="miniDrawer" bottom="true" app>
+			<v-list>
+				<v-list-item three-line v-show="!miniDrawer">
+					<v-btn
+						:block="!miniDrawer"
+						text
+						x-large
+						color="pink accent-2"
+						dark
+						:icon="miniDrawer"
+					>
+						<v-icon>mdi-tag-heart</v-icon>
+						<label>V Mirror</label>
+					</v-btn>
+				</v-list-item>
+				<v-list-item three-line v-show="miniDrawer">
+					<v-list-item-icon>
+						<v-icon color="pink accent-2">mdi-tag-heart</v-icon>
+					</v-list-item-icon>
+				</v-list-item>
+				<v-list-item v-show="!miniDrawer">
+					<v-carousel
+						cycle
+						height="108"
+						hide-delimiters
+						show-arrows-on-hover
+					>
+						<v-carousel-item v-for="(slide, i) in slides" :key="i">
+							<v-sheet :color="colors[i]" height="100%">
+								<v-row
+									class="fill-height"
+									align="center"
+									justify="center"
+								>
+									<div class="display-3">
+										{{ slide }}
+									</div>
+								</v-row>
+							</v-sheet>
+						</v-carousel-item>
+					</v-carousel>
+				</v-list-item>
+				<v-list-item></v-list-item>
+				<v-list-item-group>
+					<v-list-item to="/home">
+						<v-list-item-icon>
+							<v-icon>mdi-home</v-icon>
+						</v-list-item-icon>
+						<v-list-item-content>首页</v-list-item-content>
+					</v-list-item>
+					<v-list-item to="/search">
+						<v-list-item-icon>
+							<v-icon>mdi-layers-search</v-icon>
+						</v-list-item-icon>
+						<v-list-item-content>高级搜索</v-list-item-content>
+					</v-list-item>
+					<v-list-item to="/support">
+						<v-list-item-icon>
+							<v-icon>mdi-heart</v-icon>
+						</v-list-item-icon>
+						<v-list-item-content>支持</v-list-item-content>
+					</v-list-item>
+					<v-list-item to="/setting">
+						<v-list-item-icon>
+							<v-icon>mdi-settings</v-icon>
+						</v-list-item-icon>
+						<v-list-item-content>设置</v-list-item-content>
+					</v-list-item>
+				</v-list-item-group>
+			</v-list>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
+			<template v-slot:append>
+				<div style="height:44px">
+					<v-btn
+						icon
+						large
+						absolute
+						right
+						@click="miniDrawer = !miniDrawer"
+					>
+						<v-icon v-show="!miniDrawer">mdi-chevron-left</v-icon>
+						<v-icon v-show="miniDrawer">mdi-chevron-right</v-icon>
+					</v-btn>
+				</div>
+			</template>
+		</v-navigation-drawer>
 
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-content>
-      <router-view/>
-    </v-content>
-  </v-app>
+		<v-content>
+			<router-view />
+		</v-content>
+	</v-app>
 </template>
 
 <script>
-
 export default {
-  name: 'App',
+	name: "App",
 
-  data: () => ({
-    //
-  }),
+	data: function() {
+		return {
+			miniDrawer: null,
+			colors: [
+				"indigo",
+				"warning",
+				"pink darken-2",
+				"red lighten-1",
+				"deep-purple accent-4"
+			],
+			slides: ["First", "Second", "Third", "Fourth", "Fifth"]
+		};
+	}
 };
 </script>
