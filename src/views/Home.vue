@@ -1,62 +1,55 @@
 <template>
 	<div>
-		<v-app-bar color="white" light app elevate-on-scroll>
-			<v-text-field
-				flat
-				solo-inverted
-				hide-details
-				prepend-inner-icon="mdi-magnify"
-				label="Search"
-				class="hidden-sm-and-down ml-6"
-			/>
-			<v-spacer></v-spacer>
+		<v-app-bar
+			:color="!isCurrentViewOpen ? 'white' : 'transparent'"
+			light
+			app
+			:flat="isCurrentViewOpen"
+			elevate-on-scroll
+		>
+			<v-slide-x-reverse-transition mode="out-in">
+				<home-title-bar
+					v-if="!isCurrentViewOpen"
+					key="main"
+				></home-title-bar>
+				<detail-title-bar
+					v-else
+					key="detail"
+					v-on:back="isCurrentViewOpen = false"
+				></detail-title-bar>
+			</v-slide-x-reverse-transition>
 
-			<v-hover>
-				<template v-slot:default="{ hover }">
-					<v-alert class="ma-0" type="info" dark outlined>
-						今天早上一个不规范的请求……把跳转程序搞炸了……来自Google
-						bot
-						<v-fade-transition>
-							<v-overlay v-if="hover" absolute color="white">
-								<v-btn color="info"
-									>查看详情<v-icon right
-										>mdi-open-in-new</v-icon
-									></v-btn
-								>
-							</v-overlay>
-						</v-fade-transition>
-					</v-alert>
-				</template>
-			</v-hover>
 			<template v-slot:extension>
-				<v-tabs align-with-title>
-					<v-tab>最新谱面</v-tab>
-					<v-tab>热门谱面</v-tab>
-					<v-tab>
-						<v-icon left>mdi-feature-search</v-icon>
-						Miku
-					</v-tab>
-				</v-tabs>
+				<v-slide-x-reverse-transition>
+					<v-tabs align-with-title v-show="!isCurrentViewOpen">
+						<v-tab>最新谱面</v-tab>
+						<v-tab>热门谱面</v-tab>
+						<v-tab>
+							<v-icon left>mdi-feature-search</v-icon>
+							Miku
+						</v-tab>
+					</v-tabs>
+				</v-slide-x-reverse-transition>
 			</template>
 		</v-app-bar>
+
 		<preview-card-list
 			v-bind:beatmapsetList="beatmapsetList"
 			v-on:reach-bottom="updateData"
 		></preview-card-list>
 
-		<v-navigation-drawer
-			v-model="isCurrentViewOpen"
-			app
-			temporary
-			right
-			width="60%"
-		>
-			<detail-crad
-				v-bind:is="currentView"
-				v-bind:isOpen.sync="isCurrentViewOpen"
-				v-bind:optine="popupViewOptine"
-			></detail-crad>
-		</v-navigation-drawer>
+		<v-slide-x-reverse-transition>
+			<div
+				style="left:256px;position:fixed;bottom:0;right:0;overflow:auto"
+				v-show="isCurrentViewOpen"
+			>
+				<detail-crad
+					v-bind:is="currentView"
+					v-bind:isOpen.sync="isCurrentViewOpen"
+					v-bind:optine="popupViewOptine"
+				></detail-crad>
+			</div>
+		</v-slide-x-reverse-transition>
 	</div>
 </template>
 
@@ -66,12 +59,16 @@ import axios from "axios";
 /* Components */
 import PreviewCardList from "@/components/PreviewCardList";
 import DetailCard from "@/components/popupViews/DetailCard.vue";
+import HomeTitleBar from "@/components/HomeTitleBar.vue";
+import DetailTitleBar from "@/components/DetailTitleBar.vue";
 
 export default {
 	name: "Home",
 	components: {
 		PreviewCardList,
-		DetailCard
+		DetailCard,
+		HomeTitleBar,
+		DetailTitleBar
 	},
 	data: function() {
 		return {
