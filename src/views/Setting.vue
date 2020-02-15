@@ -6,21 +6,37 @@
 			<div class="selection">
 				<v-switch v-model="isUnicode">
 					<template v-slot:label>
-						<label class="title">使用 Unicode 标题</label>
+						<label
+							class="title"
+							:class="
+								(isUnicode && 'black--text') || 'grey--text'
+							"
+							>使用 Unicode 标题</label
+						>
 					</template>
 				</v-switch>
 			</div>
 			<div class="selection">
 				<v-switch v-model="useCDN">
 					<template v-slot:label>
-						<label class="title">使用CDN加速</label>
+						<label
+							class="title"
+							:class="(useCDN && 'black--text') || 'grey--text'"
+							>使用CDN加速</label
+						>
 					</template>
 				</v-switch>
 			</div>
 			<div class="selection">
 				<v-switch v-model="isAutoSelet" disabled>
 					<template v-slot:label>
-						<label class="title">自动选择最适合难度</label>
+						<label
+							class="title"
+							:class="
+								(isAutoSelet && 'black--text') || 'grey--text'
+							"
+							>自动选择最适合难度</label
+						>
 					</template>
 				</v-switch>
 				<span class="note">打开图谱面板后，符合条件的图谱</span>
@@ -105,7 +121,6 @@ export default {
 		.title {
 			font-size: 1.2rem;
 			font-weight: 500;
-			color: #000000;
 		}
 		.note {
 			font-size: 1rem;

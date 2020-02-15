@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<v-navigation-drawer :mini-variant="miniDrawer" bottom="true" app>
+		<v-navigation-drawer :mini-variant="miniDrawer" app>
 			<v-list>
 				<v-list-item three-line v-show="!miniDrawer">
 					<v-btn

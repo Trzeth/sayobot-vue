@@ -1,17 +1,62 @@
 <template>
 	<div>
+		<v-app-bar color="white" light app elevate-on-scroll>
+			<v-text-field
+				flat
+				solo-inverted
+				hide-details
+				prepend-inner-icon="mdi-magnify"
+				label="Search"
+				class="hidden-sm-and-down ml-6"
+			/>
+			<v-spacer></v-spacer>
+
+			<v-hover>
+				<template v-slot:default="{ hover }">
+					<v-alert class="ma-0" type="info" dark outlined>
+						今天早上一个不规范的请求……把跳转程序搞炸了……来自Google
+						bot
+						<v-fade-transition>
+							<v-overlay v-if="hover" absolute color="white">
+								<v-btn color="info"
+									>查看详情<v-icon right
+										>mdi-open-in-new</v-icon
+									></v-btn
+								>
+							</v-overlay>
+						</v-fade-transition>
+					</v-alert>
+				</template>
+			</v-hover>
+			<template v-slot:extension>
+				<v-tabs align-with-title>
+					<v-tab>最新谱面</v-tab>
+					<v-tab>热门谱面</v-tab>
+					<v-tab>
+						<v-icon left>mdi-feature-search</v-icon>
+						Miku
+					</v-tab>
+				</v-tabs>
+			</template>
+		</v-app-bar>
 		<preview-card-list
 			v-bind:beatmapsetList="beatmapsetList"
 			v-on:reach-bottom="updateData"
 		></preview-card-list>
 
-		<v-overlay :value="isCurrentViewOpen">
-			<component
+		<v-navigation-drawer
+			v-model="isCurrentViewOpen"
+			app
+			temporary
+			right
+			width="60%"
+		>
+			<detail-crad
 				v-bind:is="currentView"
 				v-bind:isOpen.sync="isCurrentViewOpen"
 				v-bind:optine="popupViewOptine"
-			></component>
-		</v-overlay>
+			></detail-crad>
+		</v-navigation-drawer>
 	</div>
 </template>
 
@@ -20,12 +65,18 @@ import axios from "axios";
 
 /* Components */
 import PreviewCardList from "@/components/PreviewCardList";
+import DetailCard from "@/components/popupViews/DetailCard.vue";
 
 export default {
 	name: "Home",
-	components: { PreviewCardList },
+	components: {
+		PreviewCardList,
+		DetailCard
+	},
 	data: function() {
 		return {
+			hover: false,
+			isAlertVisible: false,
 			isUpdated: false,
 			isCurrentViewOpen: false,
 			currentView: null,
@@ -113,6 +164,11 @@ export default {
 		}
 	},
 	watch: {
+		isCurrentViewOpen: {
+			handler: function() {
+				if (this.isCurrentViewOpen == false) this.$router.go(-1);
+			}
+		},
 		"$route.params.queryMode": {
 			immediate: true,
 			handler: function() {
@@ -128,14 +184,6 @@ export default {
 					case "search":
 						this.isCurrentViewOpen = false;
 						//Watch by "$route.query"
-						break;
-					case "setting":
-						this.currentView = "setting";
-						this.isCurrentViewOpen = true;
-						break;
-					case "support":
-						this.currentView = "support";
-						this.isCurrentViewOpen = true;
 						break;
 					case "beatmapset":
 						//Handled by "$route.query"
@@ -201,3 +249,5 @@ export default {
 	}
 };
 </script>
+
+<style></style>

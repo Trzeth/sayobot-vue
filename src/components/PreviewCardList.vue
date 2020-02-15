@@ -1,5 +1,5 @@
 <template>
-	<div class="preview-card-list-warpper">
+	<div class="preview-card-list-warpper grey lighten-4">
 		<div class="preview-card-list">
 			<preview-card
 				v-for="beatmapset in beatmapsetList"
@@ -91,7 +91,6 @@ export default {
 	}
 }
 .preview-card-list-warpper {
-	background: #f5f5f5;
 	padding: 3rem 2rem;
 	.preview-card-list {
 		position: relative;
