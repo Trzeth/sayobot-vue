@@ -176,7 +176,8 @@ export default {
 	.preview-card {
 		a {
 			text-decoration: none;
-			color: #000000;
+			color: rgba(0, 0, 0, 0.5);
+			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 		}
 
 		a:hover,
@@ -229,13 +230,15 @@ export default {
 			.title {
 				width: 95%;
 				font-size: 1.3rem;
-				font-weight: 500;
+				font-weight: 600;
+				font-style: italic;
 			}
 			.artist {
 				width: 95%;
 				color: #262626;
 				font-size: 1rem;
 				font-weight: 400;
+				font-style: italic;
 				> a::before {
 					content: "#";
 					opacity: 0;
