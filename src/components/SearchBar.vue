@@ -81,6 +81,7 @@ export default {
 		return {
 			hasInputText: false,
 			searchText: null,
+			modesPos: [-1, -1, -1, -1, -1, -1, -1],
 			modes: ["Stars", "AR", "OD", "CS", "HP", "Length", "BPM"],
 			modesLowcase: ["stars", "ar", "od", "cs", "hp", "length", "bpm"],
 			hintTitle: [
@@ -133,10 +134,16 @@ export default {
 	watch: {
 		model(val, prev) {
 			if (val.length === prev.length) return;
+
 			if (prev && val.length < prev.length) {
-				var last = this.model[this.model.length - 1];
-				if (last && last.mode != -1) this.hasInputText = false;
+				var last = prev[prev.length - 1];
+
+				if (last) {
+					if (last.mode == -1) this.hasInputText = false;
+					else this.modesPos[last.mode] = -1;
+				}
 			}
+
 			if (typeof this.model[this.model.length - 1] === "string") {
 				var str = this.model.pop();
 				var v;
@@ -154,16 +161,24 @@ export default {
 					}
 				} else {
 					v = this.getCommandValid(str);
+					var len = this.model.length;
 					if (v) {
-						if (!this.hasInputText) {
-							this.model.push(v);
+						if (this.modesPos[v.mode] != -1) {
+							this.model[this.modesPos[v.mode]] = v;
 						} else {
-							var text = this.model.pop();
-							this.model.push(v);
-							this.model.push(text);
+							if (!this.hasInputText) {
+								this.modesPos[v.mode] = len;
+								this.model.push(v);
+							} else {
+								var text = this.model.pop();
+
+								this.model.push(v);
+								this.model.push(text);
+								this.modesPos[v.mode] = len - 1;
+							}
 						}
 					} else {
-						// 莫名bug 如果 searchText 不变 赋值后就会被清空
+						// 莫名vuetify bug 如果 searchText 不变 赋值后就会被清空
 						// 如果是 （:od） 的话 我就真的没办法了
 						// 或者是 输到一般失去焦点的情况
 
