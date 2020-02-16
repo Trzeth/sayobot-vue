@@ -1,240 +1,227 @@
 <template>
-  <popup v-bind:isOpen.sync="isFocused">
-    <div class="search-bar" v-bind:class="{'search-bar-focused':isFocused}">
-      <input
-        autocomplete="off"
-        spellcheck="false"
-        id="search-bar-input"
-        ref="input"
-        type="text"
-        v-on:focus="isFocused = true"
-        placeholder="输入关键词开始搜索"
-        v-model="searchOptine.keyword"
-        v-on:keydown.enter="search"
-      />
-      <div class="search-bar-icon">
-        <label
-          class="iconfont icon-filter"
-          v-on:click="isFilterOpen =! isFilterOpen;"
-          v-bind:class="{'clicked':isFilterOpen}"
-        ></label>
-        <label class="iconfont icon-search" for="search-bar-input"></label>
-      </div>
-      <label v-on:click="search" class="search-bar-btn iconfont icon-arrowright"></label>
-    </div>
-
-    <div
-      class="search-bar-filter"
-      v-bind:class="{'search-bar-filter-open':isFilterOpen&&isFocused}"
-    >
-      <div>
-        Mode:
-        <input type="checkbox" id="std" value="1" v-model="optine.mode" />
-        <label for="std">std</label>
-        <input type="checkbox" id="taiko" value="2" v-model="optine.mode" />
-        <label for="taiko">taiko</label>
-        <input type="checkbox" id="ctb" value="4" v-model="optine.mode" />
-        <label for="ctb">ctb</label>
-        <input type="checkbox" id="mania" value="8" v-model="optine.mode" />
-        <label for="mania">mania</label>
-      </div>
-      <div>
-        Class:
-        <input type="checkbox" id="ranked-approved" value="1" v-model="optine.class" />
-        <label for="ranked-approved">Ranked & Approved</label>
-        <input type="checkbox" id="qualified" value="2" v-model="optine.class" />
-        <label for="qualified">Qualified</label>
-        <input type="checkbox" id="loved" value="4" v-model="optine.class" />
-        <label for="loved">Loved</label>
-        <input type="checkbox" id="pending-wip" value="8" v-model="optine.class" />
-        <label for="pending-wip">Pending & WIP</label>
-        <input type="checkbox" id="graveyard" value="8" v-model="optine.class" />
-        <label for="graveyard">Graveyard</label>
-      </div>
-      <div>
-        Genre:
-        <input type="checkbox" id="any" value="1" v-model="optine.genre" />
-        <label for="any">Any</label>
-        <input type="checkbox" id="unspecified" value="2" v-model="optine.genre" />
-        <label for="unspecified">Unspecified</label>
-        <input type="checkbox" id="video-game" value="4" v-model="optine.genre" />
-        <label for="video-game">Video Game</label>
-        <input type="checkbox" id="anime" value="8" v-model="optine.genre" />
-        <label for="anime">Anime</label>
-        <input type="checkbox" id="rock" value="16" v-model="optine.genre" />
-        <label for="rock">Rock</label>
-        <input type="checkbox" id="pop" value="32" v-model="optine.genre" />
-        <label for="pop">Pop</label>
-        <input type="checkbox" id="other" value="64" v-model="optine.genre" />
-        <label for="other">Other</label>
-        <input type="checkbox" id="novelty" value="128" v-model="optine.genre" />
-        <label for="novelty">Novelty</label>
-        <input type="checkbox" id="hip_hop" value="256" v-model="optine.genre" />
-        <label for="hip_hop">Hip Hop</label>
-        <input type="checkbox" id="electronic" value="1024" v-model="optine.genre" />
-        <label for="electronic">Electronic</label>
-      </div>
-      <div></div>
-    </div>
-  </popup>
+	<v-combobox
+		v-model="model"
+		:search-input.sync="searchText"
+		item-text="value"
+		filled
+		chips
+		deletable-chips
+		class="ml-6"
+		label="Search Everything"
+		multiple
+		flat
+		clearable
+		solo-inverted
+		:hide-no-data="!isCommand"
+		hide-details
+		prepend-inner-icon="mdi-magnify"
+	>
+		<template v-slot:no-data>
+			<v-list-item v-if="commandMode != -1">
+				<v-list-item-content>
+					<v-list-item-title>
+						{{ hintTitle[commandMode] }}
+					</v-list-item-title>
+					<v-list-item-subtitle>
+						{{ hintSubtitle[commandMode] }}
+					</v-list-item-subtitle>
+				</v-list-item-content>
+			</v-list-item>
+			<v-list-item v-else v-for="n in (0, 6)" :key="n">
+				<v-list-item-content>
+					<v-list-item-title>
+						{{ hintTitle[n] }}
+					</v-list-item-title>
+					<v-list-item-subtitle>
+						{{ hintSubtitle[n] }}
+					</v-list-item-subtitle>
+				</v-list-item-content>
+			</v-list-item>
+		</template>
+		<template v-slot:selection="data">
+			<v-chip
+				v-if="data.item.mode != -1"
+				close
+				@click:close="remove(data.item)"
+			>
+				{{
+					modes[data.item.mode] +
+						" " +
+						data.item.low +
+						"~" +
+						data.item.high
+				}}
+			</v-chip>
+			<v-label v-else light color="white">
+				{{ data.item.key }}
+			</v-label>
+		</template>
+		<template v-slot:item="data">
+			<template v-if="typeof data.item !== 'object'">
+				<v-list-item-content v-text="data.item"></v-list-item-content>
+			</template>
+			<template v-else>
+				<v-list-item-content>
+					<v-list-item-title
+						v-html="data.item.name"
+					></v-list-item-title>
+					<v-list-item-subtitle
+						v-html="data.item.group"
+					></v-list-item-subtitle>
+				</v-list-item-content>
+			</template>
+		</template>
+	</v-combobox>
 </template>
 
 <script>
-import Popup from "./Popup";
-
 export default {
-  name: "search-bar",
-  components: {
-    Popup
-  },
-  data: function() {
-    return {
-      isFilterOpen: false,
-      isFocused: false,
-      optine: this.searchOptine
-    };
-  },
-  props: ["searchOptine"],
-  methods: {
-    search() {
-      this.isFocused = false;
-      this.$refs.input.blur();
-      this.$router
-        .push({
-          path: "search",
-          query: {
-            keyword: this.searchOptine.keyword
-          }
-        })
-        // eslint-disable-next-line
-        .catch(err => {});
-    }
-  }
+	name: "search-bar",
+	data: function() {
+		return {
+			hasInputText: false,
+			searchText: null,
+			modes: ["Stars", "AR", "OD", "CS", "HP", "Length", "BPM"],
+			modesLowcase: ["stars", "ar", "od", "cs", "hp", "length", "bpm"],
+			hintTitle: [
+				":stars 0~10",
+				":ar 0~10",
+				":od 0~10",
+				":cs 0~10",
+				":hp 0~10",
+				":length 0~999",
+				":bpm 0~9999"
+			],
+			hintSubtitle: [
+				"限定谱面的星数",
+				"限定谱面的 Approach Rate",
+				"限定谱面的 Overall Difficulty",
+				"限定谱面的 Circle Size",
+				"限定谱面的 HP Drain",
+				"限定谱面的时长",
+				"限定谱面的 BPM"
+			],
+			model: [],
+			items: []
+			// people: [
+			// 	{
+			// 		name: "Star",
+			// 		value: ":star",
+			// 		group: "Group 1",
+			// 		avatar: srcs[1]
+			// 	}
+			// ],
+		};
+	},
+	computed: {
+		isCommand() {
+			return this.getCommand(this.searchText);
+		},
+		isCommandValid() {
+			if (!this.isCommand()) return false;
+
+			return this.getCommandValid(this.searchText) ? true : false;
+		},
+		commandMode() {
+			var match = this.getMatch(this.searchText);
+			if (match) {
+				return this.modeToInt(match.mode);
+			}
+			return -1;
+		}
+	},
+	watch: {
+		model(val, prev) {
+			if (val.length === prev.length) return;
+			if (prev && val.length < prev.length) {
+				var last = this.model[this.model.length - 1];
+				if (last && last.mode != -1) this.hasInputText = false;
+			}
+			if (typeof this.model[this.model.length - 1] === "string") {
+				var str = this.model.pop();
+				var v;
+				if (!this.getCommand(str)) {
+					v = {
+						key: str,
+						mode: -1
+					};
+					if (!this.hasInputText) {
+						this.model.push(v);
+						this.hasInputText = true;
+					} else {
+						this.model.pop();
+						this.model.push(v);
+					}
+				} else {
+					v = this.getCommandValid(str);
+					if (v) {
+						if (!this.hasInputText) {
+							this.model.push(v);
+						} else {
+							var text = this.model.pop();
+							this.model.push(v);
+							this.model.push(text);
+						}
+					} else {
+						// 莫名bug 如果 searchText 不变 赋值后就会被清空
+						// 如果是 （:od） 的话 我就真的没办法了
+						// 或者是 输到一般失去焦点的情况
+
+						v = this.getMatch(str);
+						this.searchText = ":";
+						if (this.modeToInt(v.mode) > 0)
+							this.searchText += v.mode;
+					}
+				}
+			}
+		}
+	},
+	methods: {
+		modeToInt(str) {
+			return this.modesLowcase.indexOf(str);
+		},
+		getMatch(str, reg = /:(\w+)([^\d](\d+)?[^\d](\d+)?)?/g) {
+			if (!reg.test(str)) return null;
+			reg.lastIndex = 0;
+
+			var match = reg.exec(str);
+			if (match.length == 2) {
+				return { mode: match[1] };
+			} else {
+				var mode = match[1].toLowerCase();
+				var low = Number.parseInt(match[2]);
+				var high = Number.parseInt(match[3]);
+				return { mode: mode, low: low, high: high };
+			}
+		},
+		getCommand(str) {
+			var reg = /:(\w+)?(.(\d+)?.(\d+)?)?/g;
+
+			if (!reg.test(str)) {
+				return false;
+			}
+
+			return true;
+		},
+		getCommandValid(str) {
+			var match = this.getMatch(str, /:(\w+)[^\d](\d+)[^\d](\d+)/g);
+
+			if (!match) return null;
+			if (this.modeToInt(match.mode) < 0) return null;
+			if (match.low > match.high) return null;
+
+			return {
+				mode: this.modeToInt(match.mode),
+				low: match.low,
+				high: match.high
+			};
+		},
+		remove(item) {
+			const index = this.model.indexOf(item);
+			if (index >= 0) this.model.splice(index, 1);
+		}
+	}
 };
 </script>
 
-<style lang="scss">
-.search-bar {
-  transition: box-shadow 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-  border: 1px solid #d9d9d9;
-  height: 50px;
-  overflow: hidden;
-  border-radius: 10px;
-  display: inline-flex;
-  align-content: stretch;
-  background: #ffffff;
-  line-height: 50px;
-  position: relative;
-  //box-shadow: 0 0 0 2px transparent;
-
-  .search-bar-icon {
-    text-align: center;
-    order: 1;
-    position: relative;
-    width: 50px;
-    label {
-      position: absolute;
-      display: block;
-      width: 100%;
-      height: 100%;
-      font-size: 1.5rem;
-      transition: opacity 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-    }
-
-    label.icon-search {
-      color: #e6e6e6;
-    }
-    label.icon-filter {
-      display: none;
-      transition: color 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-      color: #e6e6e6;
-
-      &:hover {
-        color: #f759ab;
-      }
-      &.clicked {
-        color: #f759ab;
-      }
-    }
-  }
-
-  input {
-    order: 2;
-    padding: 0;
-    transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-    outline: 0;
-    height: 100%;
-    border: none;
-    font-size: 1rem;
-  }
-  input::placeholder {
-    color: #e6e6e6;
-  }
-
-  &.search-bar-focused {
-    border-color: rgba(247, 89, 171, 0.2);
-    box-shadow: 0 0 3px rgba(255, 133, 192, 0.75);
-
-    input {
-      padding-right: 10rem;
-    }
-    .search-bar-icon {
-      .icon-search {
-        display: none;
-      }
-      .icon-filter {
-        display: inherit;
-        cursor: pointer;
-      }
-    }
-    .search-bar-btn {
-      opacity: 1;
-      transform: rotate(0);
-      cursor: pointer;
-    }
-  }
-  .search-bar-btn {
-    width: 50px;
-    font-size: 1.5rem;
-    display: block;
-    order: 3;
-    box-sizing: border-box;
-    padding: 0 10px;
-    opacity: 0;
-    color: #f759ab;
-    transform: rotate(-180deg);
-    transition: all 0.25s cubic-bezier(0.075, 0.82, 0.165, 1);
-  }
-  .search-bar-btn:hover {
-    opacity: 0.25;
-  }
-}
-
-.search-bar-filter {
-  text-align: left;
-  position: absolute;
-  width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 0 5px #dddddd;
-  margin-top: 5px;
-  padding: 10px 15px;
-  background: #ffffff;
-  box-sizing: border-box;
-  opacity: 0;
-  display: none;
-  &.search-bar-filter-open {
-    opacity: 1;
-    display: block;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .search-bar {
-    &.search-bar-focused {
-      input {
-        padding-right: 1rem;
-      }
-    }
-  }
-}
-</style>
+<style></style>

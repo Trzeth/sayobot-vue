@@ -8,15 +8,17 @@
 			elevate-on-scroll
 		>
 			<v-slide-x-reverse-transition mode="out-in">
-				<home-title-bar
-					v-if="!isCurrentViewOpen"
-					key="main"
-				></home-title-bar>
-				<detail-title-bar
-					v-else
-					key="detail"
-					v-on:back="isCurrentViewOpen = false"
-				></detail-title-bar>
+				<keep-alive>
+					<home-title-bar
+						v-if="!isCurrentViewOpen"
+						key="main"
+					></home-title-bar>
+					<detail-title-bar
+						v-else
+						key="detail"
+						v-on:back="closeDetailView"
+					></detail-title-bar>
+				</keep-alive>
 			</v-slide-x-reverse-transition>
 
 			<template v-slot:extension>
@@ -34,21 +36,17 @@
 		</v-app-bar>
 
 		<preview-card-list
-			v-bind:beatmapsetList="beatmapsetList"
+			:beatmapsetList="beatmapsetList"
 			v-on:reach-bottom="updateData"
 		></preview-card-list>
 
 		<v-slide-x-reverse-transition>
-			<div
-				style="left:256px;position:fixed;bottom:0;right:0;overflow:auto"
-				v-show="isCurrentViewOpen"
-			>
-				<detail-crad
-					v-bind:is="currentView"
-					v-bind:isOpen.sync="isCurrentViewOpen"
-					v-bind:optine="popupViewOptine"
-				></detail-crad>
-			</div>
+			<side-drawer v-show="isCurrentViewOpen">
+				<detail-view
+					:isOpen="isCurrentViewOpen"
+					:optine="popupViewOptine"
+				></detail-view>
+			</side-drawer>
 		</v-slide-x-reverse-transition>
 	</div>
 </template>
@@ -58,33 +56,25 @@ import axios from "axios";
 
 /* Components */
 import PreviewCardList from "@/components/PreviewCardList";
-import DetailCard from "@/components/popupViews/DetailCard.vue";
+import DetailView from "@/components/DetailView.vue";
 import HomeTitleBar from "@/components/HomeTitleBar.vue";
 import DetailTitleBar from "@/components/DetailTitleBar.vue";
+import SideDrawer from "@/components/SideDrawer";
 
 export default {
 	name: "Home",
 	components: {
 		PreviewCardList,
-		DetailCard,
+		DetailView,
 		HomeTitleBar,
-		DetailTitleBar
+		DetailTitleBar,
+		SideDrawer
 	},
 	data: function() {
 		return {
-			hover: false,
-			isAlertVisible: false,
 			isUpdated: false,
 			isCurrentViewOpen: false,
-			currentView: null,
 			popupViewOptine: null,
-			support: {
-				total: 0,
-				target: 0,
-				percentage: 0
-			},
-			isFirstView: true,
-			navFixed: false,
 			limit: 24,
 			offset: 0,
 			//Binding to SearchBar changed with input
@@ -103,12 +93,14 @@ export default {
 				searchOptine: {}
 			},
 			beatmapsetList: [],
-			notices: [],
-			isPullUpLoad: false,
-			isHeaderScroll: 0
+			notices: []
 		};
 	},
 	methods: {
+		closeDetailView() {
+			this.isCurrentViewOpen = false;
+			this.$router.go(-1);
+		},
 		updateData() {
 			if (this.isUpdated == true) {
 				this.isUpdated = false;
@@ -161,11 +153,6 @@ export default {
 		}
 	},
 	watch: {
-		isCurrentViewOpen: {
-			handler: function() {
-				if (this.isCurrentViewOpen == false) this.$router.go(-1);
-			}
-		},
 		"$route.params.queryMode": {
 			immediate: true,
 			handler: function() {
@@ -173,9 +160,11 @@ export default {
 					case "hot":
 						//判定是否相等 防止视图刷新
 						//Finding a better way to detail with
+						this.isCurrentViewOpen = false;
 						this.current.mode == 1 ? 0 : (this.current.mode = 1);
 						break;
 					case "new":
+						this.isCurrentViewOpen = false;
 						this.current.mode == 2 ? 0 : (this.current.mode = 2);
 						break;
 					case "search":
@@ -214,7 +203,6 @@ export default {
 				if (this.$route.params.queryMode == "beatmapset") {
 					var query = this.$route.query;
 					this.popupViewOptine = { sid: query.sid };
-					this.currentView = "detail-card";
 					this.isCurrentViewOpen = true;
 				}
 			}
@@ -236,13 +224,14 @@ export default {
 		axios.get("https://api.sayobot.cn/static/notice").then(response => {
 			this.notices = response.data.data[0];
 		});
-		axios.get("https://api.sayobot.cn/static/support").then(response => {
-			var data = response.data.data;
-			this.support.total = data.total;
-			this.support.target = data.target;
-			this.support.percentage =
-				(this.support.total / this.support.target) * 100;
-		});
+
+		// axios.get("https://api.sayobot.cn/static/support").then(response => {
+		// 	var data = response.data.data;
+		// 	this.support.total = data.total;
+		// 	this.support.target = data.target;
+		// 	this.support.percentage =
+		// 		(this.support.total / this.support.target) * 100;
+		// });
 	}
 };
 </script>

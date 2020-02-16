@@ -1,8 +1,6 @@
 <template>
 	<div class="detail-card-warpper">
 		<div class="detail-card">
-			<span class="close-btn iconfont icon-close" @click="close"></span>
-
 			<div>
 				<div class="img-warpper">
 					<img
@@ -215,10 +213,10 @@
 <script>
 import axios from "axios";
 import WaveSurfer from "wavesurfer.js";
-import ProgressBar from "./ProgressBar";
+import ProgressBar from "./ProgressBar.vue";
 
 export default {
-	name: "detail-card",
+	name: "detail-view",
 	data: function() {
 		return {
 			currentBeatmapIndex: 0,
@@ -259,23 +257,28 @@ export default {
 			});
 		},
 		isOpen: {
-			handler: function() {
-				this.isWsInited = false;
-				this.ws.empty();
+			handler: function(newV, oldV) {
+				this.pause();
 			}
 		},
 		optine: {
-			immediate: true,
-			handler: function() {
-				axios
-					.get(
-						"https://api.sayobot.cn/v2/beatmapinfo" +
-							"?0=" +
-							this.optine.sid
-					)
-					.then(response => {
-						this.beatmapsetDetail = response.data.data;
-					});
+			handler: function(newOptine, oldOptine) {
+				if (
+					this.optine &&
+					(!oldOptine || newOptine.sid != oldOptine.sid)
+				) {
+					this.isWsInited = false;
+					if (this.ws) this.ws.empty();
+					axios
+						.get(
+							"https://api.sayobot.cn/v2/beatmapinfo" +
+								"?0=" +
+								this.optine.sid
+						)
+						.then(response => {
+							this.beatmapsetDetail = response.data.data;
+						});
+				}
 			}
 		}
 	},
@@ -302,19 +305,17 @@ export default {
 			);
 		},
 		detailCardBackgroundSrc: function() {
-			var src =
-				"https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
-			return src.replace("${sid}", this.optine.sid);
+			if (this.optine) {
+				var src =
+					"https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
+				return src.replace("${sid}", this.optine.sid);
+			}
 		},
 		currentBeatmapDetail: function() {
 			return this.beatmapsetDetail.bid_data[this.currentBeatmapIndex];
 		}
 	},
 	methods: {
-		close: function() {
-			this.$emit("update:isOpen", false);
-			this.$router.go(-1);
-		},
 		length: function(value) {
 			var second = 0,
 				minute = 0;
@@ -374,7 +375,7 @@ export default {
 			}
 		},
 		pause() {
-			this.ws.pause();
+			if (this.ws) this.ws.pause();
 		},
 		artistClick() {
 			this.$router.push({

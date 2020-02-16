@@ -1,13 +1,6 @@
 <template>
 	<v-row class="ma-0" align="center">
-		<v-text-field
-			flat
-			solo-inverted
-			hide-details
-			prepend-inner-icon="mdi-magnify"
-			label="Search"
-			class="hidden-sm-and-down ml-6"
-		/>
+		<search-bar></search-bar>
 		<v-spacer></v-spacer>
 
 		<v-hover>
@@ -30,8 +23,11 @@
 </template>
 
 <script>
+import SearchBar from "./SearchBar.vue";
+
 export default {
-	name: "home-title-bar"
+	name: "home-title-bar",
+	components: { SearchBar }
 };
 </script>
 
