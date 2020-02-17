@@ -12,6 +12,7 @@
 					<home-title-bar
 						v-if="!isCurrentViewOpen"
 						key="main"
+						v-on:search="search"
 					></home-title-bar>
 					<detail-title-bar
 						v-else
@@ -23,12 +24,25 @@
 
 			<template v-slot:extension>
 				<v-slide-x-reverse-transition>
-					<v-tabs align-with-title v-show="!isCurrentViewOpen">
-						<v-tab>最新谱面</v-tab>
-						<v-tab>热门谱面</v-tab>
-						<v-tab>
-							<v-icon left>mdi-feature-search</v-icon>
-							Miku
+					<v-tabs
+						align-with-title
+						v-show="!isCurrentViewOpen"
+						v-model="tabNum"
+					>
+						<v-tab v-for="(tab, index) in tabs" :key="index">
+							<v-icon v-if="tab.type == 4" left
+								>mdi-feature-search</v-icon
+							>
+							{{ tab.key ? tab.key : "Untitle" }}
+							<v-btn
+								class="mr-n2 ml-2"
+								x-small
+								icon
+								v-if="tab.type == 4"
+								v-on:click.stop="closeTab(index)"
+							>
+								<v-icon>mdi-close</v-icon>
+							</v-btn>
 						</v-tab>
 					</v-tabs>
 				</v-slide-x-reverse-transition>
@@ -36,7 +50,7 @@
 		</v-app-bar>
 
 		<preview-card-list
-			:beatmapsetList="beatmapsetList"
+			:beatmapsetList="tabs[tabNum].data"
 			v-on:reach-bottom="updateData"
 		></preview-card-list>
 
@@ -77,40 +91,64 @@ export default {
 			popupViewOptine: null,
 			limit: 24,
 			offset: 0,
-			//Binding to SearchBar changed with input
-			searchOptine: {
-				keyword: "",
-				subType: [],
-				mode: [],
-				class: [],
-				genre: [],
-				language: [],
-				other: ""
-			},
-			//Current View SearchOptine
-			current: {
-				mode: "",
-				searchOptine: {}
-			},
-			beatmapsetList: [],
+
+			tabNum: 0,
+			tabs: [
+				{ key: "最新谱面", type: 2, data: [], yOffset: 0 },
+				{ key: "热门谱面", type: 1, data: [], yOffset: 0 }
+			],
 			notices: []
 		};
 	},
 	methods: {
+		search(val) {
+			var v = {
+				key: null,
+				data: [],
+				optine: [],
+				type: 4,
+				yOffset: 0
+			};
+
+			var last = val[val.length - 1];
+			if (last.mode == -1) {
+				v.key = last.key;
+			}
+
+			val.forEach(e => {
+				if (e.mode != -1) v.optine.push(e);
+			});
+
+			this.tabs.push(v);
+
+			//还有最新谱面与热门谱面
+			this.tabNum = this.tabs.length - 1;
+		},
 		closeDetailView() {
 			this.isCurrentViewOpen = false;
 			this.$router.go(-1);
+		},
+		closeTab(val) {
+			this.tabs.splice(val, 1);
+			tabNum--;
 		},
 		updateData() {
 			if (this.isUpdated == true) {
 				this.isUpdated = false;
 				this.offset += this.limit;
 				axios
-					.get(this.toUri(this.current, this.limit, this.offset))
+					.get(
+						this.toUri(
+							this.tabs[this.tabNum],
+							this.limit,
+							this.offset
+						)
+					)
 					.then(newData => {
-						this.beatmapsetList = this.beatmapsetList.concat(
-							newData.data.data
-						);
+						this.tabs[this.tabNum].data = this.tabs[
+							this.tabNum
+						].data.concat(newData.data.data);
+
 						this.isUpdated = true;
 					});
 			}
@@ -122,21 +160,21 @@ export default {
 			uri += "&";
 			uri += "1=" + offset;
 			uri += "&";
-			uri += "2=" + params.mode;
-			if (params.mode == 4) {
-				var searchOptine = params.searchOptine;
+			uri += "2=" + params.type;
+			if (params.type == 4) {
+				var optine = params.optine;
 				uri += "&";
-				uri += "3=" + searchOptine.keyword;
+				uri += "3=" + params.key;
 				var temp = 0;
-				temp = this.sum(searchOptine.subType);
+				temp = this.sum(optine.subType);
 				uri += temp ? "&4=" + temp : "";
-				temp = this.sum(searchOptine.mode);
+				temp = this.sum(optine.mode);
 				uri += temp ? "&5=" + temp : "";
-				temp = this.sum(searchOptine.class);
+				temp = this.sum(optine.class);
 				uri += temp ? "&6=" + temp : "";
-				temp = this.sum(searchOptine.genre);
+				temp = this.sum(optine.genre);
 				uri += temp ? "&7=" + temp : "";
-				temp = this.sum(searchOptine.language);
+				temp = this.sum(optine.language);
 				uri += temp ? "&8=" + temp : "";
 				// To do other paramer
 			}
@@ -153,71 +191,33 @@ export default {
 		}
 	},
 	watch: {
+		tabNum: {
+			immediate: true,
+			handler: function(val, pre) {
+				if (pre) this.tabs[pre].yOffset = window.pageYOffset;
+
+				if (this.tabs[val].data.length == 0) {
+					axios
+						.get(this.toUri(this.tabs[val], this.limit))
+						.then(response => {
+							console.log(val);
+
+							this.tabs[val].data = response.data.data;
+							this.isUpdated = true;
+						});
+				}
+
+				this.$vuetify.goTo(this.tabs[val].yOffset);
+			}
+		},
 		"$route.params.queryMode": {
 			immediate: true,
-			handler: function() {
-				switch (this.$route.params.queryMode) {
-					case "hot":
-						//判定是否相等 防止视图刷新
-						//Finding a better way to detail with
-						this.isCurrentViewOpen = false;
-						this.current.mode == 1 ? 0 : (this.current.mode = 1);
-						break;
-					case "new":
-						this.isCurrentViewOpen = false;
-						this.current.mode == 2 ? 0 : (this.current.mode = 2);
-						break;
-					case "search":
-						this.isCurrentViewOpen = false;
-						//Watch by "$route.query"
-						break;
-					case "beatmapset":
-						//Handled by "$route.query"
-						break;
-				}
-			}
+			handler: function() {}
 		},
 		"$route.query": {
 			immediate: true,
 			deep: true,
-			handler: function() {
-				//Only watch search mode
-				if (this.$route.params.queryMode == "search") {
-					var query = this.$route.query;
-					//Finding a better way to detail with
-					//防止触发页面刷新
-					//console.log(this.current.mode);
-					//console.log(this.searchOptine.keyword);
-					//console.log(query.keyword);
-					if (
-						this.current.mode != 4 ||
-						this.current.searchOptine.keyword != query.keyword
-					) {
-						this.current.mode = 4;
-						this.searchOptine.keyword = query.keyword;
-						this.current.searchOptine = this._.clone(
-							this.searchOptine
-						);
-					}
-				}
-				if (this.$route.params.queryMode == "beatmapset") {
-					var query = this.$route.query;
-					this.popupViewOptine = { sid: query.sid };
-					this.isCurrentViewOpen = true;
-				}
-			}
-		},
-		current: {
-			immediate: true,
-			deep: true,
-			handler: function() {
-				axios
-					.get(this.toUri(this.current, this.limit))
-					.then(response => {
-						this.beatmapsetList = response.data.data;
-						this.isUpdated = true;
-					});
-			}
+			handler: function() {}
 		}
 	},
 	created: function() {

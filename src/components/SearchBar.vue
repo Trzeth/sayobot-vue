@@ -1,12 +1,12 @@
 <template>
 	<v-combobox
 		v-model="model"
+		v-on:keydown.enter="OnKeyDown"
 		:search-input.sync="searchText"
 		item-text="value"
 		filled
 		chips
 		deletable-chips
-		class="ml-6"
 		label="Search Everything"
 		multiple
 		flat
@@ -52,7 +52,7 @@
 						data.item.high
 				}}
 			</v-chip>
-			<v-label v-else light color="white">
+			<v-label v-else class="d-inline-block mr-2">
 				{{ data.item.key }}
 			</v-label>
 		</template>
@@ -83,7 +83,22 @@ export default {
 			searchText: null,
 			modesPos: [-1, -1, -1, -1, -1, -1, -1],
 			modes: ["Stars", "AR", "OD", "CS", "HP", "Length", "BPM"],
-			modesLowcase: ["stars", "ar", "od", "cs", "hp", "length", "bpm"],
+			modesLowcase: [
+				"stars",
+				"ar",
+				"od",
+				"cs",
+				"hp",
+				"length",
+				"bpm",
+				"title",
+				"artist",
+				"source",
+				"creator",
+				"version",
+				"tags",
+				"source"
+			],
 			hintTitle: [
 				":stars 0~10",
 				":ar 0~10",
@@ -142,56 +157,64 @@ export default {
 					if (last.mode == -1) this.hasInputText = false;
 					else this.modesPos[last.mode] = -1;
 				}
-			}
-
-			if (typeof this.model[this.model.length - 1] === "string") {
-				var str = this.model.pop();
-				var v;
-				if (!this.getCommand(str)) {
-					v = {
-						key: str,
-						mode: -1
-					};
-					if (!this.hasInputText) {
-						this.model.push(v);
-						this.hasInputText = true;
-					} else {
-						this.model.pop();
-						this.model.push(v);
-					}
-				} else {
-					v = this.getCommandValid(str);
-					var len = this.model.length;
-					if (v) {
-						if (this.modesPos[v.mode] != -1) {
-							this.model[this.modesPos[v.mode]] = v;
+			} else if (val.length > prev.length) {
+				var last = this.model[this.model.length - 1];
+				if (last && typeof last === "string") {
+					var str = this.model.pop();
+					var v;
+					if (!this.getCommand(str)) {
+						v = {
+							key: str,
+							mode: -1
+						};
+						if (!this.hasInputText) {
+							this.model.push(v);
+							this.hasInputText = true;
 						} else {
-							if (!this.hasInputText) {
-								this.modesPos[v.mode] = len;
-								this.model.push(v);
-							} else {
-								var text = this.model.pop();
-
-								this.model.push(v);
-								this.model.push(text);
-								this.modesPos[v.mode] = len - 1;
-							}
+							this.model.pop();
+							this.model.push(v);
 						}
-					} else {
-						// 莫名vuetify bug 如果 searchText 不变 赋值后就会被清空
-						// 如果是 （:od） 的话 我就真的没办法了
-						// 或者是 输到一般失去焦点的情况
 
-						v = this.getMatch(str);
-						this.searchText = ":";
-						if (this.modeToInt(v.mode) > 0)
-							this.searchText += v.mode;
+						this.$emit("search", this.model);
+					} else {
+						v = this.getCommandValid(str);
+						var len = this.model.length;
+						if (v) {
+							if (this.modesPos[v.mode] != -1) {
+								this.model[this.modesPos[v.mode]] = v;
+							} else {
+								if (!this.hasInputText) {
+									this.modesPos[v.mode] = len;
+									this.model.push(v);
+								} else {
+									var text = this.model.pop();
+
+									this.model.push(v);
+									this.model.push(text);
+									this.modesPos[v.mode] = len - 1;
+								}
+							}
+						} else {
+							// 莫名vuetify bug 如果 searchText 不变 赋值后就会被清空
+							// 如果是 （:od） 的话 我就真的没办法了
+							// 或者是 输到一般失去焦点的情况
+
+							v = this.getMatch(str);
+							this.searchText = ":";
+							if (v && this.modeToInt(v.mode) > 0)
+								this.searchText += v.mode;
+						}
 					}
 				}
 			}
 		}
 	},
 	methods: {
+		OnKeyDown() {
+			// 当 input 仅为高级搜索表达式 并 在输入框为空时按下回车
+			// 输入文本状态下的处理在  watch -> model 里
+			if (!this.searchText) this.$emit("search", this.model);
+		},
 		modeToInt(str) {
 			return this.modesLowcase.indexOf(str);
 		},

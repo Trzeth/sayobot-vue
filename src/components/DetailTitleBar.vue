@@ -1,5 +1,5 @@
 <template>
-	<v-row class="ma-0" align="center">
+	<v-row no-gutters align="center">
 		<v-btn v-on:click="$emit('back')" icon large
 			><v-icon>mdi-chevron-left</v-icon></v-btn
 		>

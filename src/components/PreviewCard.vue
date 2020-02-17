@@ -14,7 +14,7 @@
 				</h3>
 			</div>
 
-			<div class="download-btn-warpper" v-on:click.stop>
+			<div class="download-btn-warpper">
 				<a
 					class="iconfont icon-download download-btn"
 					v-bind:href="downloadLink"
