@@ -91,7 +91,7 @@ export default {
 			popupViewOptine: null,
 			limit: 24,
 			offset: 0,
-
+			preTabNum: 0,
 			tabNum: 0,
 			tabs: [
 				{ key: "最新谱面", type: 2, data: [], yOffset: 0 },
@@ -130,7 +130,16 @@ export default {
 		},
 		closeTab(val) {
 			this.tabs.splice(val, 1);
-			tabNum--;
+			if (val < this.tabNum) {
+				this.tabNum--;
+			} else if (val == this.tabNum) {
+				if (this.preTabNum < this.tabs.length) {
+					this.tabNum = this.preTabNum;
+				} else {
+					//应该为 default 值
+					this.tabNum = 0;
+				}
+			}
 		},
 		updateData() {
 			if (this.isUpdated == true) {
@@ -194,8 +203,13 @@ export default {
 		tabNum: {
 			immediate: true,
 			handler: function(val, pre) {
-				if (pre) this.tabs[pre].yOffset = window.pageYOffset;
-
+				if (pre) {
+					this.preTabNum = pre;
+					if (this.tabs[pre])
+						this.tabs[pre].yOffset = window.pageYOffset;
+				}
+				console.log(val);
+				console.log(this.tabs[val]);
 				if (this.tabs[val].data.length == 0) {
 					axios
 						.get(this.toUri(this.tabs[val], this.limit))
