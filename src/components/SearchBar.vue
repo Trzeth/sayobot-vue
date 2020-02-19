@@ -4,8 +4,8 @@
 		v-on:keydown.enter="OnKeyDown"
 		:search-input.sync="inputText"
 		:hide-no-data="!isCommand"
+		append-icon=""
 		@click:clear="clear"
-		@click:append="open"
 		filled
 		chips
 		deletable-chips
@@ -136,7 +136,7 @@
 		</template>
 		<template v-slot:selection="data">
 			<v-chip
-				v-if="data.item.mode != -1"
+				v-if="data.item.type != -1"
 				close
 				@click:close="remove(data.item)"
 			>
@@ -279,8 +279,8 @@ export default {
 			],
 			others: [
 				{
-					mode: "Stars",
-					hintTitle: ":stars 0~10",
+					mode: "Star",
+					hintTitle: ":star 0~10",
 					hintSubtitle: "限定谱面的星数",
 					min: 0,
 					max: 10,
@@ -352,9 +352,10 @@ export default {
 	},
 	watch: {
 		inputText(val, pre) {
-			this.isUpdatingSelectingObj = true;
-
-			this.updateModel();
+			if (val) {
+				this.isUpdatingSelectingObj = true;
+				this.updateModel();
+			}
 		},
 		model(val, pre) {
 			if (!this.isUpdatingSelectingObj) {
@@ -367,23 +368,24 @@ export default {
 					var v = val[val.length - 1];
 					v.isActive = true;
 				} else if (val.length < pre.length) {
-					pre[pre.length - 1].isActive = false;
+					pre.forEach(e => {
+						if (!val.includes(e)) {
+							e.isActive = false;
+							this.isUpdatingSelectingObj = true;
+						}
+					});
 				}
 
-				if (this.searchText)
-					this.tag.push({
-						mode: -1,
-						key: this.searchText
-					});
 				this.updateTag();
+			} else {
+				this.isUpdatingSelectingObj = false;
 			}
-			this.isUpdatingSelectingObj = false;
 		},
 		tag(val, pre) {
 			//输入框删除情况
 			if (pre && val.length < pre.length) {
 				if (pre.length > 0) {
-					if (pre[pre.length - 1].mode == -1) {
+					if (pre[pre.length - 1].type == -1) {
 						this.searchText = null;
 					} else {
 						pre[pre.length - 1].isActive = false;
@@ -455,6 +457,13 @@ export default {
 		},
 		updateTag() {
 			this.tag = this.searchAllActiveObj();
+
+			if (this.searchText) {
+				this.tag.push({
+					type: -1,
+					key: this.searchText
+				});
+			}
 		},
 		OnKeyDown() {
 			// 当 input 仅为高级搜索表达式 并 在输入框为空时按下回车
@@ -462,7 +471,7 @@ export default {
 
 			if (!this.inputText) this.search();
 			else {
-				if (this.isCommand) {
+				if (this.getCommand(this.inputText)) {
 					var match = this.getOtherCommandValid(this.inputText);
 					if (!match) {
 						// Handler in watch->model
@@ -479,7 +488,7 @@ export default {
 					this.searchText = this.inputText;
 
 					this.tag.push({
-						mode: -1,
+						type: -1,
 						key: this.searchText
 					});
 
@@ -501,13 +510,13 @@ export default {
 				return { mode: match[1] };
 			} else {
 				var mode = match[1].toLowerCase();
-				var low = Number.parseInt(match[2]);
-				var high = Number.parseInt(match[3]);
+				var low = match[2] ? Number.parseInt(match[2]) : null;
+				var high = match[3] ? Number.parseInt(match[3]) : null;
 				return { mode: mode, low: low, high: high };
 			}
 		},
 		getCommand(str) {
-			var reg = /:(\w+)?([^\d\w](\d+)?[^\d](\d+))?/g;
+			var reg = /:(\w+[^\d\w](\d+)[^\d](\d+))?/g;
 
 			if (!reg.test(str)) {
 				return false;
@@ -516,22 +525,35 @@ export default {
 			return true;
 		},
 		getOtherCommandValid(str) {
-			var match = this.getMatch(str, /:(\w+)[^\d\w](\d+)[^\d](\d+)/g);
-
+			var match = this.getMatch(str, /:(\w+)[^\d\w](\d+)([^\d](\d+))?/g);
 			if (!match) return null;
 
 			var pos = this.modeToInt(match.mode);
 
 			if (pos < 0) return null;
-			if (match.low > match.high) return null;
-			if (match.low < this.others[pos].min) return null;
-			if (match.high > this.others[pos].max) return null;
+			if (match.low == null && !match.high == null) return null;
 
-			return {
-				mode: pos,
-				low: match.low,
-				high: match.high
-			};
+			if (match.low != null && match.high != null) {
+				if (match.low > match.high) return null;
+				if (match.low < this.others[pos].min) return null;
+				if (match.high > this.others[pos].max) return null;
+
+				return {
+					mode: pos,
+					low: match.low,
+					high: match.high
+				};
+			} else {
+				var v = match.low != null ? match.low : match.high;
+				if (v < this.others[pos].min || v > this.others[pos].max)
+					return null;
+
+				return {
+					mode: pos,
+					low: v,
+					high: v
+				};
+			}
 		},
 		getIconStr(type) {
 			switch (type) {
@@ -558,23 +580,74 @@ export default {
 		},
 		remove(item) {
 			item.isActive = false;
-			const index = this.model.indexOf(item);
+			const index = this.tag.indexOf(item);
 			if (index >= 0) this.tag.splice(index, 1);
-
 			this.updateModel();
 		},
 		clear() {
 			this.tag.forEach(e => {
 				e.isActive = false;
 			});
+			this.searchText = null;
 			this.tag = [];
 			this.updateModel();
 		},
-		open(v) {
-			if (!this.inputText) this.inputText = ":";
+		filterToInt(arr) {
+			var sum = 0;
+
+			for (var i = 0; i != arr.length; i++) {
+				if (arr[i].isActive) sum += Math.pow(2, i);
+			}
+			return sum ? sum : null;
+		},
+		otherToStr() {
+			var arr = this.others;
+
+			var isActive = false;
+			var str = "";
+
+			for (var i = 0; i != arr.length; i++) {
+				var item = arr[i];
+				var low, high;
+				if (item.isActive) {
+					isActive = true;
+					low = item.low;
+					high = item.high;
+				} else {
+					low = item.min;
+					high = item.max;
+				}
+
+				str += item.mode.toLowerCase() + ":" + low + "~" + high + ",";
+			}
+			str += "end";
+
+			return isActive ? str : null;
 		},
 		search() {
-			this.$emit("search", this.searchAllActiveObj());
+			var param = {
+				subType: null,
+				mode: null,
+				class: null,
+				other: null,
+				keyword: this.searchText
+			};
+
+			param.subType = this.filterToInt(this.subTypes);
+			param.mode = this.filterToInt(this.modes);
+			param.class = this.filterToInt(this.classes);
+			param.other = this.otherToStr();
+
+			if (
+				!param.subType &&
+				!param.mode &&
+				!param.class &&
+				!param.other &&
+				!param.keyword
+			)
+				return;
+
+			this.$emit("search", param);
 		}
 	}
 };

@@ -33,7 +33,7 @@
 							<v-icon v-if="tab.type == 4" left
 								>mdi-feature-search</v-icon
 							>
-							{{ tab.key ? tab.key : "Untitle" }}
+							{{ tab.keyword ? tab.keyword : "Untitle" }}
 							<v-btn
 								class="mr-n2 ml-2"
 								x-small
@@ -51,6 +51,7 @@
 
 		<preview-card-list
 			:beatmapsetList="tabs[tabNum].data"
+			:end="tabs[tabNum].end"
 			v-on:reach-bottom="updateData"
 		></preview-card-list>
 
@@ -58,7 +59,7 @@
 			<side-drawer v-show="isCurrentViewOpen">
 				<detail-view
 					:isOpen="isCurrentViewOpen"
-					:optine="popupViewOptine"
+					:optine="detailViewOptine"
 				></detail-view>
 			</side-drawer>
 		</v-slide-x-reverse-transition>
@@ -88,45 +89,154 @@ export default {
 		return {
 			isUpdated: false,
 			isCurrentViewOpen: false,
-			popupViewOptine: null,
+			detailViewOptine: null,
 			limit: 24,
-			offset: 0,
 			preTabNum: 0,
 			tabNum: 0,
 			tabs: [
-				{ key: "最新谱面", type: 2, data: [], yOffset: 0 },
-				{ key: "热门谱面", type: 1, data: [], yOffset: 0 }
+				{
+					keyword: "最新谱面",
+					type: 2,
+					data: [],
+					yOffset: 0,
+					offset: 0,
+					end: false
+				},
+				{
+					keyword: "热门谱面",
+					type: 1,
+					data: [],
+					yOffset: 0,
+					offset: 0,
+					end: false
+				}
 			],
 			notices: []
 		};
 	},
+
+	watch: {
+		"$route.params": {
+			immediate: true,
+			handler: function(val) {
+				var queryMode = val.queryMode;
+				if (!queryMode) {
+					this.$router.push("home/new");
+					return;
+				}
+				var query = this.$route.query;
+
+				switch (queryMode) {
+					case "new":
+						this.tabNum = 0;
+						break;
+					case "hot":
+						this.tabNum = 1;
+						break;
+					case "search":
+						this.isCurrentViewOpen = false;
+
+						if (
+							!query.subType &&
+							!query.mode &&
+							!query.class &&
+							!query.other &&
+							!query.keyword
+						) {
+							if (this.tabs.length == 2) this.$router.push("new");
+						} else {
+							this.search(query);
+							this.$router.replace("search");
+						}
+						break;
+					case "beatmapset":
+						this.openDetailView();
+
+						this.detailViewOptine = {
+							sid: val.sid
+						};
+						break;
+				}
+			}
+		},
+		tabNum: {
+			immediate: true,
+			handler: function(val, pre) {
+				if (this.tabs[pre]) {
+					this.tabs[pre].yOffset = window.pageYOffset;
+					this.preTabNum = pre;
+				}
+				if (this.tabs[val].data.length == 0) {
+					this.isUpdated = false;
+
+					axios
+						.get(this.toUri(this.tabs[val], this.limit))
+						.then(response => {
+							this.tabs[val].data = response.data.data;
+
+							if (response.data.endid == 0)
+								this.tabs[this.tabNum].end = true;
+							else
+								this.tabs[this.tabNum].offset =
+									response.data.endid;
+
+							this.isUpdated = true;
+						});
+				}
+				var path = this.typeToStr(this.tabs[val].type);
+				if (
+					!this.isCurrentViewOpen &&
+					this.$route.params.queryMode != path
+				)
+					this.$router.push(path);
+				this.$nextTick(() => {
+					this.$vuetify.goTo(this.tabs[val].yOffset);
+				});
+			}
+		}
+	},
 	methods: {
 		search(val) {
-			var v = {
-				key: null,
-				data: [],
-				optine: [],
-				type: 4,
-				yOffset: 0
-			};
+			// {
+			// 	subType: null,
+			// 	mode: null,
+			// 	class: null,
+			// 	other: null,
+			// 	keyword: null
+			// };
+			if (
+				!val.subType &&
+				!val.mode &&
+				!val.class &&
+				!val.other &&
+				!val.keyword
+			)
+				return;
 
-			var last = val[val.length - 1];
-			if (last.mode == -1) {
-				v.key = last.key;
-			}
-
-			val.forEach(e => {
-				if (e.mode != -1) v.optine.push(e);
-			});
+			var v = val;
+			val.data = [];
+			val.yOffset = 0;
+			val.offset = 0;
+			val.type = 4;
+			val.end = false;
 
 			this.tabs.push(v);
 
-			//还有最新谱面与热门谱面
 			this.tabNum = this.tabs.length - 1;
+		},
+		openDetailView() {
+			this.isCurrentViewOpen = true;
+			document.getElementsByTagName("html")[0].style.overflow = "hidden";
 		},
 		closeDetailView() {
 			this.isCurrentViewOpen = false;
-			this.$router.go(-1);
+			document.getElementsByTagName("html")[0].style.overflow = "auto";
+
+			if (window.history.length > 1) {
+				this.$router.go(-1);
+			} else {
+				this.$router.push("/home");
+			}
 		},
 		closeTab(val) {
 			this.tabs.splice(val, 1);
@@ -144,91 +254,62 @@ export default {
 		updateData() {
 			if (this.isUpdated == true) {
 				this.isUpdated = false;
-				this.offset += this.limit;
-				axios
-					.get(
-						this.toUri(
-							this.tabs[this.tabNum],
-							this.limit,
-							this.offset
-						)
-					)
-					.then(newData => {
-						this.tabs[this.tabNum].data = this.tabs[
-							this.tabNum
-						].data.concat(newData.data.data);
+				if (!this.tabs[this.tabNum].end) {
+					axios
+						.get(this.toUri(this.tabs[this.tabNum], this.limit))
+						.then(newData => {
+							this.tabs[this.tabNum].data = this.tabs[
+								this.tabNum
+							].data.concat(newData.data.data);
 
-						this.isUpdated = true;
-					});
+							if (newData.data.endid == 0)
+								this.tabs[this.tabNum].end = true;
+							else
+								this.tabs[this.tabNum].offset =
+									newData.data.endid;
+
+							this.isUpdated = true;
+						});
+				}
 			}
 		},
-		toUri(params, limit, offset = 0) {
+		toUri(params, limit) {
+			// {
+			// 	subType: null,
+			// 	mode: null,
+			// 	class: null,
+			// 	other: null,
+			// 	keyword: null
+			// };
+
 			var host = "https://api.sayobot.cn";
 			var uri = host + "/beatmaplist";
 			uri += "?0=" + limit;
 			uri += "&";
-			uri += "1=" + offset;
+			if (params.offset == null) params.offset = 0;
+			uri += "1=" + params.offset;
 			uri += "&";
 			uri += "2=" + params.type;
 			if (params.type == 4) {
-				var optine = params.optine;
-				uri += "&";
-				uri += "3=" + params.key;
-				var temp = 0;
-				temp = this.sum(optine.subType);
-				uri += temp ? "&4=" + temp : "";
-				temp = this.sum(optine.mode);
-				uri += temp ? "&5=" + temp : "";
-				temp = this.sum(optine.class);
-				uri += temp ? "&6=" + temp : "";
-				temp = this.sum(optine.genre);
-				uri += temp ? "&7=" + temp : "";
-				temp = this.sum(optine.language);
-				uri += temp ? "&8=" + temp : "";
-				// To do other paramer
+				uri += "&3=" + (params.keyword ? params.keyword : "");
+				if (params.subType) uri += "&4=" + params.subType;
+				if (params.mode) uri += "&5=" + params.mode;
+				if (params.class) uri += "&6=" + params.class;
+				if (params.genre) uri += "&7=" + params.class;
+				if (params.language) uri += "&8=" + params.class;
+				if (params.other) uri += "&9=" + '"' + params.other + '"';
 			}
 			return uri;
 		},
-		sum(params) {
-			var sum = 0;
-			if (params != null) {
-				params.forEach(element => {
-					sum += Number(element);
-				});
+		typeToStr(type) {
+			switch (type) {
+				case 1:
+					return "hot";
+				case 2:
+					return "new";
+				case 4:
+					return "search";
 			}
-			return sum;
-		}
-	},
-	watch: {
-		tabNum: {
-			immediate: true,
-			handler: function(val, pre) {
-				if (this.tabs[pre]) this.tabs[pre].yOffset = window.pageYOffset;
-
-				if (this.tabs[val].data.length == 0) {
-					axios
-						.get(this.toUri(this.tabs[val], this.limit))
-						.then(response => {
-							console.log(val);
-
-							this.tabs[val].data = response.data.data;
-							this.isUpdated = true;
-						});
-				}
-
-				this.$nextTick(() => {
-					this.$vuetify.goTo(this.tabs[val].yOffset);
-				});
-			}
-		},
-		"$route.params.queryMode": {
-			immediate: true,
-			handler: function() {}
-		},
-		"$route.query": {
-			immediate: true,
-			deep: true,
-			handler: function() {}
 		}
 	},
 	created: function() {

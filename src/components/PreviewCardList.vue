@@ -3,12 +3,15 @@
 		<div class="preview-card-list">
 			<preview-card
 				v-for="beatmapset in beatmapsetList"
-				v-bind:key="beatmapset.sid"
 				v-bind:beatmapsetInfo="beatmapset"
 				v-bind:isUnicode="isUnicode"
 				v-bind:useCDN="useCDN"
 			></preview-card>
-			<div class="preview-card-skeleton" v-intersect="OnIntersect">
+			<div
+				class="preview-card-skeleton"
+				v-intersect="OnIntersect"
+				v-if="!end"
+			>
 				<v-skeleton-loader
 					type="image"
 					style="height:0;padding-top: 28%;position: relative;"
@@ -49,7 +52,7 @@ export default {
 			if (entries[0].isIntersecting == true) this.$emit("reach-bottom");
 		}
 	},
-	props: ["beatmapsetList"]
+	props: ["beatmapsetList", "end"]
 };
 </script>
 <style lang="scss">

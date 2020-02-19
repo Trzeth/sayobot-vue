@@ -9,25 +9,16 @@ Vue.use(Router);
 
 export default new Router({
 	mode: "history",
-	base: process.env.BASE_URL,
 	routes: [
 		{
-			path: "/search/:queryMode",
+			path: "/search/:queryMode?",
 			name: "search",
 			component: Search
 		},
 		{
-			path: "/search",
-			redirect: "/search/home"
-		},
-		{
-			path: "/setting/:queryMode",
+			path: "/setting/:queryMode?",
 			name: "setting",
 			component: Setting
-		},
-		{
-			path: "/setting",
-			redirect: "/setting/general"
 		},
 		{
 			path: "/support",
@@ -35,14 +26,9 @@ export default new Router({
 			component: Support
 		},
 		{
-			path: "/home/:queryMode",
+			path: "/home/:queryMode?/:sid(\\d+)?",
 			name: "home",
 			component: Home
-		},
-
-		{
-			path: "/home",
-			redirect: "/home/new"
 		},
 		{
 			path: "/",

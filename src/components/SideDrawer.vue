@@ -1,11 +1,13 @@
 <template>
 	<div
 		:style="{
+			background: color,
 			left: left + 'px',
 			top: top,
 			bottom: bottom,
 			right: right,
-			position: 'fixed'
+			position: 'fixed',
+			overflow: 'auto'
 		}"
 	>
 		<slot></slot>
@@ -31,6 +33,10 @@ export default {
 		right: {
 			type: Number,
 			default: 0
+		},
+		color: {
+			type: String,
+			default: "#ffffff"
 		}
 	}
 };

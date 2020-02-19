@@ -104,13 +104,19 @@ export default {
 			return src;
 		},
 		beatmapsetInfoLink: function() {
-			return "beatmapset?sid=" + this.beatmapsetInfo.sid;
+			return "beatmapset/" + this.beatmapsetInfo.sid;
 		},
 		searchArtistLink: function() {
-			return "search?keyword=" + this.beatmapsetInfo.artist;
+			return (
+				"search?subType=2&keyword=" +
+				encodeURIComponent(this.beatmapsetInfo.artist)
+			);
 		},
 		searchCreatorLink: function() {
-			return "search?keyword=" + this.beatmapsetInfo.creator;
+			return (
+				"search?subType=4&keyword=" +
+				encodeURIComponent(this.beatmapsetInfo.creator)
+			);
 		},
 		title: function() {
 			if (this.isUnicode == true && this.beatmapsetInfo.titleU != "") {

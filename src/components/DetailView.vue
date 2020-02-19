@@ -1,212 +1,184 @@
 <template>
-	<div class="detail-card-warpper">
-		<div class="detail-card">
-			<div>
-				<div class="img-warpper">
-					<img
-						class="head-img"
-						v-bind:src="detailCardBackgroundSrc"
-					/>
-				</div>
-				<div class="down">
-					<div class="left">
-						<span
-							class="play-btn iconfont"
-							v-bind:class="{
-								inited: isWsInited,
-								'icon-caret-right': !isWsPlaying,
-								'icon-pause': isWsPlaying
-							}"
-							@click="play"
-						></span>
-						<span
-							class="progress-bar"
-							v-bind:class="{ inited: isWsInited }"
-							>{{ length(currentDuration) }} /
-							{{ length(totalDuration) }}</span
-						>
-						<div ref="waveform" class="waveform"></div>
+	<div class="detail-card">
+		<div class="img-warpper">
+			<img class="head-img" v-bind:src="detailCardBackgroundSrc" />
+		</div>
+		<div class="down">
+			<div class="left">
+				<span
+					class="play-btn iconfont"
+					v-bind:class="{
+						inited: isWsInited,
+						'icon-caret-right': !isWsPlaying,
+						'icon-pause': isWsPlaying
+					}"
+					@click="play"
+				></span>
+				<span class="progress-bar" v-bind:class="{ inited: isWsInited }"
+					>{{ length(currentDuration) }} /
+					{{ length(totalDuration) }}</span
+				>
+				<div ref="waveform" class="waveform"></div>
 
-						<h2 class="title">{{ title }}</h2>
-						<h2 class="artist" @click="artistClick">
-							{{ artist }}
-						</h2>
-						<h2 class="creator" @click="creatorClick">
-							{{ beatmapsetDetail.creator }}
-						</h2>
-						<div class="timeline">
-							<h3>
-								Last Update:
-								{{ beatmapsetDetail.last_update }}
-							</h3>
-							<h3>
-								Approved:{{ beatmapsetDetail.approved_date }}
-							</h3>
-						</div>
-					</div>
-					<div class="right">
-						<ul>
-							<li
-								v-for="(beatmap,
-								index) in beatmapsetDetail.bid_data"
-								@click="currentBeatmapIndex = index"
-								v-bind:key="beatmap.bid"
-								class="mode-li"
-							>
-								<div class="background">
-									{{ star(beatmap.star) }}*
-								</div>
-							</li>
-						</ul>
-						<div class="beatmapset-detail">
-							<span
-								class="iconfont icon-time-circle"
-								title="Length"
-								>{{ length(currentBeatmapDetail.length) }}</span
-							>
-							<span class="iconfont icon-bell" title="BPM">{{
-								beatmapsetDetail.bpm
-							}}</span>
-							<span
-								class="iconfont icon-circle circle"
-								title="Circles"
-								>{{ currentBeatmapDetail.circles }}</span
-							>
-							<span
-								class="iconfont icon-sliders"
-								title="Sliders"
-								>{{ currentBeatmapDetail.sliders }}</span
-							>
-							<span
-								class="iconfont icon-spinner3 circle"
-								title="Spinners"
-								>{{ currentBeatmapDetail.spinners }}</span
-							>
-						</div>
-						<table class="beatmap-detail-table">
-							<tbody>
-								<tr>
-									<th class="title">Circle Size</th>
-									<td class="progress">
-										<progress-bar
-											background-color="black"
-											height="5px"
-											color="white"
-											v-bind:progress="
-												valueToPectange(
-													currentBeatmapDetail.CS
-												)
-											"
-										></progress-bar>
-									</td>
-									<td class="value">
-										{{ currentBeatmapDetail.CS }}
-									</td>
-								</tr>
-								<tr>
-									<th class="title">
-										Overall Difficulty
-									</th>
-									<td class="progress">
-										<progress-bar
-											background-color="black"
-											height="5px"
-											color="white"
-											v-bind:progress="
-												valueToPectange(
-													currentBeatmapDetail.OD
-												)
-											"
-										></progress-bar>
-									</td>
-									<td class="value">
-										{{ currentBeatmapDetail.OD }}
-									</td>
-								</tr>
-								<tr>
-									<th class="title">HP Drain</th>
-									<td class="progress">
-										<progress-bar
-											background-color="black"
-											height="5px"
-											color="white"
-											v-bind:progress="
-												valueToPectange(
-													currentBeatmapDetail.HP
-												)
-											"
-										></progress-bar>
-									</td>
-									<td class="value">
-										{{ currentBeatmapDetail.HP }}
-									</td>
-								</tr>
-								<tr>
-									<th class="title">Approach Rate</th>
-									<td class="progress">
-										<progress-bar
-											background-color="black"
-											height="5px"
-											color="white"
-											v-bind:progress="
-												valueToPectange(
-													currentBeatmapDetail.AR
-												)
-											"
-										></progress-bar>
-									</td>
-									<td class="value">
-										{{ currentBeatmapDetail.AR }}
-									</td>
-								</tr>
-								<tr v-if="currentBeatmapDetail.aim != 0">
-									<th class="title">Aim</th>
-									<td class="progress">
-										<progress-bar
-											background-color="black"
-											height="5px"
-											color="white"
-											v-bind:progress="
-												valueToPectange(
-													currentBeatmapDetail.aim
-												)
-											"
-										></progress-bar>
-									</td>
-									<td class="value">
-										{{ currentBeatmapDetail.aim }}
-									</td>
-								</tr>
-								<tr v-if="currentBeatmapDetail.speed != 0">
-									<th class="title">Speed</th>
-									<td class="progress">
-										<progress-bar
-											background-color="black"
-											height="5px"
-											color="white"
-											v-bind:progress="
-												valueToPectange(
-													currentBeatmapDetail.speed
-												)
-											"
-										></progress-bar>
-									</td>
-									<td class="value">
-										{{ currentBeatmapDetail.speed }}
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<div></div>
-					</div>
+				<h2 class="title">{{ title }}</h2>
+				<h2 class="artist" @click="artistClick">
+					{{ artist }}
+				</h2>
+				<h2 class="creator" @click="creatorClick">
+					{{ beatmapsetDetail.creator }}
+				</h2>
+				<div class="timeline">
+					<h3>
+						Last Update:
+						{{ beatmapsetDetail.last_update }}
+					</h3>
+					<h3>Approved:{{ beatmapsetDetail.approved_date }}</h3>
 				</div>
-
-				<a
-					class="download-btn iconfont icon-vertical-align-botto"
-					v-bind:href="downloadLink"
-				></a>
+			</div>
+			<div class="right">
+				<ul>
+					<li
+						v-for="(beatmap, index) in beatmapsetDetail.bid_data"
+						@click="currentBeatmapIndex = index"
+						v-bind:key="beatmap.bid"
+						class="mode-li"
+					>
+						<div class="background">{{ star(beatmap.star) }}*</div>
+					</li>
+				</ul>
+				<div class="beatmapset-detail">
+					<span class="iconfont icon-time-circle" title="Length">{{
+						length(currentBeatmapDetail.length)
+					}}</span>
+					<span class="iconfont icon-bell" title="BPM">{{
+						beatmapsetDetail.bpm
+					}}</span>
+					<span class="iconfont icon-circle circle" title="Circles">{{
+						currentBeatmapDetail.circles
+					}}</span>
+					<span class="iconfont icon-sliders" title="Sliders">{{
+						currentBeatmapDetail.sliders
+					}}</span>
+					<span
+						class="iconfont icon-spinner3 circle"
+						title="Spinners"
+						>{{ currentBeatmapDetail.spinners }}</span
+					>
+				</div>
+				<table class="beatmap-detail-table">
+					<tbody>
+						<tr>
+							<th class="title">Circle Size</th>
+							<td class="progress">
+								<progress-bar
+									background-color="black"
+									height="5px"
+									color="white"
+									v-bind:progress="
+										valueToPectange(currentBeatmapDetail.CS)
+									"
+								></progress-bar>
+							</td>
+							<td class="value">
+								{{ currentBeatmapDetail.CS }}
+							</td>
+						</tr>
+						<tr>
+							<th class="title">
+								Overall Difficulty
+							</th>
+							<td class="progress">
+								<progress-bar
+									background-color="black"
+									height="5px"
+									color="white"
+									v-bind:progress="
+										valueToPectange(currentBeatmapDetail.OD)
+									"
+								></progress-bar>
+							</td>
+							<td class="value">
+								{{ currentBeatmapDetail.OD }}
+							</td>
+						</tr>
+						<tr>
+							<th class="title">HP Drain</th>
+							<td class="progress">
+								<progress-bar
+									background-color="black"
+									height="5px"
+									color="white"
+									v-bind:progress="
+										valueToPectange(currentBeatmapDetail.HP)
+									"
+								></progress-bar>
+							</td>
+							<td class="value">
+								{{ currentBeatmapDetail.HP }}
+							</td>
+						</tr>
+						<tr>
+							<th class="title">Approach Rate</th>
+							<td class="progress">
+								<progress-bar
+									background-color="black"
+									height="5px"
+									color="white"
+									v-bind:progress="
+										valueToPectange(currentBeatmapDetail.AR)
+									"
+								></progress-bar>
+							</td>
+							<td class="value">
+								{{ currentBeatmapDetail.AR }}
+							</td>
+						</tr>
+						<tr v-if="currentBeatmapDetail.aim != 0">
+							<th class="title">Aim</th>
+							<td class="progress">
+								<progress-bar
+									background-color="black"
+									height="5px"
+									color="white"
+									v-bind:progress="
+										valueToPectange(
+											currentBeatmapDetail.aim
+										)
+									"
+								></progress-bar>
+							</td>
+							<td class="value">
+								{{ currentBeatmapDetail.aim }}
+							</td>
+						</tr>
+						<tr v-if="currentBeatmapDetail.speed != 0">
+							<th class="title">Speed</th>
+							<td class="progress">
+								<progress-bar
+									background-color="black"
+									height="5px"
+									color="white"
+									v-bind:progress="
+										valueToPectange(
+											currentBeatmapDetail.speed
+										)
+									"
+								></progress-bar>
+							</td>
+							<td class="value">
+								{{ currentBeatmapDetail.speed }}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div></div>
 			</div>
 		</div>
+
+		<a
+			class="download-btn iconfont icon-vertical-align-botto"
+			v-bind:href="downloadLink"
+		></a>
 	</div>
 </template>
 
@@ -262,6 +234,7 @@ export default {
 			}
 		},
 		optine: {
+			immediate: true,
 			handler: function(newOptine, oldOptine) {
 				if (
 					this.optine &&
@@ -379,17 +352,25 @@ export default {
 		},
 		artistClick() {
 			this.$router.push({
-				path: "search",
+				name: "home",
+				params: {
+					queryMode: "search"
+				},
 				query: {
-					keyword: this.beatmapsetDetail.artist
+					keyword: this.beatmapsetDetail.artist,
+					subType: 2
 				}
 			});
 		},
 		creatorClick() {
 			this.$router.push({
-				path: "search",
+				name: "home",
+				params: {
+					queryMode: "search"
+				},
 				query: {
-					keyword: this.beatmapsetDetail.creator
+					keyword: this.beatmapsetDetail.creator,
+					subType: 4
 				}
 			});
 		},
@@ -402,23 +383,6 @@ export default {
 
 <style lang="scss">
 .detail-card {
-	height: 100%;
-	background: #ffffff;
-
-	.scroll {
-		height: 100%;
-	}
-
-	.close-btn {
-		position: absolute;
-		top: 15px;
-		right: 15px;
-		padding: 5px;
-		font-size: 2rem;
-		z-index: 1;
-		text-shadow: 0 0 1px black;
-	}
-
 	.img-warpper {
 		position: relative;
 		padding-top: 28%;
