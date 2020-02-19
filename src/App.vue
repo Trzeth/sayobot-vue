@@ -105,9 +105,11 @@ export default {
 				"warning",
 				"pink darken-2",
 				"red lighten-1",
-				"deep-purple accent-4"
+				"deep-purple accent-4",
+				"indigo",
+				"warning"
 			],
-			slides: ["First", "Second", "Third", "Fourth", "Fifth"]
+			slides: ["V", "M", "I", "R", "R", "O", "R"]
 		};
 	}
 };

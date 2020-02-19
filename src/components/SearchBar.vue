@@ -1,10 +1,11 @@
 <template>
 	<v-combobox
-		v-model="tags"
+		v-model="tag"
 		v-on:keydown.enter="OnKeyDown"
 		:search-input.sync="inputText"
 		:hide-no-data="!isCommand"
 		@click:clear="clear"
+		@click:append="open"
 		filled
 		chips
 		deletable-chips
@@ -19,16 +20,21 @@
 	>
 		<template v-slot:no-data>
 			<v-list-item-group color="primary" multiple v-model="model">
-				<v-list-item v-if="commandMode != -1">
-					<v-list-item-content>
-						<v-list-item-title>
-							{{ others[commandMode].hintTitle }}
-						</v-list-item-title>
-						<v-list-item-subtitle>
-							{{ others[commandMode].hintSubtitle }}
-						</v-list-item-subtitle>
-					</v-list-item-content>
-				</v-list-item>
+				<template v-if="otherCommandMode != -1">
+					<v-subheader>高级选项</v-subheader>
+					<v-list-item disabled color="black">
+						<v-list-item-icon></v-list-item-icon>
+
+						<v-list-item-content>
+							<v-list-item-title>
+								{{ others[otherCommandMode].hintTitle }}
+							</v-list-item-title>
+							<v-list-item-subtitle>
+								{{ others[otherCommandMode].hintSubtitle }}
+							</v-list-item-subtitle>
+						</v-list-item-content>
+					</v-list-item>
+				</template>
 				<template v-else>
 					<template>
 						<v-subheader>关键词</v-subheader>
@@ -134,7 +140,19 @@
 				close
 				@click:close="remove(data.item)"
 			>
-				{{ data.item.hintTitle }}
+				<v-avatar left
+					><v-icon>{{ getIconStr(data.item.type) }}</v-icon>
+				</v-avatar>
+				<template v-if="data.item.type == 3">
+					{{
+						data.item.mode +
+							" " +
+							getRangeStr(data.item.low, data.item.high)
+					}}
+				</template>
+				<template v-else>
+					{{ data.item.tagText }}
+				</template>
 			</v-chip>
 			<v-label v-else class="d-inline-block mr-2">
 				{{ data.item.key }}
@@ -154,7 +172,7 @@ export default {
 			isUpdatingSelectingObj: false,
 
 			model: [],
-			tags: [],
+			tag: [],
 
 			selectedSubTypes: [],
 			selectedModes: [],
@@ -163,71 +181,100 @@ export default {
 			subTypes: [
 				// subType
 				{
+					tagText: "Title",
 					hintTitle: ":title",
 					hintSubtitle: "限定关键词为标题",
-					isActive: false
+					type: 0
 				},
 				{
+					tagText: "Artist",
 					hintTitle: ":artist",
-					hintSubtitle: "限定关键词为艺术家"
+					hintSubtitle: "限定关键词为艺术家",
+					type: 0
 				},
 				{
+					tagText: "Source",
 					hintTitle: ":source",
-					hintSubtitle: "限定关键词为出处"
+					hintSubtitle: "限定关键词为出处",
+					type: 0
 				},
 				{
+					tagText: "Creator",
 					hintTitle: ":creator",
-					hintSubtitle: "限定关键词为作图者"
+					hintSubtitle: "限定关键词为作图者",
+					type: 0
 				},
 				{
+					tagText: "Version",
 					hintTitle: ":version",
-					hintSubtitle: "限定关键词为难度"
+					hintSubtitle: "限定关键词为难度",
+					type: 0
 				},
 				{
+					tagText: "Tags",
 					hintTitle: ":tags",
-					hintSubtitle: "限定关键词为标签"
+					hintSubtitle: "限定关键词为标签",
+					type: 0
 				}
 			],
 			modes: [
 				// mode
 				{
+					tagText: "Std",
 					hintTitle: ":std",
-					hintSubtitle: "限定谱面为标准模式"
+					hintSubtitle: "限定谱面为标准模式",
+					type: 1
 				},
 				{
+					tagText: "Taiko",
 					hintTitle: ":taiko",
-					hintSubtitle: "限定谱面为太鼓模式"
+					hintSubtitle: "限定谱面为太鼓模式",
+					type: 1
 				},
 				{
+					tagText: "CTB",
 					hintTitle: ":ctb",
-					hintSubtitle: "限定谱面为接水果模式"
+					hintSubtitle: "限定谱面为接水果模式",
+					type: 1
 				},
 				{
+					tagText: "Mania",
 					hintTitle: ":mania",
-					hintSubtitle: "限定谱面为钢琴模式"
+					hintSubtitle: "限定谱面为钢琴模式",
+					type: 1
 				}
 			],
 			classes: [
 				// class
 				{
+					tagText: "Ranked & Approved",
 					hintTitle: ":ranked&approved",
-					hintSubtitle: "限定谱面为 Ranked & Approved 状态"
+					hintSubtitle: "限定谱面为 Ranked & Approved 状态",
+					type: 2
 				},
 				{
+					tagText: "Qualified",
 					hintTitle: ":qualified",
-					hintSubtitle: "限定谱面为 Qualified 状态"
+					hintSubtitle: "限定谱面为 Qualified 状态",
+					type: 2
 				},
 				{
+					tagText: "Loved",
 					hintTitle: ":loved",
-					hintSubtitle: "限定谱面为 Loved 状态"
+					hintSubtitle: "限定谱面为 Loved 状态",
+					type: 2
 				},
 				{
+					tagText: "Pending & WIP",
 					hintTitle: ":pending&wip",
-					hintSubtitle: "限定谱面为 Pending & WIP 状态"
+					hintSubtitle: "限定谱面为 Pending & WIP 状态",
+					type: 2
 				},
 				{
+					tagText: "Graveyard",
 					hintTitle: ":graveyard",
-					hintSubtitle: "限定谱面为 Graveyard 状态"
+					hintSubtitle: "限定谱面为 Graveyard 状态",
+					type: 2
 				}
 			],
 			others: [
@@ -235,43 +282,57 @@ export default {
 					mode: "Stars",
 					hintTitle: ":stars 0~10",
 					hintSubtitle: "限定谱面的星数",
-					pos: -1
+					min: 0,
+					max: 10,
+					type: 3
 				},
 				{
 					mode: "AR",
 					hintTitle: ":ar 0~10",
 					hintSubtitle: "限定谱面的 Approach Rate",
-					pos: -1
+					min: 0,
+					max: 10,
+					type: 3
 				},
 				{
 					mode: "OD",
 					hintTitle: ":od 0~10",
 					hintSubtitle: "限定谱面的 Overall Difficulty",
-					pos: -1
+					min: 0,
+					max: 10,
+					type: 3
 				},
 				{
 					mode: "CS",
 					hintTitle: ":cs 0~10",
 					hintSubtitle: "限定谱面的 Circle Size",
-					pos: -1
+					min: 0,
+					max: 10,
+					type: 3
 				},
 				{
 					mode: "HP",
 					hintTitle: ":hp 0~10",
 					hintSubtitle: "限定谱面的 HP Drain",
-					pos: -1
+					min: 0,
+					max: 10,
+					type: 3
 				},
 				{
 					mode: "Length",
 					hintTitle: ":length 0~999",
 					hintSubtitle: "限定谱面的时长",
-					pos: -1
+					min: 0,
+					max: 999,
+					type: 3
 				},
 				{
 					mode: "BPM",
 					hintTitle: ":bpm 0~9999",
 					hintSubtitle: "限定谱面的 BPM",
-					pos: -1
+					min: 0,
+					max: 9999,
+					type: 3
 				}
 			]
 		};
@@ -280,12 +341,7 @@ export default {
 		isCommand() {
 			return this.getCommand(this.inputText);
 		},
-		isCommandValid() {
-			if (!this.isCommand()) return false;
-
-			return this.getCommandValid(this.inputText) ? true : false;
-		},
-		commandMode() {
+		otherCommandMode() {
 			var match = this.getMatch(this.inputText);
 			if (match) {
 				var i = this.modeToInt(match.mode);
@@ -298,31 +354,32 @@ export default {
 		inputText(val, pre) {
 			this.isUpdatingSelectingObj = true;
 
-			this.model = this.searchSelectedActiveObj();
+			this.updateModel();
 		},
 		model(val, pre) {
 			if (!this.isUpdatingSelectingObj) {
+				if (this.isEnterPress) {
+					this.isEnterPress = false;
+					this.inputText = null;
+				}
+
 				if (!pre || val.length > pre.length) {
-					if (this.isEnterPress) {
-						this.isEnterPress = false;
-						this.inputText = null;
-					}
 					var v = val[val.length - 1];
 					v.isActive = true;
 				} else if (val.length < pre.length) {
 					pre[pre.length - 1].isActive = false;
 				}
 
-				this.tags = this.searchAllActiveObj();
 				if (this.searchText)
-					this.tags.push({
+					this.tag.push({
 						mode: -1,
 						key: this.searchText
 					});
+				this.updateTag();
 			}
 			this.isUpdatingSelectingObj = false;
 		},
-		tags(val, pre) {
+		tag(val, pre) {
 			//输入框删除情况
 			if (pre && val.length < pre.length) {
 				if (pre.length > 0) {
@@ -330,14 +387,14 @@ export default {
 						this.searchText = null;
 					} else {
 						pre[pre.length - 1].isActive = false;
-						this.model = this.searchSelectedActiveObj();
+						this.updateModel();
 					}
 				}
 			}
 		}
 	},
 	methods: {
-		searchObj(str, arr, type) {
+		searchObj(str, arr) {
 			var selected = [];
 			const hasValue = val => (val != null ? val : "");
 
@@ -351,7 +408,6 @@ export default {
 						.toLowerCase()
 						.indexOf(query.toString().toLowerCase()) > -1
 				) {
-					e.type = type;
 					selected.push(e);
 				}
 			});
@@ -362,31 +418,22 @@ export default {
 
 			this.selectedSubTypes = this.searchObj(
 				this.inputText,
-				this.subTypes,
-				0
+				this.subTypes
 			);
 			active = active.concat(
 				this.searchActiveObjHelper(this.selectedSubTypes)
 			);
 
-			this.selectedModes = this.searchObj(this.inputText, this.modes, 1);
+			this.selectedModes = this.searchObj(this.inputText, this.modes);
 
 			active = active.concat(
 				this.searchActiveObjHelper(this.selectedModes)
 			);
-			this.selectedClasses = this.searchObj(
-				this.inputText,
-				this.classes,
-				2
-			);
+			this.selectedClasses = this.searchObj(this.inputText, this.classes);
 			active = active.concat(
 				this.searchActiveObjHelper(this.selectedClasses)
 			);
-			this.selectedOthers = this.searchObj(
-				this.inputText,
-				this.others,
-				3
-			);
+			this.selectedOthers = this.searchObj(this.inputText, this.others);
 			active = active.concat(
 				this.searchActiveObjHelper(this.selectedOthers)
 			);
@@ -403,27 +450,49 @@ export default {
 		searchActiveObjHelper(arr) {
 			return arr.filter(e => e.isActive);
 		},
+		updateModel() {
+			this.model = this.searchSelectedActiveObj();
+		},
+		updateTag() {
+			this.tag = this.searchAllActiveObj();
+		},
 		OnKeyDown() {
 			// 当 input 仅为高级搜索表达式 并 在输入框为空时按下回车
 			// 输入文本状态下的处理在  watch -> model 里
-			if (!this.inputText) this.$emit("search", this.model);
+
+			if (!this.inputText) this.search();
 			else {
 				if (this.isCommand) {
-					this.isEnterPress = true;
+					var match = this.getOtherCommandValid(this.inputText);
+					if (!match) {
+						// Handler in watch->model
+						this.isEnterPress = true;
+					} else {
+						var v = this.others[match.mode];
+						v.isActive = true;
+						v.low = match.low;
+						v.high = match.high;
+						this.updateTag();
+						this.inputText = null;
+					}
 				} else {
 					this.searchText = this.inputText;
-					this.tags.push({
+
+					this.tag.push({
 						mode: -1,
 						key: this.searchText
 					});
+
 					this.inputText = null;
+
+					this.search();
 				}
 			}
 		},
 		modeToInt(str) {
 			return this.others.findIndex(ele => ele.mode.toLowerCase() == str);
 		},
-		getMatch(str, reg = /::(\w+)([^\d](\d+)?[^\d](\d+)?)?/g) {
+		getMatch(str, reg = /:(\w+)[^\d\w]((\d+)?[^\d](\d+)?)?/g) {
 			if (!reg.test(str)) return null;
 			reg.lastIndex = 0;
 
@@ -438,7 +507,7 @@ export default {
 			}
 		},
 		getCommand(str) {
-			var reg = /::?(\w+)?(.(\d+)?.(\d+)?)?/g;
+			var reg = /:(\w+)?([^\d\w](\d+)?[^\d](\d+))?/g;
 
 			if (!reg.test(str)) {
 				return false;
@@ -446,34 +515,66 @@ export default {
 
 			return true;
 		},
-		getCommandValid(str) {
-			var match = this.getMatch(str, /::(\w+)[^\d](\d+)[^\d](\d+)/g);
+		getOtherCommandValid(str) {
+			var match = this.getMatch(str, /:(\w+)[^\d\w](\d+)[^\d](\d+)/g);
 
 			if (!match) return null;
-			if (this.modeToInt(match.mode) < 0) return null;
+
+			var pos = this.modeToInt(match.mode);
+
+			if (pos < 0) return null;
 			if (match.low > match.high) return null;
+			if (match.low < this.others[pos].min) return null;
+			if (match.high > this.others[pos].max) return null;
 
 			return {
-				mode: this.modeToInt(match.mode),
+				mode: pos,
 				low: match.low,
 				high: match.high
 			};
 		},
+		getIconStr(type) {
+			switch (type) {
+				case 0:
+					return "mdi-alpha-k-circle";
+					break;
+				case 1:
+					return "mdi-alpha-m-circle";
+					break;
+				case 2:
+					return "mdi-alpha-s-circle";
+					break;
+				case 3:
+					return "mdi-alpha-o-circle";
+					break;
+			}
+		},
+		getRangeStr(low, high) {
+			if (high > low) {
+				return low + "~" + high;
+			} else if (high == low) {
+				return high;
+			}
+		},
 		remove(item) {
-			console.log("remove");
 			item.isActive = false;
 			const index = this.model.indexOf(item);
-			if (index >= 0) this.tags.splice(index, 1);
+			if (index >= 0) this.tag.splice(index, 1);
 
-			this.model = this.searchSelectedActiveObj();
+			this.updateModel();
 		},
 		clear() {
-			this.tags.forEach(e => {
+			this.tag.forEach(e => {
 				e.isActive = false;
 			});
-			this.tags = [];
-
-			this.model = this.searchSelectedActiveObj();
+			this.tag = [];
+			this.updateModel();
+		},
+		open(v) {
+			if (!this.inputText) this.inputText = ":";
+		},
+		search() {
+			this.$emit("search", this.searchAllActiveObj());
 		}
 	}
 };

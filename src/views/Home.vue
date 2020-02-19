@@ -203,13 +203,8 @@ export default {
 		tabNum: {
 			immediate: true,
 			handler: function(val, pre) {
-				if (pre) {
-					this.preTabNum = pre;
-					if (this.tabs[pre])
-						this.tabs[pre].yOffset = window.pageYOffset;
-				}
-				console.log(val);
-				console.log(this.tabs[val]);
+				if (this.tabs[pre]) this.tabs[pre].yOffset = window.pageYOffset;
+
 				if (this.tabs[val].data.length == 0) {
 					axios
 						.get(this.toUri(this.tabs[val], this.limit))
@@ -221,7 +216,9 @@ export default {
 						});
 				}
 
-				this.$vuetify.goTo(this.tabs[val].yOffset);
+				this.$nextTick(() => {
+					this.$vuetify.goTo(this.tabs[val].yOffset);
+				});
 			}
 		},
 		"$route.params.queryMode": {
