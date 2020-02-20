@@ -2,15 +2,17 @@
 	<v-combobox
 		v-model="tag"
 		v-on:keydown.enter="OnKeyDown"
+		v-on:blur="UnFocus"
+		v-on:focus="OnFocus"
 		:search-input.sync="inputText"
 		:hide-no-data="!isCommand"
+		:label="labelText"
 		append-icon=""
 		@click:clear="clear"
 		filled
 		chips
 		deletable-chips
 		auto-select-first
-		label="Search Everything"
 		multiple
 		flat
 		clearable
@@ -171,6 +173,7 @@ export default {
 			isEnterPress: false,
 			isUpdatingSelectingObj: false,
 
+			labelText: "Search Everything",
 			model: [],
 			tag: [],
 
@@ -351,7 +354,7 @@ export default {
 		}
 	},
 	watch: {
-		inputText(val, pre) {
+		inputText(val) {
 			if (val) {
 				this.isUpdatingSelectingObj = true;
 				this.updateModel();
@@ -485,18 +488,28 @@ export default {
 						this.inputText = null;
 					}
 				} else {
-					this.searchText = this.inputText;
-
-					this.tag.push({
-						type: -1,
-						key: this.searchText
-					});
+					if (this.searchText) {
+						this.searchText += this.inputText;
+						this.tag[this.tag.length - 1].key = this.searchText;
+					} else {
+						this.searchText = this.inputText;
+						this.tag.push({
+							type: -1,
+							key: this.searchText
+						});
+					}
 
 					this.inputText = null;
 
 					this.search();
 				}
 			}
+		},
+		OnFocus() {
+			this.labelText = "输入 : 显示筛选器";
+		},
+		UnFocus() {
+			this.labelText = "Search Everything";
 		},
 		modeToInt(str) {
 			return this.others.findIndex(ele => ele.mode.toLowerCase() == str);
@@ -559,16 +572,12 @@ export default {
 			switch (type) {
 				case 0:
 					return "mdi-alpha-k-circle";
-					break;
 				case 1:
 					return "mdi-alpha-m-circle";
-					break;
 				case 2:
 					return "mdi-alpha-s-circle";
-					break;
 				case 3:
 					return "mdi-alpha-o-circle";
-					break;
 			}
 		},
 		getRangeStr(low, high) {

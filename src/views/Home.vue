@@ -2,9 +2,9 @@
 	<div>
 		<v-app-bar
 			:color="!isCurrentViewOpen ? 'white' : 'transparent'"
+			:flat="isCurrentViewOpen"
 			light
 			app
-			:flat="isCurrentViewOpen"
 			elevate-on-scroll
 		>
 			<v-slide-x-reverse-transition mode="out-in">
@@ -18,6 +18,7 @@
 						v-else
 						key="detail"
 						v-on:back="closeDetailView"
+						:title="detailViewOptine.sid"
 					></detail-title-bar>
 				</keep-alive>
 			</v-slide-x-reverse-transition>
@@ -90,6 +91,7 @@ export default {
 			isUpdated: false,
 			isCurrentViewOpen: false,
 			detailViewOptine: null,
+
 			limit: 24,
 			preTabNum: 0,
 			tabNum: 0,
@@ -128,9 +130,13 @@ export default {
 
 				switch (queryMode) {
 					case "new":
+						this.isCurrentViewOpen = false;
+
 						this.tabNum = 0;
 						break;
 					case "hot":
+						this.isCurrentViewOpen = false;
+
 						this.tabNum = 1;
 						break;
 					case "search":

@@ -1,184 +1,182 @@
 <template>
 	<div class="detail-card">
-		<div class="img-warpper">
-			<img class="head-img" v-bind:src="detailCardBackgroundSrc" />
-		</div>
-		<div class="down">
-			<div class="left">
-				<span
-					class="play-btn iconfont"
-					v-bind:class="{
-						inited: isWsInited,
-						'icon-caret-right': !isWsPlaying,
-						'icon-pause': isWsPlaying
-					}"
-					@click="play"
-				></span>
-				<span class="progress-bar" v-bind:class="{ inited: isWsInited }"
-					>{{ length(currentDuration) }} /
-					{{ length(totalDuration) }}</span
-				>
-				<div ref="waveform" class="waveform"></div>
+		<div
+			class="img-warpper elevation-4"
+			:style="{ backgroundImage: detailCardBackgroundSrc }"
+		>
+			<v-container style="position: relative;" justify="center">
+				<v-row align="end">
+					<v-col>
+						<v-row>
+							<span
+								class="play-btn iconfont"
+								v-bind:class="{
+									inited: isWsInited,
+									'icon-caret-right': !isWsPlaying,
+									'icon-pause': isWsPlaying
+								}"
+								@click="play"
+							></span>
+							<span
+								class="progress-bar"
+								v-bind:class="{ inited: isWsInited }"
+								>{{ length(currentDuration) }} /
+								{{ length(totalDuration) }}</span
+							>
+						</v-row>
+						<v-row>
+							<div ref="waveform" class="waveform"></div>
+						</v-row>
+						<v-row>
+							<label class="display-1 mb-5">{{ title }}</label>
+						</v-row>
+						<v-row>
+							<h2 class="headline" @click="artistClick">
+								{{ artist }}
+							</h2>
+						</v-row>
+						<v-row>
+							<h2 class="title" @click="creatorClick">
+								{{ beatmapsetDetail.creator }}
+							</h2>
+						</v-row>
+						<v-row class="mt-5">
+							<v-btn class="ma-1"
+								><v-icon>mdi-heart-outline</v-icon></v-btn
+							>
+							<v-btn class="ma-1">
+								<v-icon left>mdi-download</v-icon>下载</v-btn
+							>
+							<v-btn class="ma-1">
+								<v-icon left>mdi-download</v-icon
+								>不带视频</v-btn
+							>
+							<v-btn class="ma-1">
+								<v-icon left>mdi-download</v-icon>Mini</v-btn
+							>
+						</v-row>
+					</v-col>
+					<v-spacer></v-spacer>
+					<v-col>
+						<v-row>
+							<v-chip-group>
+								<v-chip
+									v-for="(beatmap,
+									index) in beatmapsetDetail.bid_data"
+									@click="currentBeatmapIndex = index"
+									v-bind:key="beatmap.bid"
+								>
+									{{ star(beatmap.star) }}*
+								</v-chip>
+							</v-chip-group>
+						</v-row>
+						<v-row>
+							<v-col
+								><span
+									class="iconfont icon-time-circle"
+									title="Length"
+									>{{
+										length(currentBeatmapDetail.length)
+									}}</span
+								></v-col
+							>
+							<v-col
+								><span class="iconfont icon-bell" title="BPM">{{
+									beatmapsetDetail.bpm
+								}}</span></v-col
+							>
+							<v-col>
+								<span
+									class="iconfont icon-circle circle"
+									title="Circles"
+									>{{ currentBeatmapDetail.circles }}</span
+								>
+							</v-col>
+							<v-col>
+								<span
+									class="iconfont icon-sliders"
+									title="Sliders"
+									>{{ currentBeatmapDetail.sliders }}</span
+								>
+							</v-col>
+							<v-col>
+								<v-icon></v-icon>
+								<span
+									class="iconfont icon-spinner3 circle"
+									title="Spinners"
+									>{{ currentBeatmapDetail.spinners }}</span
+								>
+							</v-col>
+						</v-row>
+						<v-row>
+							<v-col cols="6"
+								><v-row>Circle Size</v-row>
+								<v-row>Overall Difficulty</v-row>
+								<v-row>HP Drain</v-row>
+								<v-row>Approach Rate</v-row>
+								<v-row>Aim</v-row>
+								<v-row>Speed</v-row>
+							</v-col>
 
-				<h2 class="title">{{ title }}</h2>
-				<h2 class="artist" @click="artistClick">
-					{{ artist }}
-				</h2>
-				<h2 class="creator" @click="creatorClick">
-					{{ beatmapsetDetail.creator }}
-				</h2>
-				<div class="timeline">
-					<h3>
-						Last Update:
-						{{ beatmapsetDetail.last_update }}
-					</h3>
-					<h3>Approved:{{ beatmapsetDetail.approved_date }}</h3>
-				</div>
-			</div>
-			<div class="right">
-				<ul>
-					<li
-						v-for="(beatmap, index) in beatmapsetDetail.bid_data"
-						@click="currentBeatmapIndex = index"
-						v-bind:key="beatmap.bid"
-						class="mode-li"
-					>
-						<div class="background">{{ star(beatmap.star) }}*</div>
-					</li>
-				</ul>
-				<div class="beatmapset-detail">
-					<span class="iconfont icon-time-circle" title="Length">{{
-						length(currentBeatmapDetail.length)
-					}}</span>
-					<span class="iconfont icon-bell" title="BPM">{{
-						beatmapsetDetail.bpm
-					}}</span>
-					<span class="iconfont icon-circle circle" title="Circles">{{
-						currentBeatmapDetail.circles
-					}}</span>
-					<span class="iconfont icon-sliders" title="Sliders">{{
-						currentBeatmapDetail.sliders
-					}}</span>
-					<span
-						class="iconfont icon-spinner3 circle"
-						title="Spinners"
-						>{{ currentBeatmapDetail.spinners }}</span
-					>
-				</div>
-				<table class="beatmap-detail-table">
-					<tbody>
-						<tr>
-							<th class="title">Circle Size</th>
-							<td class="progress">
-								<progress-bar
-									background-color="black"
-									height="5px"
-									color="white"
-									v-bind:progress="
-										valueToPectange(currentBeatmapDetail.CS)
-									"
-								></progress-bar>
-							</td>
-							<td class="value">
-								{{ currentBeatmapDetail.CS }}
-							</td>
-						</tr>
-						<tr>
-							<th class="title">
-								Overall Difficulty
-							</th>
-							<td class="progress">
-								<progress-bar
-									background-color="black"
-									height="5px"
-									color="white"
-									v-bind:progress="
-										valueToPectange(currentBeatmapDetail.OD)
-									"
-								></progress-bar>
-							</td>
-							<td class="value">
-								{{ currentBeatmapDetail.OD }}
-							</td>
-						</tr>
-						<tr>
-							<th class="title">HP Drain</th>
-							<td class="progress">
-								<progress-bar
-									background-color="black"
-									height="5px"
-									color="white"
-									v-bind:progress="
-										valueToPectange(currentBeatmapDetail.HP)
-									"
-								></progress-bar>
-							</td>
-							<td class="value">
-								{{ currentBeatmapDetail.HP }}
-							</td>
-						</tr>
-						<tr>
-							<th class="title">Approach Rate</th>
-							<td class="progress">
-								<progress-bar
-									background-color="black"
-									height="5px"
-									color="white"
-									v-bind:progress="
-										valueToPectange(currentBeatmapDetail.AR)
-									"
-								></progress-bar>
-							</td>
-							<td class="value">
-								{{ currentBeatmapDetail.AR }}
-							</td>
-						</tr>
-						<tr v-if="currentBeatmapDetail.aim != 0">
-							<th class="title">Aim</th>
-							<td class="progress">
-								<progress-bar
-									background-color="black"
-									height="5px"
-									color="white"
-									v-bind:progress="
-										valueToPectange(
-											currentBeatmapDetail.aim
-										)
-									"
-								></progress-bar>
-							</td>
-							<td class="value">
-								{{ currentBeatmapDetail.aim }}
-							</td>
-						</tr>
-						<tr v-if="currentBeatmapDetail.speed != 0">
-							<th class="title">Speed</th>
-							<td class="progress">
-								<progress-bar
-									background-color="black"
-									height="5px"
-									color="white"
-									v-bind:progress="
-										valueToPectange(
-											currentBeatmapDetail.speed
-										)
-									"
-								></progress-bar>
-							</td>
-							<td class="value">
-								{{ currentBeatmapDetail.speed }}
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<div></div>
-			</div>
+							<v-col cols="6">
+								<v-row>
+									{{ currentBeatmapDetail.CS }}
+								</v-row>
+								<v-row>
+									{{ currentBeatmapDetail.OD }}
+								</v-row>
+								<v-row>
+									{{ currentBeatmapDetail.HP }}
+								</v-row>
+								<v-row>
+									{{ currentBeatmapDetail.AR }}
+								</v-row>
+								<v-row>
+									{{ currentBeatmapDetail.aim }}
+								</v-row>
+								<v-row>
+									{{ currentBeatmapDetail.speed }}
+								</v-row>
+							</v-col>
+						</v-row>
+					</v-col>
+				</v-row>
+			</v-container>
 		</div>
-
-		<a
-			class="download-btn iconfont icon-vertical-align-botto"
-			v-bind:href="downloadLink"
-		></a>
+		<v-container>
+			<v-row
+				><v-col cols="8">
+					<v-row style="position: relative">
+						<v-btn-toggle class="ml-6" borderless mandatory>
+							<v-btn disabled>
+								<v-icon left>mdi-format-align-left</v-icon
+								>移动曲线</v-btn
+							>
+							<v-btn disabled
+								><v-icon left>mdi-format-align-left</v-icon
+								>手速曲线</v-btn
+							>
+						</v-btn-toggle>
+						<v-overlay absolute color="transprant"
+							><v-btn light elevation="10">
+								<v-icon left>mdi-sticker-remove-outline</v-icon
+								>数据不可用</v-btn
+							></v-overlay
+						>
+						<v-chart :options="polar" autoresize> </v-chart> </v-row
+				></v-col>
+				<v-spacer></v-spacer>
+				<v-col cols="auto">
+					<v-list>
+						<v-subheader>PP</v-subheader>
+						<v-list-item>Max pp(none mode)</v-list-item>
+						<v-list-item>谱面的移动pp</v-list-item>
+						<v-list-item>铺面的手速pp</v-list-item>
+						<v-list-item>铺面的acc PP</v-list-item>
+					</v-list>
+				</v-col>
+			</v-row>
+		</v-container>
 	</div>
 </template>
 
@@ -186,10 +184,19 @@
 import axios from "axios";
 import WaveSurfer from "wavesurfer.js";
 import ProgressBar from "./ProgressBar.vue";
+import ECharts from "vue-echarts";
+import "echarts/lib/chart/line";
 
 export default {
 	name: "detail-view",
 	data: function() {
+		let data = [];
+
+		for (let i = 0; i <= 360; i++) {
+			let t = (i / 180) * Math.PI;
+			let r = Math.sin(2 * t) * Math.cos(2 * t);
+			data.push([r, i]);
+		}
 		return {
 			currentBeatmapIndex: 0,
 			beatmapsetDetail: {
@@ -199,7 +206,46 @@ export default {
 			isWsInited: false,
 			isWsPlaying: false,
 			totalDuration: 0,
-			currentDuration: 0
+			currentDuration: 0,
+			polar: {
+				title: {
+					text: "ECharts 入门示例"
+				},
+				tooltip: {},
+				legend: {
+					data: ["销量"],
+					padding: 0,
+					left: 0
+				},
+				grid: {
+					left: 24
+				},
+				xAxis: {
+					show: true,
+					axisTick: {
+						show: false
+					},
+					axisLine: {
+						show: false
+					}
+				},
+				yAxis: {
+					show: true,
+					axisTick: {
+						show: false
+					},
+					axisLine: {
+						show: false
+					}
+				},
+				series: [
+					{
+						name: "销量",
+						type: "line",
+						data: [5, 20, 36, 10, 10, 20]
+					}
+				]
+			}
 		};
 	},
 	localStorage: {
@@ -213,7 +259,8 @@ export default {
 		}
 	},
 	components: {
-		ProgressBar
+		ProgressBar,
+		"v-chart": ECharts
 	},
 	props: ["optine", "isOpen"],
 	mounted: function() {
@@ -279,8 +326,9 @@ export default {
 		},
 		detailCardBackgroundSrc: function() {
 			if (this.optine) {
+				console.log(this.optine.sid);
 				var src =
-					"https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
+					"url(https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg)";
 				return src.replace("${sid}", this.optine.sid);
 			}
 		},
@@ -382,25 +430,33 @@ export default {
 </script>
 
 <style lang="scss">
+.echarts {
+	width: 100%;
+}
 .detail-card {
 	.img-warpper {
 		position: relative;
-		padding-top: 28%;
-		overflow: hidden;
-		height: 0;
-
-		.head-img {
-			position: absolute;
-			top: 0;
-			width: 100%;
-			height: auto;
-		}
-	}
-
-	.down {
+		background-position: 50%;
+		background-size: cover;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
+		padding-top: 112px;
+		color: #000000;
+		//box-shadow: 0 0 5px 5px rgba(155, 155, 155, 0.8);
+
+		&::before {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			content: "";
+			background-image: linear-gradient(
+				rgba(218, 218, 218, 0.3),
+				rgba(238, 238, 238, 0.5)
+			);
+		}
 
 		.left {
 			flex: 1;
@@ -447,20 +503,6 @@ export default {
 				position: relative;
 				z-index: 0;
 			}
-			.title {
-				margin-top: 40px;
-
-				font-weight: 400;
-				font-size: 2rem;
-			}
-			.artist {
-				font-weight: 400;
-				font-size: 1.5rem;
-			}
-			.creator {
-				font-weight: 500;
-				font-size: 1.2rem;
-			}
 		}
 		.right {
 			display: flex;
@@ -472,7 +514,6 @@ export default {
 			.beatmapset-detail {
 				.iconfont {
 					display: inline-block;
-					margin: 0 5px;
 
 					&.circle:before {
 						font-size: 1rem;
@@ -515,6 +556,9 @@ export default {
 				}
 			}
 		}
+	}
+
+	.down {
 	}
 	.download-btn {
 		text-decoration: none;
