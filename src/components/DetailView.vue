@@ -1,32 +1,12 @@
 <template>
 	<div class="detail-card">
 		<div
-			class="img-warpper elevation-4"
+			class="up-warpper elevation-4"
 			:style="{ backgroundImage: detailCardBackgroundSrc }"
 		>
-			<v-container style="position: relative;" justify="center">
+			<v-container style="position: relative;">
 				<v-row align="end">
-					<v-col>
-						<v-row>
-							<span
-								class="play-btn iconfont"
-								v-bind:class="{
-									inited: isWsInited,
-									'icon-caret-right': !isWsPlaying,
-									'icon-pause': isWsPlaying
-								}"
-								@click="play"
-							></span>
-							<span
-								class="progress-bar"
-								v-bind:class="{ inited: isWsInited }"
-								>{{ length(currentDuration) }} /
-								{{ length(totalDuration) }}</span
-							>
-						</v-row>
-						<v-row>
-							<div ref="waveform" class="waveform"></div>
-						</v-row>
+					<v-col cols="8">
 						<v-row>
 							<label class="display-1 mb-5">{{ title }}</label>
 						</v-row>
@@ -44,101 +24,174 @@
 							<v-btn class="ma-1"
 								><v-icon>mdi-heart-outline</v-icon></v-btn
 							>
-							<v-btn class="ma-1">
+							<v-btn class="ma-1" :href="downloadLink">
 								<v-icon left>mdi-download</v-icon>下载</v-btn
 							>
-							<v-btn class="ma-1">
+							<v-btn
+								class="ma-1"
+								:href="downloadWithoutVideoLink"
+							>
 								<v-icon left>mdi-download</v-icon
 								>不带视频</v-btn
 							>
-							<v-btn class="ma-1">
+							<v-btn class="ma-1" :href="downloadMiniLink">
 								<v-icon left>mdi-download</v-icon>Mini</v-btn
 							>
+							<v-btn
+								class="ma-1"
+								:href="officialLink"
+								target="_blank"
+							>
+								<v-icon left>mdi-open-in-new</v-icon
+								>打开官方页面</v-btn
+							>
+
+							<v-btn class="ma-1" @click="OnCopyLink">
+								<v-icon left>mdi-content-copy</v-icon
+								>复制链接</v-btn
+							>
+							<v-snackbar
+								v-model="snackbar"
+								@click="snackbar = false"
+								color="success"
+							>
+								已复制链接至剪切板
+								<v-btn text>
+									关闭
+								</v-btn>
+							</v-snackbar>
 						</v-row>
 					</v-col>
-					<v-spacer></v-spacer>
-					<v-col>
-						<v-row>
-							<v-chip-group>
-								<v-chip
-									v-for="(beatmap,
-									index) in beatmapsetDetail.bid_data"
-									@click="currentBeatmapIndex = index"
-									v-bind:key="beatmap.bid"
+					<v-col cols="4">
+						<v-sheet class="mb-5 px-2 py-2">
+							<v-row no-gutters justify="space-between">
+								<v-col
+									style="cursor: pointer;"
+									:cols="!isWsInited ? 12 : 'auto'"
+									@click="play"
 								>
-									{{ star(beatmap.star) }}*
-								</v-chip>
-							</v-chip-group>
-						</v-row>
-						<v-row>
-							<v-col
-								><span
-									class="iconfont icon-time-circle"
-									title="Length"
-									>{{
+									<span
+										class="play-btn iconfont"
+										v-bind:class="{
+											inited: isWsInited,
+											'icon-caret-right': !isWsPlaying,
+											'icon-pause': isWsPlaying
+										}"
+									></span>
+								</v-col>
+								<v-col v-show="isWsInited" cols="auto">
+									<span
+										>{{ length(currentDuration) }} /
+										{{ length(totalDuration) }}</span
+									>
+								</v-col>
+							</v-row>
+							<v-expand-transition>
+								<v-row no-gutters v-show="isWsInited">
+									<div ref="waveform" class="waveform"></div>
+								</v-row>
+							</v-expand-transition>
+						</v-sheet>
+						<v-sheet
+							elevation="5"
+							min-width="340"
+							class="py-2 px-2"
+						>
+							<v-row justify="center">
+								<v-chip-group
+									v-model="currentBeatmapIndex"
+									mandatory
+									active-class="pink accent-2 white--text"
+								>
+									<v-chip
+										v-for="(beatmap,
+										index) in beatmapsetDetail.bid_data"
+										@click="OnChangeBeatmapIndex(index)"
+										v-bind:key="beatmap.bid"
+									>
+										{{ star(beatmap.star)
+										}}<v-icon right small>mdi-star</v-icon>
+									</v-chip>
+								</v-chip-group>
+							</v-row>
+							<v-row justify="space-between">
+								<v-col cols="auto">
+									<v-icon class="iconfont"
+										>icon-time-circle</v-icon
+									>
+									{{
 										length(currentBeatmapDetail.length)
-									}}</span
-								></v-col
-							>
-							<v-col
-								><span class="iconfont icon-bell" title="BPM">{{
-									beatmapsetDetail.bpm
-								}}</span></v-col
-							>
-							<v-col>
-								<span
-									class="iconfont icon-circle circle"
-									title="Circles"
-									>{{ currentBeatmapDetail.circles }}</span
+									}}</v-col
 								>
-							</v-col>
-							<v-col>
-								<span
-									class="iconfont icon-sliders"
-									title="Sliders"
-									>{{ currentBeatmapDetail.sliders }}</span
+								<v-col cols="auto">
+									<v-icon class="iconfont">icon-bell</v-icon>
+									{{ beatmapsetDetail.bpm }}</v-col
 								>
-							</v-col>
-							<v-col>
-								<v-icon></v-icon>
-								<span
-									class="iconfont icon-spinner3 circle"
-									title="Spinners"
-									>{{ currentBeatmapDetail.spinners }}</span
-								>
-							</v-col>
-						</v-row>
-						<v-row>
-							<v-col cols="6"
-								><v-row>Circle Size</v-row>
-								<v-row>Overall Difficulty</v-row>
-								<v-row>HP Drain</v-row>
-								<v-row>Approach Rate</v-row>
-								<v-row>Aim</v-row>
-								<v-row>Speed</v-row>
-							</v-col>
-
-							<v-col cols="6">
-								<v-row>
-									{{ currentBeatmapDetail.CS }}
-								</v-row>
-								<v-row>
-									{{ currentBeatmapDetail.OD }}
-								</v-row>
-								<v-row>
-									{{ currentBeatmapDetail.HP }}
-								</v-row>
-								<v-row>
-									{{ currentBeatmapDetail.AR }}
-								</v-row>
-								<v-row>
-									{{ currentBeatmapDetail.aim }}
-								</v-row>
-								<v-row>
-									{{ currentBeatmapDetail.speed }}
-								</v-row>
-							</v-col>
-						</v-row>
+								<v-col cols="auto">
+									<v-icon class="iconfont"
+										>icon-circle</v-icon
+									>
+									{{ currentBeatmapDetail.circles }}
+								</v-col>
+								<v-col cols="auto">
+									<v-icon class="iconfont"
+										>icon-sliders</v-icon
+									>
+									{{ currentBeatmapDetail.sliders }}
+								</v-col>
+								<v-col cols="auto">
+									<v-icon class="iconfont"
+										>icon-spinner3</v-icon
+									>
+									{{ currentBeatmapDetail.spinners }}
+								</v-col>
+							</v-row>
+							<v-row justify="center" dense>
+								<v-col>
+									<v-row justify="space-between" dense>
+										<v-col cols="auto">Circle Size</v-col>
+										<v-col cols="auto">{{
+											currentBeatmapDetail.CS
+										}}</v-col>
+									</v-row>
+									<v-row justify="space-between" dense>
+										<v-col cols="auto"
+											>Overall Difficulty</v-col
+										>
+										<v-col cols="auto">{{
+											currentBeatmapDetail.OD
+										}}</v-col>
+									</v-row>
+									<v-row justify="space-between" dense>
+										<v-col cols="auto">HP Drain</v-col>
+										<v-col cols="auto">{{
+											currentBeatmapDetail.HP
+										}}</v-col>
+									</v-row>
+								</v-col>
+								<v-divider class="mx-2" vertical></v-divider>
+								<v-col>
+									<v-row justify="space-between" dense>
+										<v-col cols="auto">Approach Rate</v-col>
+										<v-col cols="auto">{{
+											currentBeatmapDetail.AR
+										}}</v-col>
+									</v-row>
+									<v-row justify="space-between" dense>
+										<v-col cols="auto">Aim</v-col>
+										<v-col cols="auto">{{
+											currentBeatmapDetail.aim
+										}}</v-col>
+									</v-row>
+									<v-row justify="space-between" dense>
+										<v-col cols="auto">Speed</v-col>
+										<v-col cols="auto">{{
+											currentBeatmapDetail.speed
+										}}</v-col>
+									</v-row>
+								</v-col>
+							</v-row>
+						</v-sheet>
 					</v-col>
 				</v-row>
 			</v-container>
@@ -146,33 +199,73 @@
 		<v-container>
 			<v-row
 				><v-col cols="8">
-					<v-row style="position: relative">
-						<v-btn-toggle class="ml-6" borderless mandatory>
-							<v-btn disabled>
+					<v-row>
+						<v-btn-toggle
+							class="ml-6"
+							borderless
+							mandatory
+							v-model="chartIndex"
+						>
+							<v-btn :disabled="!isChartAvailable[0]">
 								<v-icon left>mdi-format-align-left</v-icon
 								>移动曲线</v-btn
 							>
-							<v-btn disabled
+							<v-btn :disabled="!isChartAvailable[1]"
 								><v-icon left>mdi-format-align-left</v-icon
 								>手速曲线</v-btn
 							>
 						</v-btn-toggle>
-						<v-overlay absolute color="transprant"
+					</v-row>
+					<v-row style="position: relative">
+						<v-overlay
+							absolute
+							color="transprant"
+							v-if="!isChartAvailable[0] && !isChartAvailable[1]"
 							><v-btn light elevation="10">
 								<v-icon left>mdi-sticker-remove-outline</v-icon
 								>数据不可用</v-btn
 							></v-overlay
 						>
-						<v-chart :options="polar" autoresize> </v-chart> </v-row
+						<v-chart :options="chartOptine" autoresize>
+						</v-chart> </v-row
 				></v-col>
 				<v-spacer></v-spacer>
 				<v-col cols="auto">
 					<v-list>
+						<v-subheader>额外信息</v-subheader>
+						<v-list-item>
+							300打击延迟:{{ currentBeatmapDetail.hit300windows }}
+						</v-list-item>
+						<v-list-item>
+							最大连击数: {{ currentBeatmapDetail.maxcombo }}
+						</v-list-item>
+						<v-list-item>
+							游玩次数: {{ currentBeatmapDetail.playcount }}
+						</v-list-item>
+						<v-list-item>
+							通过次数: {{ currentBeatmapDetail.passcount }}
+						</v-list-item>
 						<v-subheader>PP</v-subheader>
-						<v-list-item>Max pp(none mode)</v-list-item>
-						<v-list-item>谱面的移动pp</v-list-item>
-						<v-list-item>铺面的手速pp</v-list-item>
-						<v-list-item>铺面的acc PP</v-list-item>
+						<v-list-item
+							>最大 PP(None Mode):{{
+								currentBeatmapDetail.pp
+							}}</v-list-item
+						>
+						<v-list-item
+							>谱面的移动 PP:{{
+								currentBeatmapDetail.pp_aim
+							}}</v-list-item
+						>
+						<v-list-item
+							>铺面的手速 PP:{{
+								currentBeatmapDetail.pp_speed
+							}}</v-list-item
+						>
+						<v-list-item
+							>铺面的Acc PP:{{
+								currentBeatmapDetail.pp_acc
+							}}</v-list-item
+						>
 					</v-list>
 				</v-col>
 			</v-row>
@@ -189,65 +282,6 @@ import "echarts/lib/chart/line";
 
 export default {
 	name: "detail-view",
-	data: function() {
-		let data = [];
-
-		for (let i = 0; i <= 360; i++) {
-			let t = (i / 180) * Math.PI;
-			let r = Math.sin(2 * t) * Math.cos(2 * t);
-			data.push([r, i]);
-		}
-		return {
-			currentBeatmapIndex: 0,
-			beatmapsetDetail: {
-				//去除 error
-				bid_data: [{}]
-			},
-			isWsInited: false,
-			isWsPlaying: false,
-			totalDuration: 0,
-			currentDuration: 0,
-			polar: {
-				title: {
-					text: "ECharts 入门示例"
-				},
-				tooltip: {},
-				legend: {
-					data: ["销量"],
-					padding: 0,
-					left: 0
-				},
-				grid: {
-					left: 24
-				},
-				xAxis: {
-					show: true,
-					axisTick: {
-						show: false
-					},
-					axisLine: {
-						show: false
-					}
-				},
-				yAxis: {
-					show: true,
-					axisTick: {
-						show: false
-					},
-					axisLine: {
-						show: false
-					}
-				},
-				series: [
-					{
-						name: "销量",
-						type: "line",
-						data: [5, 20, 36, 10, 10, 20]
-					}
-				]
-			}
-		};
-	},
 	localStorage: {
 		isUnicode: {
 			type: Boolean,
@@ -263,18 +297,66 @@ export default {
 		"v-chart": ECharts
 	},
 	props: ["optine", "isOpen"],
+	data: function() {
+		return {
+			snackbar: false,
+			currentBeatmapIndex: 0,
+
+			beatmapsetDetail: {
+				//去除 error
+				bid_data: [{}]
+			},
+
+			isWsInited: false,
+			isWsPlaying: false,
+			totalDuration: 0,
+			currentDuration: 0,
+
+			isChartAvailable: [false, false],
+			chartIndex: 0,
+
+			chartOptine: {
+				title: {
+					text: "难度曲线"
+				},
+				tooltip: {},
+				grid: {
+					left: 24
+				},
+				xAxis: {
+					type: "category",
+					show: true,
+					axisTick: {
+						show: false
+					},
+					axisLine: {
+						show: false
+					}
+				},
+				yAxis: {
+					type: "value",
+					show: true,
+					axisTick: {
+						show: false
+					},
+					axisLine: {
+						show: false
+					}
+				},
+				series: [
+					{
+						data: null,
+						type: "line",
+						smooth: true
+					}
+				]
+			}
+		};
+	},
 	mounted: function() {
 		this.init();
 	},
 	watch: {
-		currentBeatmapIndex: function() {
-			this.$router.replace({
-				query: {
-					sid: this.beatmapsetDetail.sid,
-					bid: this.currentBeatmapDetail.bid
-				}
-			});
-		},
 		isOpen: {
 			handler: function(newV, oldV) {
 				this.pause();
@@ -288,6 +370,11 @@ export default {
 					(!oldOptine || newOptine.sid != oldOptine.sid)
 				) {
 					this.isWsInited = false;
+					this.currentBeatmapIndex = 0;
+					this.currentDuration = 0;
+					this.totalDuration = 0;
+					this.chartOptine.series[0].data = null;
+
 					if (this.ws) this.ws.empty();
 					axios
 						.get(
@@ -297,7 +384,33 @@ export default {
 						)
 						.then(response => {
 							this.beatmapsetDetail = response.data.data;
+
+							this.beatmapsetDetail.bid_data.sort((a, b) => {
+								return Number.parseFloat(a.star) >
+									Number.parseFloat(b.star)
+									? 1
+									: -1;
+							});
+							this.currentBeatmapIndex =
+								this.beatmapsetDetail.bid_data.length - 1;
+							this.OnChangeBeatmapIndex(this.currentBeatmapIndex);
 						});
+				}
+			}
+		},
+		chartIndex: {
+			handler: function(val) {
+				var curBeatmap = this.beatmapsetDetail.bid_data[
+					this.currentBeatmapIndex
+				];
+
+				if (val == 0 && this.isChartAvailable[val]) {
+					this.chartOptine.series[0].data = curBeatmap.strain_aimArr;
+				} else {
+					if (this.isChartAvailable[1]) {
+						this.chartOptine.series[0].data =
+							curBeatmap.strain_speed;
+					}
 				}
 			}
 		}
@@ -317,36 +430,125 @@ export default {
 				return this.beatmapsetDetail.artist;
 			}
 		},
-
-		downloadLink: function() {
-			return (
-				"https://txy1.sayobot.cn/download/osz/" +
-				this.beatmapsetDetail.sid
-			);
-		},
 		detailCardBackgroundSrc: function() {
 			if (this.optine) {
-				console.log(this.optine.sid);
 				var src =
 					"url(https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg)";
 				return src.replace("${sid}", this.optine.sid);
 			}
 		},
 		currentBeatmapDetail: function() {
+			if (!this.beatmapsetDetail.bid_data[this.currentBeatmapIndex])
+				return {};
 			return this.beatmapsetDetail.bid_data[this.currentBeatmapIndex];
+		},
+		downloadLink: function() {
+			if (this.optine) {
+				var src =
+					"https://txy1.sayobot.cn/beatmaps/download/full/${sid}";
+				return src.replace("${sid}", this.optine.sid);
+			}
+		},
+		downloadWithoutVideoLink: function() {
+			if (this.optine) {
+				var src =
+					"https://txy1.sayobot.cn/beatmaps/download/novideo/${sid}";
+				return src.replace("${sid}", this.optine.sid);
+			}
+		},
+		downloadMiniLink: function() {
+			if (this.optine) {
+				var src =
+					"https://txy1.sayobot.cn/beatmaps/download/mini/${sid}";
+				return src.replace("${sid}", this.optine.sid);
+			}
+		},
+		officialLink: function() {
+			if (this.optine) {
+				var src = "https://osu.ppy.sh/beatmapsets/${sid}#osu/${bid}";
+				src = src.replace("${sid}", this.optine.sid);
+				src = src.replace(
+					"${bid}",
+					this.beatmapsetDetail.bid_data[this.currentBeatmapIndex].bid
+				);
+				return src;
+			}
 		}
 	},
 	methods: {
-		length: function(value) {
+		OnChangeBeatmapIndex(num) {
+			this.currentBeatmapIndex = num;
+			var curBeatmap = this.beatmapsetDetail.bid_data[
+				this.currentBeatmapIndex
+			];
+			if (!curBeatmap.strain_aimArr && !curBeatmap.strain_speedArr) {
+				if (curBeatmap.strain_aim == "") {
+					this.isChartAvailable[0] = false;
+				} else {
+					curBeatmap.strain_aimArr = this.stringToArr(
+						curBeatmap.strain_aim
+					);
+					this.isChartAvailable[0] = true;
+				}
+				if (curBeatmap.strain_speed == "") {
+					this.isChartAvailable[1] = false;
+				} else {
+					curBeatmap.strain_speedArr = this.stringToArr(
+						curBeatmap.strain_speed
+					);
+					this.isChartAvailable[1] = true;
+				}
+			} else {
+				this.isChartAvailable[0] = curBeatmap.strain_aimArr
+					? true
+					: false;
+				this.isChartAvailable[1] = curBeatmap.strain_speedArr
+					? true
+					: false;
+			}
+
+			var index = this.chartIndex;
+			var isAva = false;
+			if (this.isChartAvailable[index]) {
+				isAva = true;
+			} else {
+				index = index ? 1 : 0;
+				isAva = this.isChartAvailable[index];
+			}
+
+			if (isAva) {
+				this.chartOptine.series[0].data = !index
+					? curBeatmap.strain_aimArr
+					: curBeatmap.strain_speedArr;
+			}
+		},
+		OnCopyLink() {
+			var input = document.createElement("textarea");
+			input.innerHTML = document.location.href;
+			document.body.appendChild(input);
+			input.select();
+			var result = document.execCommand("copy");
+			document.body.removeChild(input);
+			this.snackbar = true;
+		},
+		stringToArr(str) {
+			if (!str || str == "") return null;
+
+			var arr = [];
+			for (var i = 0; i != str.length; i++) {
+				arr.push(str[i] - "0");
+			}
+			return arr;
+		},
+		length(value) {
 			var second = 0,
 				minute = 0;
-			var length = parseFloat(value);
+			var length = Number.parseFloat(value);
 			second = length % 60;
 			minute = (length - second) / 60;
-			return minute + ":" + second;
-		},
-		valueToPectange(value) {
-			return value * 10 + "%";
+			return (
+				minute + ":" + (second < 10 ? "0" : "") + second.toFixed("0")
+			);
 		},
 		init() {
 			this.ws = WaveSurfer.create({
@@ -434,7 +636,7 @@ export default {
 	width: 100%;
 }
 .detail-card {
-	.img-warpper {
+	.up-warpper {
 		position: relative;
 		background-position: 50%;
 		background-size: cover;
@@ -458,126 +660,24 @@ export default {
 			);
 		}
 
-		.left {
-			flex: 1;
-			padding: 10px 0 0 10px;
+		.play-btn {
+			margin: 0 auto;
+			box-sizing: border-box;
+			width: 2rem;
+			font-size: 2rem;
+			display: block;
+
+			&.inited {
+				margin: 0;
+			}
+		}
+
+		.waveform {
+			width: 100%;
 			position: relative;
-
-			.play-btn {
-				cursor: pointer;
-				margin: 10px;
-				font-size: 5rem;
-				position: absolute;
-				z-index: 1;
-				transition: font-size 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-
-				&.inited {
-					margin: 0;
-					font-size: 2rem;
-				}
-				&.playing {
-					visibility: hidden;
-				}
-			}
-
-			.play-btn ~ .waveform {
-				visibility: collapse;
-			}
-			.play-btn.inited ~ .waveform {
-				visibility: visible;
-			}
-
-			.progress-bar {
-				position: absolute;
-				right: 0;
-				text-align: right;
-				visibility: hidden;
-
-				&.inited {
-					visibility: visible;
-				}
-			}
-
-			.waveform {
-				top: 2rem;
-				position: relative;
-				z-index: 0;
-			}
+			z-index: 0;
+			height: 128px;
 		}
-		.right {
-			display: flex;
-			flex-direction: column;
-			justify-content: flex-end;
-			width: 300px;
-			text-align: right;
-
-			.beatmapset-detail {
-				.iconfont {
-					display: inline-block;
-
-					&.circle:before {
-						font-size: 1rem;
-					}
-					&:before {
-						margin-right: 4px;
-						font-size: 1.2rem;
-					}
-				}
-			}
-
-			ul {
-				flex: 1;
-				list-style-type: none;
-				padding: 0;
-
-				.mode-li {
-					cursor: pointer;
-					margin: 0 5px;
-					padding: 5px 10px;
-					border-radius: 20px;
-					display: inline-block;
-					text-align: center;
-					color: #ffffff;
-					background: #f563a4;
-				}
-			}
-
-			.beatmap-detail-table {
-				.title {
-					white-space: nowrap;
-				}
-				.progress {
-					padding: 5px;
-					width: 100%;
-				}
-				.value {
-					min-width: 33px;
-					text-align: center;
-				}
-			}
-		}
-	}
-
-	.down {
-	}
-	.download-btn {
-		text-decoration: none;
-		display: block;
-		cursor: pointer;
-		color: #bfbfbf;
-		font-size: 5rem;
-		text-align: center;
-		transition: color 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-
-		&:hover {
-			color: #000000;
-		}
-	}
-}
-
-@media screen and (max-width: 800px) {
-	.detail-card-warpper {
-		max-width: 100%;
 	}
 }
 </style>
