@@ -345,7 +345,10 @@ export default {
 			return this.getCommand(this.inputText);
 		},
 		otherCommandMode() {
-			var match = this.getMatch(this.inputText);
+			var match = this.getMatch(
+				this.inputText,
+				/^:(\w+)[^\d\w]((\d+)?[^\d](\d+)?)?$/
+			);
 			if (match) {
 				var i = this.modeToInt(match.mode);
 				return i;
@@ -488,6 +491,34 @@ export default {
 						this.inputText = null;
 					}
 				} else {
+					//处理链接
+
+					var match = this.getBeatmapDetail(this.inputText);
+					if (match) {
+						if (match.sid) {
+							this.$router.push({
+								name: "home",
+								params: {
+									queryMode: "beatmapset",
+									sid: match.sid
+								}
+							});
+						} else {
+							this.$router.push({
+								name: "home",
+								params: {
+									queryMode: "beatmapset",
+									sid: match.bid
+								},
+								query: {
+									bid: "true"
+								}
+							});
+						}
+
+						return;
+					}
+
 					if (this.searchText) {
 						this.searchText += this.inputText;
 						this.tag[this.tag.length - 1].key = this.searchText;
@@ -514,7 +545,7 @@ export default {
 		modeToInt(str) {
 			return this.others.findIndex(ele => ele.mode.toLowerCase() == str);
 		},
-		getMatch(str, reg = /:(\w+)[^\d\w]((\d+)?[^\d](\d+)?)?/g) {
+		getMatch(str, reg) {
 			if (!reg.test(str)) return null;
 			reg.lastIndex = 0;
 
@@ -529,7 +560,7 @@ export default {
 			}
 		},
 		getCommand(str) {
-			var reg = /:(\w+[^\d\w](\d+)[^\d](\d+))?/g;
+			var reg = /^:(\w+[^\d\w](\d+)[^\d](\d+))?$/;
 
 			if (!reg.test(str)) {
 				return false;
@@ -538,7 +569,7 @@ export default {
 			return true;
 		},
 		getOtherCommandValid(str) {
-			var match = this.getMatch(str, /:(\w+)[^\d\w](\d+)([^\d](\d+))?/g);
+			var match = this.getMatch(str, /^:(\w+)[^\d\w](\d+)([^\d](\d+))?$/);
 			if (!match) return null;
 
 			var pos = this.modeToInt(match.mode);
@@ -586,6 +617,34 @@ export default {
 			} else if (high == low) {
 				return high;
 			}
+		},
+		getBeatmapDetail(uri) {
+			var osuRegex = /^((http|https):\/{2})?osu.ppy.sh\/([bsd])\/(beatmap\?b\=)?(\d+)([\&\?]m\=[0-3])?$/;
+			var osuNewRegex = /^((http|https):\/{2})?osu.ppy.sh\/beatmapsets\/(\d+)\/?(#(\w+)(\/(\d+))?)?$/;
+			var shortLinkRegex = /^(s|m|b)(\d+)$/;
+
+			var match = uri.match(osuRegex);
+			var sid = null,
+				bid = null;
+
+			if (match) {
+				if (match[3] == "b") {
+					bid = match[5];
+				} else {
+					sid = match[5];
+				}
+			} else if ((match = uri.match(osuNewRegex))) {
+				sid = match[3];
+				bid = match[7];
+			} else if ((match = uri.match(shortLinkRegex))) {
+				if (match[1] == "b") {
+					bid = match[2];
+				} else {
+					sid = match[2];
+				}
+			}
+
+			return sid || bid ? { sid: sid, bid: bid } : null;
 		},
 		remove(item) {
 			item.isActive = false;

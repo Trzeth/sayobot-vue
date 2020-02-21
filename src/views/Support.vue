@@ -1,43 +1,125 @@
 <template>
-	<div class="support">
-		<div class="left" v-on:click.stop>
-			<!--十分奇怪的bug ref 1-->
-			<v-chart
-				:options="supportListOptions"
-				style="height:100%;width:100%"
-			/>
-		</div>
-
-		<div class="right" v-on:click.stop>
-			<img src="../assets/img/pay-weixin.png" />
-			<img src="../assets/img/pay-zhifubao.jpg" />
-			<h2>支持一下小夜吧!</h2>
-		</div>
-	</div>
+	<v-container style="height:100%">
+		<v-row class="fill-height">
+			<v-col cols="8">
+				<v-row style="position:absolute;z-index:1">
+					<v-select
+						v-model="currentsupportListObject"
+						:items="supportList"
+						item-text="title"
+						solo
+						return-object
+					>
+						<template v-slot:item="{ item }">
+							<v-list-item-content>
+								{{ item.title }}
+							</v-list-item-content>
+						</template>
+					</v-select></v-row
+				>
+				<v-row class="fill-height">
+					<v-chart
+						:options="chartOptions"
+						style="height:100%;width:100%"
+						autoresize
+					/>
+				</v-row>
+			</v-col>
+			<v-col cols="4">
+				<v-sheet elevation="4" style="overflow:hidden">
+					<v-row no-gutters>
+						<v-col cols="6">
+							<v-img
+								src="../assets/img/pay-weixin.png"
+								aspect-ratio="0.8203125"
+							/>
+						</v-col>
+						<v-col cols="6">
+							<v-img
+								src="../assets/img/pay-zhifubao.jpg"
+								aspect-ratio="0.8203125"
+							/> </v-col
+					></v-row>
+					<v-row class="mx-2 my-2">
+						<v-col>
+							<p class="text-justify">
+								夜妈妈一直在努力的维护着镜像站的正常运行，但是这个日常开销要好多好多钱的哇。所以就——
+							</p>
+							<h2 class="headline">支持一下小夜吧!</h2>
+						</v-col>
+					</v-row>
+				</v-sheet>
+			</v-col>
+		</v-row>
+	</v-container>
 </template>
 
 <script>
-import axios from "axios";
+import { L2Dwidget } from "live2d-widget";
 
+import axios from "axios";
 import ECharts from "vue-echarts";
 import "echarts-wordcloud";
 
 export default {
 	name: "support",
+	components: {
+		"v-chart": ECharts
+	},
 	data: function() {
 		return {
-			supportList: [],
-			supportListOptions: {}
+			mdata: {
+				name: "kesshouban",
+				model: "/assert/kanna/Kobayaxi.moc",
+				textures: ["/assert/kanna/textures/texture_00.png"]
+			},
+			currentsupportListObject: null,
+			supportList: null,
+			chartOptions: {
+				series: [
+					{
+						type: "wordCloud",
+						shape: "circle",
+						sizeRange: [30, 60],
+						rotationRange: [-90, 90],
+						rotationStep: 1,
+						gridSize: 2,
+						drawOutOfBound: false,
+						textStyle: {
+							normal: {
+								color: function(item) {
+									return (
+										"rgb(" +
+										[
+											Math.round(Math.random() * 160),
+											Math.round(Math.random() * 160),
+											Math.round(Math.random() * 160)
+										].join(",") +
+										")"
+									);
+								}
+							},
+							emphasis: {
+								shadowBlur: 10,
+								shadowColor: "#333"
+							}
+						},
+						data: []
+					}
+				]
+			}
 		};
 	},
 	components: {
 		"v-chart": ECharts
 	},
-	mounted: function() {
-		axios
-			.get("https://api.sayobot.cn/static/supportlist")
-			.then(response => {
-				axios.get(response.data.data[0].link).then(response => {
+	watch: {
+		currentsupportListObject: {
+			immediate: true,
+			handler: function(val) {
+				if (!val) return;
+
+				axios.get(val.link).then(response => {
 					var supportList = [];
 					response.data.data.forEach(element => {
 						var object = {
@@ -46,121 +128,74 @@ export default {
 						};
 						supportList.push(object);
 					});
-
-					this.supportListOptions = {
-						series: [
-							{
-								type: "wordCloud",
-
-								// The shape of the "cloud" to draw. Can be any polar equation represented as a
-								// callback function, or a keyword present. Available presents are circle (default),
-								// cardioid (apple or heart shape curve, the most known polar equation), diamond (
-								// alias of square), triangle-forward, triangle, (alias of triangle-upright, pentagon, and star.
-
-								shape: "circle",
-
-								// A silhouette image which the white area will be excluded from drawing texts.
-								// The shape option will continue to apply as the shape of the cloud to grow.
-
-								// Text size range which the value in data will be mapped to.
-								// Default to have minimum 12px and maximum 60px size.
-								sizeRange: [30, 100],
-
-								// Text rotation range and step in degree. Text will be rotated randomly in range [-90, 90] by rotationStep 45
-
-								rotationRange: [-90, 90],
-								rotationStep: 45,
-
-								// size of the grid in pixels for marking the availability of the canvas
-								// the larger the grid size, the bigger the gap between words.
-
-								autoSize: {
-									enable: true,
-									minSize: 14
-								},
-								// set to true to allow word being draw partly outside of the canvas.
-								// Allow word bigger than the size of the canvas to be drawn
-								drawOutOfBound: true,
-
-								// Global text style
-								textStyle: {
-									normal: {
-										// Color can be a callback function or a color string
-										color: function() {
-											// Random color
-											return (
-												"rgb(" +
-												[
-													Math.round(
-														Math.random() * 160
-													),
-													Math.round(
-														Math.random() * 160
-													),
-													Math.round(
-														Math.random() * 160
-													)
-												].join(",") +
-												")"
-											);
-										}
-									},
-									emphasis: {
-										shadowBlur: 10,
-										shadowColor: "#333"
-									}
-								},
-								data: supportList
-							}
-						]
-					};
+					this.chartOptions.series[0].data = supportList;
 				});
+			}
+		}
+	},
+	beforeRouteLeave: function(to, from, next) {
+		if (Math.floor(Math.random() * 100) != 11) {
+			document.getElementById("live2d-widget").remove();
+		}
+
+		next();
+	},
+	mounted: function() {
+		axios
+			.get("https://api.sayobot.cn/static/supportlist")
+			.then(response => {
+				var arr = [];
+				response.data.data.forEach(e => {
+					arr.push({
+						title: e.title,
+						link: e.link
+					});
+				});
+				this.supportList = arr;
+				this.currentsupportListObject = arr[0];
 			});
+		L2Dwidget.init({
+			model: {
+				jsonPath: "/live2d_models/Kobayaxi/model.json",
+				scale: 1
+			},
+			display: {
+				superSample: 2,
+				width: 200,
+				height: 400,
+				position: "right",
+				hOffset: 100,
+				vOffset: -20
+			},
+			mobile: {
+				show: true,
+				scale: 0.8,
+				motion: true
+			},
+			name: {
+				canvas: "live2dcanvas",
+				div: "live2d-widget"
+			},
+			react: {
+				opacity: 1
+			},
+			dev: {
+				border: false
+			},
+			dialog: {
+				enable: false,
+				hitokoto: false
+			}
+		});
 	}
 };
 </script>
 
 <style lang="scss">
-.support {
-	display: flex;
-
-	//十分奇怪的bug ref 1
-	//Do not touch it's magic
-
-	height: 100%;
-	width: 100%;
-	.left {
-		overflow: hidden;
-		flex: 2;
-		margin: 20px;
-		border-radius: 25px;
-		background: #ffffff;
-	}
-	.right {
-		flex: 1;
-		margin: 20px;
-		border-radius: 25px;
-		background: #ffffff;
-		overflow: hidden;
-
-		img {
-			display: inline-block;
-			width: 50%;
-			height: auto;
-		}
-	}
-}
-@media screen and (max-width: 480px) {
-	.support {
-		.left {
-			display: none;
-		}
-		.right {
-			flex: none;
-			width: 80%;
-			max-height: 322px;
-			border-radius: 10px;
-		}
+.live-2d {
+	& canvas {
+		width: 100%;
+		height: 100%;
 	}
 }
 </style>

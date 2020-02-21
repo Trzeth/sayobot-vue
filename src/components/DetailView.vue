@@ -50,16 +50,6 @@
 								<v-icon left>mdi-content-copy</v-icon
 								>复制链接</v-btn
 							>
-							<v-snackbar
-								v-model="snackbar"
-								@click="snackbar = false"
-								color="success"
-							>
-								已复制链接至剪切板
-								<v-btn text>
-									关闭
-								</v-btn>
-							</v-snackbar>
 						</v-row>
 					</v-col>
 					<v-col cols="4">
@@ -106,8 +96,8 @@
 									<v-chip
 										v-for="(beatmap,
 										index) in beatmapsetDetail.bid_data"
-										@click="OnChangeBeatmapIndex(index)"
-										v-bind:key="beatmap.bid"
+										:key="beatmap.bid"
+										:value="index"
 									>
 										{{ star(beatmap.star)
 										}}<v-icon right small>mdi-star</v-icon>
@@ -226,13 +216,20 @@
 								>数据不可用</v-btn
 							></v-overlay
 						>
-						<v-chart :options="chartOptine" autoresize>
+						<v-chart
+							:options="chartOptine"
+							autoresize
+							style="width:100%"
+						>
 						</v-chart> </v-row
 				></v-col>
 				<v-spacer></v-spacer>
 				<v-col cols="auto">
 					<v-list>
 						<v-subheader>额外信息</v-subheader>
+						<v-list-item>
+							Beatmap ID:{{ currentBeatmapDetail.bid }}
+						</v-list-item>
 						<v-list-item>
 							300打击延迟:{{ currentBeatmapDetail.hit300windows }}
 						</v-list-item>
@@ -270,13 +267,23 @@
 				</v-col>
 			</v-row>
 		</v-container>
+		<v-snackbar
+			v-model="snackBar.isOpen"
+			@click="snackBar.isOpen = false"
+			:color="snackBar.color"
+			:timeout="snackBar.timeOut"
+		>
+			{{ snackBar.text }}
+			<v-btn text>
+				关闭
+			</v-btn>
+		</v-snackbar>
 	</div>
 </template>
 
 <script>
 import axios from "axios";
 import WaveSurfer from "wavesurfer.js";
-import ProgressBar from "./ProgressBar.vue";
 import ECharts from "vue-echarts";
 import "echarts/lib/chart/line";
 
@@ -293,13 +300,19 @@ export default {
 		}
 	},
 	components: {
-		ProgressBar,
 		"v-chart": ECharts
 	},
 	props: ["optine", "isOpen"],
 	data: function() {
 		return {
-			snackbar: false,
+			localOptine: null,
+
+			snackBar: {
+				isOpen: false,
+				color: null,
+				text: null,
+				timeOut: null
+			},
 			currentBeatmapIndex: 0,
 
 			beatmapsetDetail: {
@@ -358,17 +371,15 @@ export default {
 	},
 	watch: {
 		isOpen: {
-			handler: function(newV, oldV) {
+			handler: function() {
 				this.pause();
+				this.snackBar.isOpen = false;
 			}
 		},
 		optine: {
 			immediate: true,
-			handler: function(newOptine, oldOptine) {
-				if (
-					this.optine &&
-					(!oldOptine || newOptine.sid != oldOptine.sid)
-				) {
+			handler: function(newOptine) {
+				if (this.isNewDetail(newOptine, this.localOptine)) {
 					this.isWsInited = false;
 					this.currentBeatmapIndex = 0;
 					this.currentDuration = 0;
@@ -376,25 +387,46 @@ export default {
 					this.chartOptine.series[0].data = null;
 
 					if (this.ws) this.ws.empty();
-					axios
-						.get(
-							"https://api.sayobot.cn/v2/beatmapinfo" +
-								"?0=" +
-								this.optine.sid
-						)
-						.then(response => {
-							this.beatmapsetDetail = response.data.data;
 
-							this.beatmapsetDetail.bid_data.sort((a, b) => {
-								return Number.parseFloat(a.star) >
-									Number.parseFloat(b.star)
-									? 1
-									: -1;
-							});
-							this.currentBeatmapIndex =
-								this.beatmapsetDetail.bid_data.length - 1;
-							this.OnChangeBeatmapIndex(this.currentBeatmapIndex);
+					this.localOptine = _.clone(newOptine);
+
+					var uri = "https://api.sayobot.cn/v2/beatmapinfo?0=";
+					if (this.localOptine.sid) {
+						uri += this.localOptine.sid;
+					} else {
+						uri += this.localOptine.bid + "&1=1";
+					}
+
+					axios.get(uri).then(response => {
+						if (response.data.status == -1) {
+							this.beatmapsetDetail = { bid_data: [] };
+							this.PushMessage("未找到 Beatmap", "error", 0);
+							return;
+						}
+
+						this.beatmapsetDetail = response.data.data;
+
+						this.beatmapsetDetail.bid_data.sort((a, b) => {
+							return Number.parseFloat(a.star) >
+								Number.parseFloat(b.star)
+								? 1
+								: -1;
 						});
+
+						if (!this.localOptine.sid) {
+							this.localOptine.sid = this.beatmapsetDetail.sid;
+							this.$router.replace({
+								name: "home",
+								params: {
+									queryMode: "beatmapset",
+									sid: this.localOptine.sid
+								}
+							});
+						}
+
+						this.currentBeatmapIndex =
+							this.beatmapsetDetail.bid_data.length - 1;
+					});
 				}
 			}
 		},
@@ -413,74 +445,11 @@ export default {
 					}
 				}
 			}
-		}
-	},
-	computed: {
-		title: function() {
-			if (this.isUnicode == true && this.beatmapsetDetail.titleU != "") {
-				return this.beatmapsetDetail.titleU;
-			} else {
-				return this.beatmapsetDetail.title;
-			}
 		},
-		artist: function() {
-			if (this.isUnicode == true && this.beatmapsetDetail.artistU != "") {
-				return this.beatmapsetDetail.artistU;
-			} else {
-				return this.beatmapsetDetail.artist;
-			}
-		},
-		detailCardBackgroundSrc: function() {
-			if (this.optine) {
-				var src =
-					"url(https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg)";
-				return src.replace("${sid}", this.optine.sid);
-			}
-		},
-		currentBeatmapDetail: function() {
-			if (!this.beatmapsetDetail.bid_data[this.currentBeatmapIndex])
-				return {};
-			return this.beatmapsetDetail.bid_data[this.currentBeatmapIndex];
-		},
-		downloadLink: function() {
-			if (this.optine) {
-				var src =
-					"https://txy1.sayobot.cn/beatmaps/download/full/${sid}";
-				return src.replace("${sid}", this.optine.sid);
-			}
-		},
-		downloadWithoutVideoLink: function() {
-			if (this.optine) {
-				var src =
-					"https://txy1.sayobot.cn/beatmaps/download/novideo/${sid}";
-				return src.replace("${sid}", this.optine.sid);
-			}
-		},
-		downloadMiniLink: function() {
-			if (this.optine) {
-				var src =
-					"https://txy1.sayobot.cn/beatmaps/download/mini/${sid}";
-				return src.replace("${sid}", this.optine.sid);
-			}
-		},
-		officialLink: function() {
-			if (this.optine) {
-				var src = "https://osu.ppy.sh/beatmapsets/${sid}#osu/${bid}";
-				src = src.replace("${sid}", this.optine.sid);
-				src = src.replace(
-					"${bid}",
-					this.beatmapsetDetail.bid_data[this.currentBeatmapIndex].bid
-				);
-				return src;
-			}
-		}
-	},
-	methods: {
-		OnChangeBeatmapIndex(num) {
-			this.currentBeatmapIndex = num;
-			var curBeatmap = this.beatmapsetDetail.bid_data[
-				this.currentBeatmapIndex
-			];
+		currentBeatmapIndex: function(newV) {
+			var curBeatmap = this.beatmapsetDetail.bid_data[newV];
+			if (!curBeatmap) return;
+
 			if (!curBeatmap.strain_aimArr && !curBeatmap.strain_speedArr) {
 				if (curBeatmap.strain_aim == "") {
 					this.isChartAvailable[0] = false;
@@ -521,15 +490,108 @@ export default {
 					? curBeatmap.strain_aimArr
 					: curBeatmap.strain_speedArr;
 			}
+		}
+	},
+	computed: {
+		title: function() {
+			if (this.isUnicode == true && this.beatmapsetDetail.titleU != "") {
+				return this.beatmapsetDetail.titleU;
+			} else {
+				return this.beatmapsetDetail.title;
+			}
+		},
+		artist: function() {
+			if (this.isUnicode == true && this.beatmapsetDetail.artistU != "") {
+				return this.beatmapsetDetail.artistU;
+			} else {
+				return this.beatmapsetDetail.artist;
+			}
+		},
+		detailCardBackgroundSrc: function() {
+			if (this.localOptine && this.localOptine.sid) {
+				var src =
+					"url(https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg)";
+				return src.replace("${sid}", this.localOptine.sid);
+			}
+			return null;
+		},
+		currentBeatmapDetail: function() {
+			if (
+				!this.beatmapsetDetail ||
+				!this.beatmapsetDetail.bid_data[this.currentBeatmapIndex]
+			)
+				return {};
+			return this.beatmapsetDetail.bid_data[this.currentBeatmapIndex];
+		},
+		downloadLink: function() {
+			if (this.localOptine && this.localOptine.sid) {
+				var src =
+					"https://txy1.sayobot.cn/beatmaps/download/full/${sid}";
+				return src.replace("${sid}", this.localOptine.sid);
+			}
+			return null;
+		},
+		downloadWithoutVideoLink: function() {
+			if (this.localOptine && this.localOptine.sid) {
+				var src =
+					"https://txy1.sayobot.cn/beatmaps/download/novideo/${sid}";
+				return src.replace("${sid}", this.localOptine.sid);
+			}
+			return null;
+		},
+		downloadMiniLink: function() {
+			if (this.localOptine && this.localOptine.sid) {
+				var src =
+					"https://txy1.sayobot.cn/beatmaps/download/mini/${sid}";
+				return src.replace("${sid}", this.localOptine.sid);
+			}
+			return null;
+		},
+		officialLink: function() {
+			if (this.localOptine && this.localOptine.sid) {
+				var src = "https://osu.ppy.sh/beatmapsets/${sid}#osu/${bid}";
+				src = src.replace("${sid}", this.localOptine.sid);
+				src = src.replace(
+					"${bid}",
+					this.beatmapsetDetail.bid_data[this.currentBeatmapIndex].bid
+				);
+				return src;
+			}
+			return null;
+		}
+	},
+	methods: {
+		PushMessage(message, color, timeout = 6000) {
+			this.snackBar.timeOut = timeout;
+			this.snackBar.text = message;
+			this.snackBar.color = color;
+			this.snackBar.isOpen = true;
 		},
 		OnCopyLink() {
 			var input = document.createElement("textarea");
 			input.innerHTML = document.location.href;
 			document.body.appendChild(input);
 			input.select();
-			var result = document.execCommand("copy");
+			document.execCommand("copy");
 			document.body.removeChild(input);
-			this.snackbar = true;
+
+			this.PushMessage("复制至剪切板", "success");
+		},
+		isNewDetail(newOptine, oldOptine) {
+			if (!newOptine) return false;
+			if (!oldOptine) return true;
+
+			if (
+				oldOptine.bid &&
+				newOptine.bid &&
+				oldOptine.bid == newOptine.bid
+			)
+				return false;
+
+			if (!newOptine.sid) return true;
+			if (newOptine.sid != oldOptine.sid) return true;
+
+			return false;
 		},
 		stringToArr(str) {
 			if (!str || str == "") return null;
@@ -624,7 +686,7 @@ export default {
 				}
 			});
 		},
-		star: function(num) {
+		star(num) {
 			return parseFloat(num).toFixed(2);
 		}
 	}
@@ -632,9 +694,6 @@ export default {
 </script>
 
 <style lang="scss">
-.echarts {
-	width: 100%;
-}
 .detail-card {
 	.up-warpper {
 		position: relative;
@@ -645,7 +704,6 @@ export default {
 		justify-content: space-between;
 		padding-top: 112px;
 		color: #000000;
-		//box-shadow: 0 0 5px 5px rgba(155, 155, 155, 0.8);
 
 		&::before {
 			position: absolute;

@@ -156,11 +156,21 @@ export default {
 						}
 						break;
 					case "beatmapset":
+						//??? 浏览器输入时为 字符串 push 为 bool
+						if (query && (query.bid == "true" || query.bid)) {
+							this.detailViewOptine = {
+								sid: null,
+								bid: val.sid
+							};
+						} else {
+							this.detailViewOptine = {
+								sid: val.sid,
+								bid: null
+							};
+						}
+
 						this.openDetailView();
 
-						this.detailViewOptine = {
-							sid: val.sid
-						};
 						break;
 				}
 			}
