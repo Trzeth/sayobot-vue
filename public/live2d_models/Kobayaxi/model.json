@@ -1,0 +1,15 @@
+{
+    "version": "Sample 1.0.0",
+    "name": "Kobayaxi",
+    "model": "Kobayaxi.moc",
+    "textures": [
+        "textures/texture_00.png"
+    ],
+    "layout": {
+        "center_x": 0,
+        "y": 1.2,
+        "width": 3
+    },
+    "physics": "physics.json",
+    "pose": "pose.json"
+}
