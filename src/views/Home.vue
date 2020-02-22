@@ -327,19 +327,6 @@ export default {
 					return "search";
 			}
 		}
-	},
-	created: function() {
-		axios.get("https://api.sayobot.cn/static/notice").then(response => {
-			this.notices = response.data.data[0];
-		});
-
-		// axios.get("https://api.sayobot.cn/static/support").then(response => {
-		// 	var data = response.data.data;
-		// 	this.support.total = data.total;
-		// 	this.support.target = data.target;
-		// 	this.support.percentage =
-		// 		(this.support.total / this.support.target) * 100;
-		// });
 	}
 };
 </script>

@@ -6,40 +6,89 @@
 		<v-col cols="2">
 			<v-spacer></v-spacer>
 		</v-col>
-		<v-hover>
-			<template v-slot:default="{ hover }">
-				<v-col cols="4">
-					<v-alert class="ma-0" type="info" dark outlined>
-						<span class="d-block text-truncate">
-							今天早上一个不规范的请求……把跳转程序搞炸了……来自Google
-							bot
-						</span>
-						<v-fade-transition>
-							<v-overlay v-if="hover" absolute color="white">
-								<v-btn color="info"
-									>查看详情<v-icon right
-										>mdi-open-in-new</v-icon
-									></v-btn
-								>
-							</v-overlay>
-						</v-fade-transition>
-					</v-alert>
-				</v-col>
-			</template>
-		</v-hover>
+		<v-col cols="4">
+			<v-menu open-on-hover>
+				<template v-slot:activator="{ on }">
+					<template>
+						<v-sheet v-on="on">
+							<v-alert
+								class="ma-0"
+								:type="
+									notices ? types[notices[0].importance] : ''
+								"
+								dark
+								outlined
+							>
+								<span class="d-block text-truncate">
+									{{ notices ? notices[0].content : "" }}
+								</span>
+							</v-alert>
+						</v-sheet>
+					</template>
+				</template>
+
+				<v-list>
+					<v-subheader>公告栏</v-subheader>
+					<template v-for="(notice, index) in notices">
+						<v-divider
+							:key="'d' + index"
+							v-if="index != 0"
+						></v-divider>
+						<v-list-item :key="index">
+							<v-list-item-content>
+								<v-row no-gutters justify="space-between">
+									<h2 class="title">{{ notice.title }}</h2>
+									<v-icon :color="types[notice.importance]">{{
+										icons[notice.importance]
+									}}</v-icon>
+								</v-row>
+								<p class="body-1 my-1">{{ notice.content }}</p>
+							</v-list-item-content>
+						</v-list-item>
+					</template>
+				</v-list>
+			</v-menu>
+		</v-col>
 	</v-row>
 </template>
 
 <script>
+import axios from "axios";
+
 import SearchBar from "./SearchBar.vue";
 
 export default {
 	name: "home-title-bar",
 	components: { SearchBar },
+	data: function() {
+		return {
+			notices: null,
+			icons: [
+				"mdi-information",
+				"mdi-exclamation",
+				"mdi-alert",
+				"mdi-check-circle"
+			],
+			types: ["info", "warning", "error", "success"]
+		};
+	},
 	methods: {
 		OnSearch(val) {
 			this.$emit("search", val);
 		}
+	},
+	mounted: function() {
+		axios.get("https://api.sayobot.cn/static/notice").then(response => {
+			this.notices = response.data.data;
+		});
+
+		// axios.get("https://api.sayobot.cn/static/support").then(response => {
+		// 	var data = response.data.data;
+		// 	this.support.total = data.total;
+		// 	this.support.target = data.target;
+		// 	this.support.percentage =
+		// 		(this.support.total / this.support.target) * 100;
+		// });
 	}
 };
 </script>
@@ -47,5 +96,9 @@ export default {
 <style>
 .v-alert__content {
 	overflow: hidden;
+}
+.v-menu__content {
+	max-width: 0;
+	max-height: 50%;
 }
 </style>
