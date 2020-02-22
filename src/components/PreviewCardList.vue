@@ -4,8 +4,6 @@
 			<preview-card
 				v-for="beatmapset in beatmapsetList"
 				v-bind:beatmapsetInfo="beatmapset"
-				v-bind:isUnicode="isUnicode"
-				v-bind:useCDN="useCDN"
 			></preview-card>
 			<div
 				class="preview-card-skeleton"
@@ -37,18 +35,8 @@ export default {
 	components: {
 		PreviewCard
 	},
-	localStorage: {
-		isUnicode: {
-			type: Boolean,
-			default: false
-		},
-		useCDN: {
-			type: Boolean,
-			default: false
-		}
-	},
 	methods: {
-		OnIntersect(entries, observer) {
+		OnIntersect(entries) {
 			if (entries[0].isIntersecting == true) this.$emit("reach-bottom");
 		}
 	},
@@ -56,6 +44,17 @@ export default {
 };
 </script>
 <style lang="scss">
+.preview-card-list-warpper {
+	padding: 3rem 2rem;
+	.preview-card-list {
+		position: relative;
+		z-index: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+		align-items: start;
+		grid-gap: 3rem 3rem;
+	}
+}
 .preview-card-list {
 	.preview-card-skeleton {
 		position: relative;
@@ -91,17 +90,6 @@ export default {
 	.v-skeleton-loader__text {
 		border-radius: 2px;
 		width: 80%;
-	}
-}
-.preview-card-list-warpper {
-	padding: 3rem 2rem;
-	.preview-card-list {
-		position: relative;
-		z-index: 0;
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-		align-items: start;
-		grid-gap: 3rem 3rem;
 	}
 }
 </style>

@@ -3,6 +3,7 @@
 		<v-app-bar
 			:color="!isCurrentViewOpen ? 'white' : 'transparent'"
 			:flat="isCurrentViewOpen"
+			height="64"
 			light
 			app
 			elevate-on-scroll
@@ -12,12 +13,15 @@
 					<home-title-bar
 						v-if="!isCurrentViewOpen"
 						key="main"
-						v-on:search="search"
+						@search="search"
+						@toggle-sidebar="
+							$emit('update:isDrawerOpen', !isDrawerOpen)
+						"
 					></home-title-bar>
 					<detail-title-bar
 						v-else
 						key="detail"
-						v-on:back="closeDetailView"
+						@back="closeDetailView"
 						:title="detailViewOptine.sid"
 					></detail-title-bar>
 				</keep-alive>
@@ -57,7 +61,7 @@
 		></preview-card-list>
 
 		<v-slide-x-reverse-transition>
-			<side-drawer v-show="isCurrentViewOpen">
+			<side-drawer v-show="isCurrentViewOpen" :left="sideDrawerLeft">
 				<detail-view
 					:isOpen="isCurrentViewOpen"
 					:optine="detailViewOptine"
@@ -86,6 +90,7 @@ export default {
 		DetailTitleBar,
 		SideDrawer
 	},
+	props: ["isDrawerOpen", "isDrawerMini"],
 	data: function() {
 		return {
 			isUpdated: false,
@@ -116,7 +121,13 @@ export default {
 			notices: []
 		};
 	},
-
+	computed: {
+		sideDrawerLeft() {
+			if (!this.isDrawerOpen) return 0;
+			if (this.isDrawerMini) return 56;
+			return 256;
+		}
+	},
 	watch: {
 		"$route.params": {
 			immediate: true,

@@ -24,7 +24,10 @@
 
 		<div class="banner">
 			<router-link v-bind:to="beatmapsetInfoLink">
-				<img v-bind:src="previewCardBackgroundSrc" />
+				<v-img
+					:src="previewCardBackgroundSrc"
+					aspect-ratio="3.6"
+				></v-img>
 			</router-link>
 			<div class="left-top-warpper">
 				<span class="status">{{ approvedStatus }}</span>
@@ -42,6 +45,7 @@
 				</audio>
 			</div>
 		</div>
+
 		<footer class="footer">
 			<router-link v-bind:to="searchCreatorLink" class="overflow-clip"
 				>@{{ beatmapsetInfo.creator }}</router-link
@@ -57,12 +61,30 @@
 </template>
 
 <script>
+import ApiHelper from "../util/api";
+
 export default {
 	name: "preview-card",
 	props: {
-		beatmapsetInfo: Object,
-		isUnicode: Boolean,
-		useCDN: Boolean
+		beatmapsetInfo: Object
+	},
+	localStorage: {
+		isUnicode: {
+			type: Boolean,
+			default: false
+		},
+		volume: {
+			type: Number,
+			default: 1.0
+		},
+		downloadType: {
+			type: Number,
+			default: 0
+		},
+		downloadServer: {
+			type: String,
+			default: "0"
+		}
 	},
 	data: function() {
 		return {
@@ -81,12 +103,6 @@ export default {
 			}
 		}
 	},
-	localStorage: {
-		volume: {
-			type: Number,
-			default: 1.0
-		}
-	},
 	watch: {
 		volume: function() {
 			this.$refs.preview.volume = this.volume;
@@ -98,11 +114,6 @@ export default {
 		};
 	},
 	computed: {
-		previewAudioSrc: function() {
-			var src = "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
-			src = src.replace("${sid}", this.beatmapsetInfo.sid);
-			return src;
-		},
 		beatmapsetInfoLink: function() {
 			return "beatmapset/" + this.beatmapsetInfo.sid;
 		},
@@ -133,18 +144,17 @@ export default {
 			}
 		},
 		downloadLink: function() {
-			var uri =
-				"https://txy1.sayobot.cn/download/osz/" +
-				this.beatmapsetInfo.sid;
-			if (this.useCDN == true) {
-				uri += "?server=CDN";
-			}
-			return uri;
+			return ApiHelper.GetDownloadUri(
+				this.beatmapsetInfo.sid,
+				this.downloadType,
+				this.downloadServer
+			);
+		},
+		previewAudioSrc: function() {
+			return ApiHelper.GetPreviewAudioUri(this.beatmapsetInfo.sid);
 		},
 		previewCardBackgroundSrc: function() {
-			var src =
-				"https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg";
-			return src.replace("${sid}", this.beatmapsetInfo.sid);
+			return ApiHelper.GetPreviewBackgroundUri(this.beatmapsetInfo.sid);
 		},
 		approvedStatus: function() {
 			var status;
@@ -276,8 +286,6 @@ export default {
 	.banner {
 		order: 1;
 		position: relative;
-		padding-top: 28%;
-		height: 0;
 		border-radius: 10px 10px 0 0;
 		overflow: hidden;
 		.left-top-warpper {
@@ -371,11 +379,6 @@ export default {
 				transform: translateY(0);
 			}
 		}
-	}
-}
-
-@media screen and (max-width: 480px) {
-	.preview-card {
 	}
 }
 </style>

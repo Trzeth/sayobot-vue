@@ -1,20 +1,30 @@
 <template>
-	<v-row no-gutters align="center">
-		<v-col cols="6">
-			<search-bar class="ml-6" v-on:search="OnSearch"></search-bar>
+	<v-row no-gutters align="center" class="fill-height">
+		<v-col cols="12" md="6">
+			<v-row class="fill-height">
+				<v-btn class="d-md-none" @click="$emit('toggle-sidebar')" icon
+					><v-icon>mdi-menu</v-icon></v-btn
+				>
+				<search-bar
+					class="ml-2 ml-md-6 mr-4 mr-md-0"
+					v-on:search="OnSearch"
+				></search-bar>
+			</v-row>
 		</v-col>
-		<v-col cols="2">
+		<v-col cols="0" md="2">
 			<v-spacer></v-spacer>
 		</v-col>
-		<v-col cols="4">
+		<v-col cols="4" class="d-none d-md-flex">
 			<v-menu open-on-hover>
 				<template v-slot:activator="{ on }">
 					<template>
-						<v-sheet v-on="on">
+						<v-sheet v-on="on" style="overflow:hidden">
 							<v-alert
 								class="ma-0"
 								:type="
-									notices ? types[notices[0].importance] : ''
+									notices
+										? types[notices[0].importance]
+										: null
 								"
 								dark
 								outlined

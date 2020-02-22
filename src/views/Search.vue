@@ -1,6 +1,13 @@
 <template>
 	<v-container>
 		<v-row align="end">
+			<v-btn
+				large
+				class="d-md-none mr-2"
+				@click="$emit('update:isDrawerOpen', !isDrawerOpen)"
+				icon
+				><v-icon>mdi-menu</v-icon></v-btn
+			>
 			<h2 class="display-1 mr-5">一个空的页面</h2>
 			<span class="title">
 				你如果有任何建议的话在群内 @Trzeth 就OK了
@@ -23,7 +30,10 @@
 </template>
 
 <script>
-export default {};
+export default {
+	name: "search",
+	props: ["isDrawerOpen"]
+};
 </script>
 
 <style></style>

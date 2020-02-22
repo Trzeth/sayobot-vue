@@ -2,25 +2,25 @@
 	<div class="detail-card">
 		<div
 			class="up-warpper elevation-4"
-			:style="{ backgroundImage: detailCardBackgroundSrc }"
+			:style="{ backgroundImage: 'url(' + detailCardBackgroundSrc + ')' }"
 		>
 			<v-container style="position: relative;">
 				<v-row align="end">
-					<v-col cols="8">
-						<v-row>
+					<v-col cols="12" sm="8">
+						<v-row no-gutters>
 							<label class="display-1 mb-5">{{ title }}</label>
 						</v-row>
-						<v-row>
+						<v-row no-gutters>
 							<h2 class="headline" @click="artistClick">
 								{{ artist }}
 							</h2>
 						</v-row>
-						<v-row>
+						<v-row no-gutters>
 							<h2 class="title" @click="creatorClick">
 								{{ beatmapsetDetail.creator }}
 							</h2>
 						</v-row>
-						<v-row class="mt-5">
+						<v-row no-gutters class="mt-5">
 							<v-btn class="ma-1"
 								><v-icon>mdi-heart-outline</v-icon></v-btn
 							>
@@ -52,7 +52,7 @@
 							>
 						</v-row>
 					</v-col>
-					<v-col cols="4">
+					<v-col cols="12" sm="4">
 						<v-sheet class="mb-5 px-2 py-2">
 							<v-row no-gutters justify="space-between">
 								<v-col
@@ -82,11 +82,7 @@
 								</v-row>
 							</v-expand-transition>
 						</v-sheet>
-						<v-sheet
-							elevation="5"
-							min-width="340"
-							class="py-2 px-2"
-						>
+						<v-sheet elevation="5" class="py-2 px-2">
 							<v-row justify="center">
 								<v-chip-group
 									v-model="currentBeatmapIndex"
@@ -188,7 +184,7 @@
 		</div>
 		<v-container>
 			<v-row
-				><v-col cols="8">
+				><v-col cols="12" sm="8">
 					<v-row>
 						<v-btn-toggle
 							class="ml-6"
@@ -224,7 +220,7 @@
 						</v-chart> </v-row
 				></v-col>
 				<v-spacer></v-spacer>
-				<v-col cols="auto">
+				<v-col cols="12" sm="4">
 					<v-list>
 						<v-subheader>额外信息</v-subheader>
 						<v-list-item>
@@ -283,6 +279,7 @@
 
 <script>
 import axios from "axios";
+import ApiHelper from "../util/api";
 import WaveSurfer from "wavesurfer.js";
 import ECharts from "vue-echarts";
 import "echarts/lib/chart/line";
@@ -297,6 +294,14 @@ export default {
 		volume: {
 			type: Number,
 			default: 1.0
+		},
+		downloadType: {
+			type: Number,
+			default: 0
+		},
+		downloadServer: {
+			type: String,
+			default: "0"
 		}
 	},
 	components: {
@@ -509,9 +514,7 @@ export default {
 		},
 		detailCardBackgroundSrc: function() {
 			if (this.localOptine && this.localOptine.sid) {
-				var src =
-					"url(https://cdn.sayobot.cn:25225/beatmaps/${sid}/covers/cover.jpg)";
-				return src.replace("${sid}", this.localOptine.sid);
+				return ApiHelper.GetPreviewBackgroundUri(this.localOptine.sid);
 			}
 			return null;
 		},
@@ -525,37 +528,40 @@ export default {
 		},
 		downloadLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
-				var src =
-					"https://txy1.sayobot.cn/beatmaps/download/full/${sid}";
-				return src.replace("${sid}", this.localOptine.sid);
+				return ApiHelper.GetDownloadUri(
+					this.localOptine.sid,
+					0,
+					this.downloadServer
+				);
 			}
 			return null;
 		},
 		downloadWithoutVideoLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
-				var src =
-					"https://txy1.sayobot.cn/beatmaps/download/novideo/${sid}";
-				return src.replace("${sid}", this.localOptine.sid);
+				return ApiHelper.GetDownloadUri(
+					this.localOptine.sid,
+					1,
+					this.downloadServer
+				);
 			}
 			return null;
 		},
 		downloadMiniLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
-				var src =
-					"https://txy1.sayobot.cn/beatmaps/download/mini/${sid}";
-				return src.replace("${sid}", this.localOptine.sid);
+				return ApiHelper.GetDownloadUri(
+					this.localOptine.sid,
+					2,
+					this.downloadServer
+				);
 			}
 			return null;
 		},
 		officialLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
-				var src = "https://osu.ppy.sh/beatmapsets/${sid}#osu/${bid}";
-				src = src.replace("${sid}", this.localOptine.sid);
-				src = src.replace(
-					"${bid}",
+				ApiHelper.GetOfficialUri(
+					this.localOptine.sid,
 					this.beatmapsetDetail.bid_data[this.currentBeatmapIndex].bid
 				);
-				return src;
 			}
 			return null;
 		}
@@ -735,6 +741,10 @@ export default {
 			position: relative;
 			z-index: 0;
 			height: 128px;
+
+			> wave {
+				overflow: hidden !important;
+			}
 		}
 	}
 }

@@ -1,23 +1,34 @@
 <template>
 	<v-container style="height:100%">
 		<v-row class="fill-height">
-			<v-col cols="8">
-				<v-row style="position:absolute;z-index:1">
-					<v-select
-						v-model="currentsupportListObject"
-						:items="supportList"
-						item-text="title"
-						solo
-						return-object
-					>
-						<template v-slot:item="{ item }">
-							<v-list-item-content>
-								{{ item.title }}
-							</v-list-item-content>
-						</template>
-					</v-select></v-row
+			<v-col cols="12" sm="8">
+				<v-row style="position:fixed;z-index:1;" no-gutters>
+					<v-col cols="auto">
+						<v-btn
+							large
+							class="d-md-none mr-2"
+							@click="$emit('update:isDrawerOpen', !isDrawerOpen)"
+							icon
+							><v-icon>mdi-menu</v-icon></v-btn
+						>
+					</v-col>
+					<v-col style="max-width:300px">
+						<v-select
+							v-model="currentsupportListObject"
+							:items="supportList"
+							item-text="title"
+							solo
+							return-object
+						>
+							<template v-slot:item="{ item }">
+								<v-list-item-content>
+									{{ item.title }}
+								</v-list-item-content>
+							</template>
+						</v-select>
+					</v-col></v-row
 				>
-				<v-row class="fill-height">
+				<v-row class="fill-height" style="min-height:500px">
 					<v-chart
 						:options="chartOptions"
 						style="height:100%;width:100%"
@@ -25,7 +36,7 @@
 					/>
 				</v-row>
 			</v-col>
-			<v-col cols="4">
+			<v-col cols="12" sm="4">
 				<v-sheet elevation="4" style="overflow:hidden">
 					<v-row no-gutters>
 						<v-col cols="6">
@@ -50,6 +61,9 @@
 					</v-row>
 				</v-sheet>
 			</v-col>
+			<v-col cols="12" class="d-sm-none" style="height:400px"
+				><!-- Kana is Here-->
+			</v-col>
 		</v-row>
 	</v-container>
 </template>
@@ -66,6 +80,8 @@ export default {
 	components: {
 		"v-chart": ECharts
 	},
+	props: ["isDrawerOpen"],
+
 	data: function() {
 		return {
 			mdata: {

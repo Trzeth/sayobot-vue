@@ -1,26 +1,31 @@
 <template>
 	<v-app>
-		<v-navigation-drawer :mini-variant="miniDrawer" app>
+		<v-navigation-drawer
+			v-model="isDrawerOpen"
+			:mini-variant="isDrawerMini"
+			app
+			mobile-break-point="960"
+		>
 			<v-list>
-				<v-list-item three-line v-show="!miniDrawer">
+				<v-list-item three-line v-show="!isDrawerMini">
 					<v-btn
-						:block="!miniDrawer"
+						:block="!isDrawerMini"
 						text
 						x-large
 						color="pink accent-2"
 						dark
-						:icon="miniDrawer"
+						:icon="isDrawerMini"
 					>
 						<v-icon>mdi-tag-heart</v-icon>
 						<label>V Mirror</label>
 					</v-btn>
 				</v-list-item>
-				<v-list-item three-line v-show="miniDrawer">
+				<v-list-item three-line v-show="isDrawerMini">
 					<v-list-item-icon>
 						<v-icon color="pink accent-2">mdi-tag-heart</v-icon>
 					</v-list-item-icon>
 				</v-list-item>
-				<v-list-item v-show="!miniDrawer">
+				<v-list-item v-show="!isDrawerMini">
 					<v-carousel
 						cycle
 						height="108"
@@ -71,24 +76,27 @@
 				</v-list-item-group>
 			</v-list>
 
-			<template v-slot:append>
+			<template v-slot:append v-if="!isSm">
 				<div style="height:44px">
 					<v-btn
 						icon
 						large
 						absolute
 						right
-						@click="miniDrawer = !miniDrawer"
+						@click="isDrawerMini = !isDrawerMini"
 					>
-						<v-icon v-show="!miniDrawer">mdi-chevron-left</v-icon>
-						<v-icon v-show="miniDrawer">mdi-chevron-right</v-icon>
+						<v-icon v-show="!isDrawerMini">mdi-chevron-left</v-icon>
+						<v-icon v-show="isDrawerMini">mdi-chevron-right</v-icon>
 					</v-btn>
 				</div>
 			</template>
 		</v-navigation-drawer>
 
 		<v-content>
-			<router-view />
+			<router-view
+				:isDrawerOpen.sync="isDrawerOpen"
+				:isDrawerMini="isDrawerMini"
+			/>
 		</v-content>
 	</v-app>
 </template>
@@ -99,7 +107,8 @@ export default {
 
 	data: function() {
 		return {
-			miniDrawer: null,
+			isDrawerOpen: null,
+			isDrawerMini: null,
 			colors: [
 				"indigo",
 				"warning",
@@ -111,6 +120,19 @@ export default {
 			],
 			slides: ["V", "M", "I", "R", "R", "O", "R"]
 		};
+	},
+	computed: {
+		isSm() {
+			switch (this.$vuetify.breakpoint.name) {
+				case "xs":
+				case "sm":
+					return true;
+				case "md":
+				case "lg":
+				case "xl":
+					return false;
+			}
+		}
 	}
 };
 </script>

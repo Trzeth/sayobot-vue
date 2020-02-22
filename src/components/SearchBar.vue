@@ -347,7 +347,7 @@ export default {
 		otherCommandMode() {
 			var match = this.getMatch(
 				this.inputText,
-				/^:(\w+)[^\d\w]((\d+)?[^\d](\d+)?)?$/
+				/^:(\w+)[^\d\w]((\d+)?[^\d](\d+)?)?/g
 			);
 			if (match) {
 				var i = this.modeToInt(match.mode);
@@ -560,7 +560,7 @@ export default {
 			}
 		},
 		getCommand(str) {
-			var reg = /^:(\w+[^\d\w](\d+)[^\d](\d+))?$/;
+			var reg = /^:(\w+[^\d\w](\d+)[^\d](\d+))?/g;
 
 			if (!reg.test(str)) {
 				return false;
