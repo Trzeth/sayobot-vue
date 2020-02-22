@@ -21,7 +21,7 @@
 					<detail-title-bar
 						v-else
 						key="detail"
-						@back="closeDetailView"
+						@back="closeDetailViewAndBack"
 						:title="detailViewOptine.sid"
 					></detail-title-bar>
 				</keep-alive>
@@ -134,24 +134,29 @@ export default {
 			handler: function(val) {
 				var queryMode = val.queryMode;
 				if (!queryMode) {
-					this.$router.push("home/new");
+					this.$router.replace({
+						name: "home",
+						params: {
+							queryMode: "new"
+						}
+					});
 					return;
 				}
 				var query = this.$route.query;
 
 				switch (queryMode) {
 					case "new":
-						this.isCurrentViewOpen = false;
+						this.closeDetailView();
 
 						this.tabNum = 0;
 						break;
 					case "hot":
-						this.isCurrentViewOpen = false;
+						this.closeDetailView();
 
 						this.tabNum = 1;
 						break;
 					case "search":
-						this.isCurrentViewOpen = false;
+						this.closeDetailView();
 
 						if (
 							!query.subType &&
@@ -160,10 +165,21 @@ export default {
 							!query.other &&
 							!query.keyword
 						) {
-							if (this.tabs.length == 2) this.$router.push("new");
+							if (this.tabs.length == 2)
+								this.$router.replace({
+									name: "home",
+									params: {
+										queryMode: "new"
+									}
+								});
 						} else {
 							this.search(query);
-							this.$router.replace("search");
+							this.$router.replace({
+								name: "home",
+								params: {
+									queryMode: "search"
+								}
+							});
 						}
 						break;
 					case "beatmapset":
@@ -181,7 +197,6 @@ export default {
 						}
 
 						this.openDetailView();
-
 						break;
 				}
 			}
@@ -255,15 +270,18 @@ export default {
 			this.isCurrentViewOpen = true;
 			document.getElementsByTagName("html")[0].style.overflow = "hidden";
 		},
-		closeDetailView() {
-			this.isCurrentViewOpen = false;
-			document.getElementsByTagName("html")[0].style.overflow = "auto";
+		closeDetailViewAndBack() {
+			this.closeDetailView();
 
 			if (window.history.length > 1) {
 				this.$router.go(-1);
 			} else {
 				this.$router.push("/home");
 			}
+		},
+		closeDetailView() {
+			this.isCurrentViewOpen = false;
+			document.getElementsByTagName("html")[0].style.overflow = "auto";
 		},
 		closeTab(val) {
 			this.tabs.splice(val, 1);
@@ -342,4 +360,11 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss">
+.v-app-bar {
+	min-height: 112px;
+	& .v-toolbar__content {
+		min-height: 64px;
+	}
+}
+</style>

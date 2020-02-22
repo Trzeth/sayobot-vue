@@ -1,7 +1,7 @@
 <template>
 	<v-row no-gutters align="center" class="fill-height">
 		<v-col cols="12" md="6">
-			<v-row class="fill-height">
+			<v-row class="fill-height flex-nowrap" style="max-height:100%">
 				<v-btn class="d-md-none" @click="$emit('toggle-sidebar')" icon
 					><v-icon>mdi-menu</v-icon></v-btn
 				>
