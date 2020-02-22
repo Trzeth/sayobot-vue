@@ -100,10 +100,10 @@ export default {
 						rotationRange: [-90, 90],
 						rotationStep: 1,
 						gridSize: 2,
-						drawOutOfBound: false,
+						drawOutOfBound: true,
 						textStyle: {
 							normal: {
-								color: function(item) {
+								color: function() {
 									return (
 										"rgb(" +
 										[
@@ -125,9 +125,6 @@ export default {
 				]
 			}
 		};
-	},
-	components: {
-		"v-chart": ECharts
 	},
 	watch: {
 		currentsupportListObject: {

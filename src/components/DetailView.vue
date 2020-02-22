@@ -8,17 +8,24 @@
 				<v-row align="end">
 					<v-col cols="12" sm="8">
 						<v-row no-gutters>
-							<label class="display-1 mb-5">{{ title }}</label>
+							<a
+								class="display-1 mb-5 font-weight-medium black--text"
+								@click="titleClick"
+								>{{ title }}</a
+							>
 						</v-row>
 						<v-row no-gutters>
-							<h2 class="headline" @click="artistClick">
+							<a
+								class="headline black--text"
+								@click="artistClick"
+							>
 								{{ artist }}
-							</h2>
+							</a>
 						</v-row>
 						<v-row no-gutters>
-							<h2 class="title" @click="creatorClick">
+							<a class="title black--text" @click="creatorClick">
 								{{ beatmapsetDetail.creator }}
-							</h2>
+							</a>
 						</v-row>
 						<v-row no-gutters class="mt-5">
 							<v-btn class="ma-1"
@@ -614,9 +621,9 @@ export default {
 			var length = Number.parseFloat(value);
 			second = length % 60;
 			minute = (length - second) / 60;
-			return (
-				minute + ":" + (second < 10 ? "0" : "") + second.toFixed("0")
-			);
+			second = second.toFixed("0");
+
+			return minute + ":" + (second < 10 ? "0" : "") + second;
 		},
 		init() {
 			this.ws = WaveSurfer.create({
@@ -667,6 +674,18 @@ export default {
 		},
 		pause() {
 			if (this.ws) this.ws.pause();
+		},
+		titleClick() {
+			this.$router.push({
+				name: "home",
+				params: {
+					queryMode: "search"
+				},
+				query: {
+					keyword: this.beatmapsetDetail.title,
+					subType: 1
+				}
+			});
 		},
 		artistClick() {
 			this.$router.push({
@@ -720,7 +739,7 @@ export default {
 			content: "";
 			background-image: linear-gradient(
 				rgba(218, 218, 218, 0.3),
-				rgba(238, 238, 238, 0.5)
+				rgba(238, 238, 238, 0.6)
 			);
 		}
 

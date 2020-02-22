@@ -362,9 +362,11 @@ export default {
 
 <style lang="scss">
 .v-app-bar {
-	min-height: 112px;
+	min-height: 112px !important;
+	height: auto !important;
 	& .v-toolbar__content {
-		min-height: 64px;
+		min-height: 64px !important;
+		height: auto !important;
 	}
 }
 </style>

@@ -192,8 +192,7 @@ export default {
 	.preview-card {
 		a {
 			text-decoration: none;
-			color: rgba(0, 0, 0, 0.5);
-			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+			color: #000000;
 		}
 
 		a:hover,
@@ -247,14 +246,12 @@ export default {
 				width: 95%;
 				font-size: 1.3rem;
 				font-weight: 600;
-				font-style: italic;
 			}
 			.artist {
 				width: 95%;
 				color: #262626;
 				font-size: 1rem;
 				font-weight: 400;
-				font-style: italic;
 				> a::before {
 					content: "#";
 					opacity: 0;
@@ -317,13 +314,6 @@ export default {
 				}
 			}
 		}
-
-		img {
-			position: absolute;
-			width: 100%;
-			height: auto;
-			top: 0;
-		}
 	}
 
 	.footer {
@@ -343,9 +333,16 @@ export default {
 			margin-right: 10px;
 			border-radius: 5px;
 		}
+
 		:nth-child(1) {
 			cursor: pointer;
 			color: #d26;
+
+			&:hover,
+			&:active,
+			&:visited {
+				color: #d26;
+			}
 		}
 
 		:nth-child(2) {
