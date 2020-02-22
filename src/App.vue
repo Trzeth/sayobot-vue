@@ -131,6 +131,8 @@ export default {
 				case "lg":
 				case "xl":
 					return false;
+				default:
+					return false;
 			}
 		}
 	}

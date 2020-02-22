@@ -477,8 +477,10 @@ export default {
 
 			if (!this.inputText) this.search();
 			else {
+				var match = null;
+
 				if (this.getCommand(this.inputText)) {
-					var match = this.getOtherCommandValid(this.inputText);
+					match = this.getOtherCommandValid(this.inputText);
 					if (!match) {
 						// Handler in watch->model
 						this.isEnterPress = true;
@@ -493,7 +495,7 @@ export default {
 				} else {
 					//处理链接
 
-					var match = this.getBeatmapDetail(this.inputText);
+					match = this.getBeatmapDetail(this.inputText);
 					if (match) {
 						if (match.sid) {
 							this.$router.push({
@@ -619,7 +621,7 @@ export default {
 			}
 		},
 		getBeatmapDetail(uri) {
-			var osuRegex = /^((http|https):\/{2})?osu.ppy.sh\/([bsd])\/(beatmap\?b\=)?(\d+)([\&\?]m\=[0-3])?$/;
+			var osuRegex = /^((http|https):\/{2})?osu.ppy.sh\/([bsd])\/(beatmap?b=)?(\d+)([&?]m=[0-3])?$/;
 			var osuNewRegex = /^((http|https):\/{2})?osu.ppy.sh\/beatmapsets\/(\d+)\/?(#(\w+)(\/(\d+))?)?$/;
 			var shortLinkRegex = /^(s|m|b)(\d+)$/;
 

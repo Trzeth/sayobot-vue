@@ -1,6 +1,7 @@
 <template>
 	<div class="preview-card-list-warpper grey lighten-4">
 		<div class="preview-card-list">
+			<!--eslint-disable-next-line-->
 			<preview-card
 				v-for="beatmapset in beatmapsetList"
 				v-bind:beatmapsetInfo="beatmapset"
