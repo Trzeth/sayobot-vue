@@ -1,9 +1,15 @@
 import Vue from "vue";
 import Router from "vue-router";
+
 import Home from "./views/Home";
 import Search from "./views/Search";
 import Setting from "./views/Setting";
 import Support from "./views/Support";
+
+// const Home = () => import("./views/Home");
+// const Search = () => import("./views/Search");
+// const Setting = () => import("./views/Setting");
+// const Support = () => import("./views/Support");
 
 Vue.use(Router);
 

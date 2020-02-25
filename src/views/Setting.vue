@@ -33,6 +33,7 @@
 						<v-list-item-content>
 							<h2 class="title">预览音频大小</h2>
 							<v-slider
+								class="mr-5"
 								prepend-icon="mdi-volume-high"
 								min="0"
 								max="1"
@@ -128,22 +129,42 @@ import ApiHelper from "../util/api";
 
 export default {
 	name: "setting",
-	localStorage: {
+	computed: {
 		isUnicode: {
-			type: Boolean,
-			default: false
+			get() {
+				return this.$ls.get("isUnicode");
+			},
+			set(val) {
+				this.$ls.set("isUnicode", val);
+				return val;
+			}
 		},
 		volume: {
-			type: Number,
-			default: 1.0
+			get() {
+				return this.$ls.get("volume");
+			},
+			set(val) {
+				this.$ls.set("volume", val);
+				return val;
+			}
 		},
 		downloadType: {
-			type: Number,
-			default: 0
+			get() {
+				return this.$ls.get("downloadType");
+			},
+			set(val) {
+				this.$ls.set("downloadType", val);
+				return val;
+			}
 		},
 		downloadServer: {
-			type: String,
-			default: "0"
+			get() {
+				return this.$ls.get("downloadServer");
+			},
+			set(val) {
+				this.$ls.set("downloadServer", val);
+				return val;
+			}
 		}
 	},
 	data: function() {
