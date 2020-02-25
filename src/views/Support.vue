@@ -148,7 +148,7 @@ export default {
 	},
 	beforeRouteLeave: function(to, from, next) {
 		if (Math.floor(Math.random() * 100) != 11) {
-			document.getElementById("live2d-widget").remove();
+			L2Dwidget.stop();
 		}
 
 		next();

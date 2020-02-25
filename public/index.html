@@ -10,19 +10,198 @@
     <meta name="keyword"
         content="osu!，osu! Beatmap mirror，大陆, osu.sh, v.osu.sh,，国内，镜像，加速，下载，高速，急速，光速，BloodCat，血猫，osu.ppy.sh，osu.sayobot.cn，bloodcat.com/osu，inso，inso.link，小夜，_BlackC，SoulDee">
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-138667307-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158385317-1"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'UA-138667307-1');
+        gtag('config', 'UA-158385317-1');
     </script>
 
+    <style>
+        .frame {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .frame h1 {
+            font-weight: 500;
+            text-align: center;
+            color: #ff4081;
+            margin: 0
+        }
+
+        .center {
+            position: relative;
+            width: 220px;
+            height: 220px;
+        }
+
+        .center .dot-1 {
+            position: absolute;
+            z-index: 3;
+            width: 30px;
+            height: 30px;
+            top: 95px;
+            left: 95px;
+            background: #fff;
+            border-radius: 50%;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+            -webkit-animation: jump-jump-1 2s cubic-bezier(0.21, 0.98, 0.6, 0.99) infinite alternate;
+            animation: jump-jump-1 2s cubic-bezier(0.21, 0.98, 0.6, 0.99) infinite alternate;
+        }
+
+        .center .dot-2 {
+            position: absolute;
+            z-index: 2;
+            width: 60px;
+            height: 60px;
+            top: 80px;
+            left: 80px;
+            background: #fff;
+            border-radius: 50%;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+            -webkit-animation: jump-jump-2 2s cubic-bezier(0.21, 0.98, 0.6, 0.99) infinite alternate;
+            animation: jump-jump-2 2s cubic-bezier(0.21, 0.98, 0.6, 0.99) infinite alternate;
+        }
+
+        .center .dot-3 {
+            position: absolute;
+            z-index: 1;
+            width: 90px;
+            height: 90px;
+            top: 65px;
+            left: 65px;
+            background: #fff;
+            border-radius: 50%;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+            -webkit-animation: jump-jump-3 2s cubic-bezier(0.21, 0.98, 0.6, 0.99) infinite alternate;
+            animation: jump-jump-3 2s cubic-bezier(0.21, 0.98, 0.6, 0.99) infinite alternate;
+        }
+
+        @-webkit-keyframes jump-jump-1 {
+
+            0%,
+            70% {
+                box-shadow: 2px 2px 3px 2px rgba(0, 0, 0, 0.2);
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+
+            100% {
+                box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+
+        @keyframes jump-jump-1 {
+
+            0%,
+            70% {
+                box-shadow: 2px 2px 3px 2px rgba(0, 0, 0, 0.2);
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+
+            100% {
+                box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+
+        @-webkit-keyframes jump-jump-2 {
+
+            0%,
+            40% {
+                box-shadow: 2px 2px 3px 2px rgba(0, 0, 0, 0.2);
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+
+            100% {
+                box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+
+        @keyframes jump-jump-2 {
+
+            0%,
+            40% {
+                box-shadow: 2px 2px 3px 2px rgba(0, 0, 0, 0.2);
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+
+            100% {
+                box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+
+        @-webkit-keyframes jump-jump-3 {
+
+            0%,
+            10% {
+                box-shadow: 2px 2px 3px 2px rgba(0, 0, 0, 0.2);
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+
+            100% {
+                box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+
+        @keyframes jump-jump-3 {
+
+            0%,
+            10% {
+                box-shadow: 2px 2px 3px 2px rgba(0, 0, 0, 0.2);
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+
+            100% {
+                box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <div class="frame">
+            <div>
+                <div class="center">
+                    <div class="dot-1"></div>
+                    <div class="dot-2"></div>
+                    <div class="dot-3"></div>
+                </div>
+                <h1>V Mirror</h1>
+            </div>
+        </div>
+    </div>
 </body>
+
+
 
 </html>

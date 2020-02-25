@@ -293,24 +293,6 @@ import "echarts/lib/chart/line";
 
 export default {
 	name: "detail-view",
-	localStorage: {
-		isUnicode: {
-			type: Boolean,
-			default: false
-		},
-		volume: {
-			type: Number,
-			default: 1.0
-		},
-		downloadType: {
-			type: Number,
-			default: 0
-		},
-		downloadServer: {
-			type: String,
-			default: "0"
-		}
-	},
 	components: {
 		"v-chart": ECharts
 	},
@@ -571,6 +553,18 @@ export default {
 				);
 			}
 			return null;
+		},
+		isUnicode: function() {
+			return this.$ls.get("isUnicode");
+		},
+		volume: function() {
+			return this.$ls.get("volume");
+		},
+		downloadType: function() {
+			return this.$ls.get("downloadType");
+		},
+		downloadServer: function() {
+			return this.$ls.get("downloadServer");
 		}
 	},
 	methods: {

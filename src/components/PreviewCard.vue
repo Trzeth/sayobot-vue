@@ -68,24 +68,6 @@ export default {
 	props: {
 		beatmapsetInfo: Object
 	},
-	localStorage: {
-		isUnicode: {
-			type: Boolean,
-			default: false
-		},
-		volume: {
-			type: Number,
-			default: 1.0
-		},
-		downloadType: {
-			type: Number,
-			default: 0
-		},
-		downloadServer: {
-			type: String,
-			default: "0"
-		}
-	},
 	data: function() {
 		return {
 			isPreviewAudioPlaying: false
@@ -182,6 +164,19 @@ export default {
 					break;
 			}
 			return status;
+		},
+		//local storage
+		isUnicode: function() {
+			return this.$ls.get("isUnicode");
+		},
+		volume: function() {
+			return this.$ls.get("volume");
+		},
+		downloadType: function() {
+			return this.$ls.get("downloadType");
+		},
+		downloadServer: function() {
+			return this.$ls.get("downloadServer");
 		}
 	}
 };

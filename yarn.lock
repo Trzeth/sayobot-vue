@@ -4973,13 +4973,6 @@ live2d-widget@^3.1.4:
     opencollective "^1.0.3"
     opencollective-postinstall "^2.0.1"
 
-live2d4vue@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npm.taobao.org/live2d4vue/download/live2d4vue-0.1.0.tgz#cbc101b168715fb8766585ab317131a182b83391"
-  integrity sha1-y8EBsWhxX7h2ZYWrMXExoYK4M5E=
-  dependencies:
-    uuid "^3.3.2"
-
 loader-fs-cache@^1.0.0:
   version "1.0.2"
   resolved "https://registry.npm.taobao.org/loader-fs-cache/download/loader-fs-cache-1.0.2.tgz#54cedf6b727e1779fd8f01205f05f6e88706f086"

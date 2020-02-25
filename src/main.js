@@ -10,8 +10,21 @@ import vuetify from "./plugins/vuetify";
 Vue.config.productionTip = false;
 Vue.prototype._ = _;
 Vue.use(VueLocalStorage, {
-	bind: true
+	name: "ls"
 });
+
+if (!Vue.ls.get("isUnicode")) {
+	Vue.ls.set("isUnicode", false);
+}
+if (!Vue.ls.get("volume")) {
+	Vue.ls.set("volume", 1.0);
+}
+if (!Vue.ls.get("downloadType")) {
+	Vue.ls.set("downloadType", 0);
+}
+if (!Vue.ls.get("downloadServer")) {
+	Vue.ls.set("downloadServer", 0);
+}
 
 new Vue({
 	router,
