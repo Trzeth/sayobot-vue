@@ -29,20 +29,16 @@
 					aspect-ratio="3.6"
 				></v-img>
 			</router-link>
-			<div class="left-top-warpper">
+			<div class="left-top-warpper" :class="{ playing: isPlaying }">
 				<span class="status">{{ approvedStatus }}</span>
 				<span
 					class="play-btn iconfont"
 					v-bind:class="{
-						'icon-caret-right': !isPreviewAudioPlaying,
-						'icon-pause': isPreviewAudioPlaying
+						'icon-caret-right': !isPlaying,
+						'icon-pause': isPlaying
 					}"
 					@click="playPreviewAudio"
 				></span>
-
-				<audio ref="preview" preload="none">
-					<source v-bind:src="previewAudioSrc" type="audio/mp3" />
-				</audio>
 			</div>
 		</div>
 
@@ -66,35 +62,35 @@ import ApiHelper from "../util/api";
 export default {
 	name: "preview-card",
 	props: {
-		beatmapsetInfo: Object
+		beatmapsetInfo: Object,
+		isPreviewAudioPlaying: Boolean
 	},
 	data: function() {
 		return {
-			isPreviewAudioPlaying: false
+			isPlaying: false,
+			isPrePlaying: null
 		};
 	},
 	methods: {
 		playPreviewAudio() {
-			var preview = this.$refs.preview;
-			if (this.isPreviewAudioPlaying) {
-				this.isPreviewAudioPlaying = false;
-				preview.pause();
+			if (this.isPlaying) {
+				this.$emit("stop");
+				this.isPlaying = false;
 			} else {
-				this.isPreviewAudioPlaying = true;
-				preview.play();
+				this.isPrePlaying = this.isPreviewAudioPlaying;
+				this.$emit("play", this.beatmapsetInfo.sid);
+				this.isPlaying = true;
 			}
 		}
 	},
 	watch: {
-		volume: function() {
-			this.$refs.preview.volume = this.volume;
+		isPreviewAudioPlaying: function(val) {
+			if (val == false && this.isPlaying && !this.isPrePlaying)
+				this.isPlaying = false;
+			this.isPrePlaying = false;
 		}
 	},
-	mounted: function() {
-		this.$refs.preview.onended = () => {
-			this.isPreviewAudioPlaying = false;
-		};
-	},
+
 	computed: {
 		beatmapsetInfoLink: function() {
 			return "beatmapset/" + this.beatmapsetInfo.sid;
@@ -132,9 +128,6 @@ export default {
 				this.downloadServer
 			);
 		},
-		previewAudioSrc: function() {
-			return ApiHelper.GetPreviewAudioUri(this.beatmapsetInfo.sid);
-		},
 		previewCardBackgroundSrc: function() {
 			return ApiHelper.GetPreviewBackgroundUri(this.beatmapsetInfo.sid);
 		},
@@ -168,9 +161,6 @@ export default {
 		//local storage
 		isUnicode: function() {
 			return this.$ls.get("isUnicode");
-		},
-		volume: function() {
-			return this.$ls.get("volume");
 		},
 		downloadType: function() {
 			return this.$ls.get("downloadType");
@@ -284,6 +274,15 @@ export default {
 			position: absolute;
 			left: 5px;
 			top: 5px;
+
+			&.playing {
+				.status {
+					opacity: 0 !important;
+				}
+				.play-btn {
+					opacity: 1 !important;
+				}
+			}
 
 			.status {
 				position: absolute;

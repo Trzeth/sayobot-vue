@@ -129,6 +129,7 @@ import ApiHelper from "../util/api";
 
 export default {
 	name: "setting",
+	props: ["isDrawerOpen"],
 	computed: {
 		isUnicode: {
 			get() {
@@ -150,7 +151,7 @@ export default {
 		},
 		downloadType: {
 			get() {
-				return this.$ls.get("downloadType");
+				return Number.parseInt(this.$ls.get("downloadType"));
 			},
 			set(val) {
 				this.$ls.set("downloadType", val);

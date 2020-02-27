@@ -26,6 +26,10 @@ if (!Vue.ls.get("downloadServer")) {
 	Vue.ls.set("downloadServer", 0);
 }
 
+if (!Vue.ls.get("isDrawerMini")) {
+	Vue.ls.set("isDrawerMini", false);
+}
+
 new Vue({
 	router,
 	vuetify,

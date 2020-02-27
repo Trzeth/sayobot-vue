@@ -2,30 +2,30 @@
 	<v-app>
 		<v-navigation-drawer
 			v-model="isDrawerOpen"
-			:mini-variant="isDrawerMini"
+			:mini-variant="isDrawerMiniNotSm"
 			app
 			mobile-break-point="960"
 		>
 			<v-list>
-				<v-list-item three-line v-show="!isDrawerMini">
+				<v-list-item three-line v-show="!isDrawerMiniNotSm">
 					<v-btn
-						:block="!isDrawerMini"
+						:block="!isDrawerMiniNotSm"
 						text
 						x-large
 						color="pink accent-2"
 						dark
-						:icon="isDrawerMini"
+						:icon="isDrawerMiniNotSm"
 					>
 						<v-icon>mdi-tag-heart</v-icon>
 						<label>V Mirror</label>
 					</v-btn>
 				</v-list-item>
-				<v-list-item three-line v-show="isDrawerMini">
+				<v-list-item three-line v-show="isDrawerMiniNotSm">
 					<v-list-item-icon>
 						<v-icon color="pink accent-2">mdi-tag-heart</v-icon>
 					</v-list-item-icon>
 				</v-list-item>
-				<v-list-item v-show="!isDrawerMini">
+				<v-list-item v-show="!isDrawerMiniNotSm">
 					<v-carousel
 						cycle
 						height="108"
@@ -95,7 +95,7 @@
 		<v-content>
 			<router-view
 				:isDrawerOpen.sync="isDrawerOpen"
-				:isDrawerMini="isDrawerMini"
+				:isDrawerMini="isDrawerMiniNotSm"
 			/>
 		</v-content>
 	</v-app>
@@ -104,11 +104,10 @@
 <script>
 export default {
 	name: "App",
-
 	data: function() {
 		return {
-			isDrawerOpen: null,
 			isDrawerMini: null,
+			isDrawerOpen: null,
 			colors: [
 				"indigo",
 				"warning",
@@ -120,6 +119,14 @@ export default {
 			],
 			slides: ["V", "M", "I", "R", "R", "O", "R"]
 		};
+	},
+	watch: {
+		isDrawerMini: {
+			handler: function(val) {
+				if (val == null) return;
+				this.$ls.set("isDrawerMini", val);
+			}
+		}
 	},
 	computed: {
 		isSm() {
@@ -134,7 +141,14 @@ export default {
 				default:
 					return false;
 			}
+		},
+		isDrawerMiniNotSm() {
+			return this.isSm ? false : this.isDrawerMini;
 		}
+	},
+	mounted() {
+		this.isDrawerMini =
+			this.$ls.get("isDrawerMini") == "true" ? true : false;
 	}
 };
 </script>

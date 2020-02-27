@@ -630,12 +630,10 @@ export default {
 			this.ws.setVolume(this.volume);
 		},
 		intiWaveSurfer() {
-			var src =
-				process.env.NODE_ENV == "development"
-					? "/audio/${sid}.mp3"
-					: "https://cdn.sayobot.cn:25225/preview/${sid}.mp3";
-			src = src.replace("${sid}", this.beatmapsetDetail.sid);
-			this.ws.load(src);
+			this.ws.load(
+				ApiHelper.GetPreviewAudioUri(this.beatmapsetDetail.sid)
+			);
+
 			this.ws.on("play", () => {
 				this.isWsPlaying = true;
 			});
