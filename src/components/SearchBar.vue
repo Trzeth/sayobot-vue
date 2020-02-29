@@ -718,6 +718,15 @@ export default {
 				return;
 
 			this.$emit("search", param);
+
+			this.$gtag.event("Search", {
+				event_category: "SearchBar",
+				event_label:
+					0 + param.subType + param.mode + param.class + param.other >
+					0
+						? "With Filter"
+						: "Normal"
+			});
 		}
 	}
 };

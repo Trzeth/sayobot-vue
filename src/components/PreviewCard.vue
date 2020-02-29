@@ -3,19 +3,16 @@
 		<header class="header">
 			<div class="title-artist-warpper">
 				<h2 class="title overflow-clip" v-bind:title="title">
-					<router-link v-bind:to="beatmapsetInfoLink">{{
-						title
-					}}</router-link>
+					<a @click="detailClick">{{ title }}</a>
 				</h2>
 				<h3 class="artist overflow-clip" v-bind:title="artist">
-					<router-link v-bind:to="searchArtistLink">{{
-						artist
-					}}</router-link>
+					<a @click="artistClick">{{ artist }}</a>
 				</h3>
 			</div>
 
 			<div class="download-btn-warpper">
 				<a
+					@click="downloadClick"
 					class="iconfont icon-download download-btn"
 					v-bind:href="downloadLink"
 				></a>
@@ -23,32 +20,28 @@
 		</header>
 
 		<div class="banner">
-			<router-link v-bind:to="beatmapsetInfoLink">
+			<a @click="detailClick">
 				<v-img
 					:src="previewCardBackgroundSrc"
 					aspect-ratio="3.6"
 				></v-img>
-			</router-link>
-			<div class="left-top-warpper">
+			</a>
+			<div class="left-top-warpper" :class="{ playing: isPlaying }">
 				<span class="status">{{ approvedStatus }}</span>
 				<span
 					class="play-btn iconfont"
 					v-bind:class="{
-						'icon-caret-right': !isPreviewAudioPlaying,
-						'icon-pause': isPreviewAudioPlaying
+						'icon-caret-right': !isPlaying,
+						'icon-pause': isPlaying
 					}"
 					@click="playPreviewAudio"
 				></span>
-
-				<audio ref="preview" preload="none">
-					<source v-bind:src="previewAudioSrc" type="audio/mp3" />
-				</audio>
 			</div>
 		</div>
 
 		<footer class="footer">
-			<router-link v-bind:to="searchCreatorLink" class="overflow-clip"
-				>@{{ beatmapsetInfo.creator }}</router-link
+			<a @click="creatorClick" class="overflow-clip"
+				>@{{ beatmapsetInfo.creator }}</a
 			>
 			<span class="iconfont icon-heart-fill">{{
 				beatmapsetInfo.favourite_count
@@ -66,51 +59,96 @@ import ApiHelper from "../util/api";
 export default {
 	name: "preview-card",
 	props: {
-		beatmapsetInfo: Object
+		beatmapsetInfo: Object,
+		isPreviewAudioPlaying: Boolean
 	},
 	data: function() {
 		return {
-			isPreviewAudioPlaying: false
+			isPlaying: false,
+			isPrePlaying: null
 		};
 	},
 	methods: {
 		playPreviewAudio() {
-			var preview = this.$refs.preview;
-			if (this.isPreviewAudioPlaying) {
-				this.isPreviewAudioPlaying = false;
-				preview.pause();
+			if (this.isPlaying) {
+				this.$emit("stop");
+				this.isPlaying = false;
 			} else {
-				this.isPreviewAudioPlaying = true;
-				preview.play();
+				this.isPrePlaying = this.isPreviewAudioPlaying;
+				this.$emit("play", this.beatmapsetInfo.sid);
+				this.isPlaying = true;
 			}
+		},
+		artistClick() {
+			this.$router.push({
+				name: "home",
+				params: {
+					queryMode: "search"
+				},
+				query: {
+					keyword: this.beatmapsetInfo.artist,
+					subType: 2
+				}
+			});
+			this.$gtag.event("Search", {
+				event_category: "PreviewCard",
+				event_label: "Artist"
+			});
+		},
+		creatorClick() {
+			this.$router.push({
+				name: "home",
+				params: {
+					queryMode: "search"
+				},
+				query: {
+					keyword: this.beatmapsetInfo.creator,
+					subType: 4
+				}
+			});
+			this.$gtag.event("Search", {
+				event_category: "PreviewCard",
+				event_label: "Creator"
+			});
+		},
+		downloadClick() {
+			var label = null;
+			switch (this.downloadType) {
+				case 0:
+					label = "Normal";
+					break;
+				case 1:
+					label = "WithoutVideoLink";
+					break;
+				case 2:
+					label = "MINI";
+					break;
+			}
+			this.$gtag.event("Download", {
+				event_category: "PreviewCard",
+				event_label: label
+			});
+		},
+		detailClick() {
+			this.$router.push({
+				name: "home",
+				params: {
+					queryMode: "beatmapset",
+					sid: this.beatmapsetInfo.sid
+				}
+			});
+			this.$emit("stop");
 		}
 	},
 	watch: {
-		volume: function() {
-			this.$refs.preview.volume = this.volume;
+		isPreviewAudioPlaying: function(val) {
+			if (val == false && this.isPlaying && !this.isPrePlaying)
+				this.isPlaying = false;
+			this.isPrePlaying = false;
 		}
 	},
-	mounted: function() {
-		this.$refs.preview.onended = () => {
-			this.isPreviewAudioPlaying = false;
-		};
-	},
+
 	computed: {
-		beatmapsetInfoLink: function() {
-			return "beatmapset/" + this.beatmapsetInfo.sid;
-		},
-		searchArtistLink: function() {
-			return (
-				"search?subType=2&keyword=" +
-				encodeURIComponent(this.beatmapsetInfo.artist)
-			);
-		},
-		searchCreatorLink: function() {
-			return (
-				"search?subType=4&keyword=" +
-				encodeURIComponent(this.beatmapsetInfo.creator)
-			);
-		},
 		title: function() {
 			if (this.isUnicode == true && this.beatmapsetInfo.titleU != "") {
 				return this.beatmapsetInfo.titleU;
@@ -131,9 +169,6 @@ export default {
 				this.downloadType,
 				this.downloadServer
 			);
-		},
-		previewAudioSrc: function() {
-			return ApiHelper.GetPreviewAudioUri(this.beatmapsetInfo.sid);
 		},
 		previewCardBackgroundSrc: function() {
 			return ApiHelper.GetPreviewBackgroundUri(this.beatmapsetInfo.sid);
@@ -168,9 +203,6 @@ export default {
 		//local storage
 		isUnicode: function() {
 			return this.$ls.get("isUnicode");
-		},
-		volume: function() {
-			return this.$ls.get("volume");
 		},
 		downloadType: function() {
 			return this.$ls.get("downloadType");
@@ -284,6 +316,15 @@ export default {
 			position: absolute;
 			left: 5px;
 			top: 5px;
+
+			&.playing {
+				.status {
+					opacity: 0 !important;
+				}
+				.play-btn {
+					opacity: 1 !important;
+				}
+			}
 
 			.status {
 				position: absolute;

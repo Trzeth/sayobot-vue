@@ -1,10 +1,14 @@
 <template>
 	<div class="preview-card-list-warpper grey lighten-4">
+		<audio ref="preview" v-bind:src="previewAudioSrc" preload="auto" />
+
 		<div class="preview-card-list">
-			<!--eslint-disable-next-line-->
 			<preview-card
 				v-for="beatmapset in beatmapsetList"
-				v-bind:beatmapsetInfo="beatmapset"
+				:beatmapsetInfo="beatmapset"
+				:isPreviewAudioPlaying="isPreviewAudioPlaying"
+				@play="OnPlay"
+				@stop="OnStop"
 			></preview-card>
 			<div
 				class="preview-card-skeleton"
@@ -30,18 +34,64 @@
 
 <script>
 import PreviewCard from "./PreviewCard";
+import ApiHelper from "../util/api";
 
 export default {
 	name: "preview-card-list",
 	components: {
 		PreviewCard
 	},
+	data: function() {
+		return {
+			previewAudioBid: null,
+			isPreviewAudioPlaying: false
+		};
+	},
+	props: ["beatmapsetList", "end"],
+	computed: {
+		previewAudioSrc: function() {
+			if (!this.previewAudioBid) return;
+
+			return ApiHelper.GetPreviewAudioUri(this.previewAudioBid);
+		},
+		//local storage
+		volume: function() {
+			return this.$ls.get("volume");
+		}
+	},
 	methods: {
+		OnPlay(bid) {
+			var preview = this.$refs.preview;
+
+			if (bid != this.previewAudioBid) {
+				if (this.isPreviewAudioPlaying) {
+					preview.pause();
+					this.isPreviewAudioPlaying = false;
+				}
+				this.previewAudioBid = bid;
+			}
+			this.$nextTick(() => {
+				var preview = this.$refs.preview;
+
+				preview.play();
+				this.isPreviewAudioPlaying = true;
+			});
+		},
+		OnStop() {
+			var preview = this.$refs.preview;
+			this.isPreviewAudioPlaying = false;
+
+			preview.pause();
+		},
 		OnIntersect(entries) {
 			if (entries[0].isIntersecting == true) this.$emit("reach-bottom");
 		}
 	},
-	props: ["beatmapsetList", "end"]
+	mounted: function() {
+		this.$refs.preview.onended = () => {
+			this.isPreviewAudioPlaying = false;
+		};
+	}
 };
 </script>
 <style lang="scss">
