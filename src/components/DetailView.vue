@@ -31,17 +31,26 @@
 							<v-btn class="ma-1"
 								><v-icon>mdi-heart-outline</v-icon></v-btn
 							>
-							<v-btn class="ma-1" :href="downloadLink">
+							<v-btn
+								class="ma-1"
+								:href="downloadLink"
+								@click="downloadClick(0)"
+							>
 								<v-icon left>mdi-download</v-icon>下载</v-btn
 							>
 							<v-btn
 								class="ma-1"
 								:href="downloadWithoutVideoLink"
+								@click="downloadClick(1)"
 							>
 								<v-icon left>mdi-download</v-icon
 								>不带视频</v-btn
 							>
-							<v-btn class="ma-1" :href="downloadMiniLink">
+							<v-btn
+								class="ma-1"
+								:href="downloadMiniLink"
+								@click="downloadClick(2)"
+							>
 								<v-icon left>mdi-download</v-icon>Mini</v-btn
 							>
 							<v-btn
@@ -678,6 +687,10 @@ export default {
 					subType: 1
 				}
 			});
+			this.$gtag.event("Search", {
+				event_category: "DetailView",
+				event_label: "Title"
+			});
 		},
 		artistClick() {
 			this.$router.push({
@@ -690,6 +703,10 @@ export default {
 					subType: 2
 				}
 			});
+			this.$gtag.event("Search", {
+				event_category: "DetailView",
+				event_label: "Artist"
+			});
 		},
 		creatorClick() {
 			this.$router.push({
@@ -701,6 +718,28 @@ export default {
 					keyword: this.beatmapsetDetail.creator,
 					subType: 4
 				}
+			});
+			this.$gtag.event("Search", {
+				event_category: "DetailView",
+				event_label: "Creator"
+			});
+		},
+		downloadClick(type) {
+			var label = null;
+			switch (type) {
+				case 0:
+					label = "Normal";
+					break;
+				case 1:
+					label = "WithoutVideoLink";
+					break;
+				case 2:
+					label = "MINI";
+					break;
+			}
+			this.$gtag.event("Download", {
+				event_category: "DetailView",
+				event_label: label
 			});
 		},
 		star(num) {
