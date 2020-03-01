@@ -54,6 +54,14 @@ class ApiHelper {
 	GetServerListUri() {
 		return "https://api.sayobot.cn/static/servers";
 	}
+	GetBeatmapInfo(sid, forceBid = false) {
+		var src = "https://api.sayobot.cn/v2/beatmapinfo?0=${sid}";
+		src = src.replace("${sid}", sid);
+		if (forceBid) {
+			src += "&1=1";
+		}
+		return src;
+	}
 }
 
 let _ = new ApiHelper();

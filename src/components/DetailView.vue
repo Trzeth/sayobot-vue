@@ -393,12 +393,9 @@ export default {
 
 					this.localOptine = _.clone(newOptine);
 
-					var uri = "https://api.sayobot.cn/v2/beatmapinfo?0=";
-					if (this.localOptine.sid) {
-						uri += this.localOptine.sid;
-					} else {
-						uri += this.localOptine.bid + "&1=1";
-					}
+					var uri = this.localOptine.sid
+						? ApiHelper.GetBeatmapInfo(this.localOptine.sid)
+						: ApiHelper.GetBeatmapInfo(this.localOptine.bid, true);
 
 					axios.get(uri).then(response => {
 						if (response.data.status == -1) {

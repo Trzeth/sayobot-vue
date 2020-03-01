@@ -44,6 +44,10 @@ if (!Vue.ls.get("lastConfirmedNotice")) {
 	Vue.ls.set("lastConfirmedNotice", null);
 }
 
+if (!Vue.ls.get("previewCardStyle")) {
+	Vue.ls.set("previewCardStyle", 0);
+}
+
 new Vue({
 	router,
 	vuetify,

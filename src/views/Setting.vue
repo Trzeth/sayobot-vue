@@ -15,19 +15,37 @@
 				<v-list>
 					<v-subheader>显示</v-subheader>
 					<v-list-item>
-						<v-switch v-model="isUnicode">
-							<template v-slot:label>
-								<label
-									class="title"
-									:class="
-										(isUnicode && 'black--text') ||
-											'grey--text'
-									"
-									>使用 Unicode 标题</label
-								>
-							</template>
-						</v-switch>
+						<v-list-item-content>
+							<h2 class="title">Beatmap样式</h2>
+
+							<v-radio-group v-model="previewCardStyle">
+								<v-radio label="普通样式" value="0"></v-radio>
+								<v-radio
+									label="Shortcut 样式"
+									value="1"
+								></v-radio>
+							</v-radio-group>
+						</v-list-item-content>
 					</v-list-item>
+					<v-list-item>
+						<v-list-item-content>
+							<h2 class="title">使用 Unicode 标题</h2>
+
+							<v-switch class="ml-3" v-model="isUnicode">
+								<template v-slot:label>
+									<label
+										:class="
+											(isUnicode && 'black--text') ||
+												'grey--text'
+										"
+										>当标题为日文时
+										不再使用罗马音显示</label
+									>
+								</template>
+							</v-switch>
+						</v-list-item-content>
+					</v-list-item>
+
 					<v-subheader>声音</v-subheader>
 					<v-list-item>
 						<v-list-item-content>
@@ -137,6 +155,15 @@ export default {
 			},
 			set(val) {
 				this.$ls.set("isUnicode", val);
+				return val;
+			}
+		},
+		previewCardStyle: {
+			get() {
+				return this.$ls.get("previewCardStyle");
+			},
+			set(val) {
+				this.$ls.set("previewCardStyle", val);
 				return val;
 			}
 		},
