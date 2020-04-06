@@ -65,6 +65,7 @@
 				<detail-view
 					:isOpen="isCurrentViewOpen"
 					:optine="detailViewOptine"
+					@back="closeDetailViewAndBack"
 				></detail-view>
 			</side-drawer>
 		</v-slide-x-reverse-transition>
@@ -123,9 +124,22 @@ export default {
 	},
 	computed: {
 		sideDrawerLeft() {
-			if (!this.isDrawerOpen) return 0;
+			if (!this.isDrawerOpen || this.isSm) return 0;
 			if (this.isDrawerMini) return 56;
 			return 256;
+		},
+		isSm() {
+			switch (this.$vuetify.breakpoint.name) {
+				case "xs":
+				case "sm":
+					return true;
+				case "md":
+				case "lg":
+				case "xl":
+					return false;
+				default:
+					return false;
+			}
 		}
 	},
 	watch: {
@@ -268,6 +282,7 @@ export default {
 		},
 		openDetailView() {
 			this.isCurrentViewOpen = true;
+			this.$emit("update:isTouchLess", true);
 			document.getElementsByTagName("html")[0].style.overflow = "hidden";
 		},
 		closeDetailViewAndBack() {
@@ -281,6 +296,7 @@ export default {
 		},
 		closeDetailView() {
 			this.isCurrentViewOpen = false;
+			this.$emit("update:isTouchLess", false);
 			document.getElementsByTagName("html")[0].style.overflow = "auto";
 		},
 		closeTab(val) {

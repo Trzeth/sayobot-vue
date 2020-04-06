@@ -9,7 +9,7 @@
 		"
 		:style="{ backgroundImage: previewCardBackgroundSrc }"
 	>
-		<div class="header" v-if="isHeaderShow">
+		<div class="header" v-show="isHeaderShow">
 			<a class="title-artist-warpper">
 				<span class="status">{{ approvedStatus }}</span>
 				<h2 class="beatmap-title overflow-clip" v-bind:title="title">
@@ -53,7 +53,7 @@
 				</li>
 			</ul>
 		</div>
-		<div class="detail" v-if="isDetailShow">
+		<div class="detail" v-show="isDetailShow">
 			<div v-if="isBeatmapsetInfoDetailGotIt == false">加载中...</div>
 			<div v-if="isBeatmapsetInfoDetailGotIt == true">
 				<div class="title-artist-warpper">

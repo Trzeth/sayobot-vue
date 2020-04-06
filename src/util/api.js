@@ -62,6 +62,11 @@ class ApiHelper {
 		}
 		return src;
 	}
+	GetBeatmapFile(filename, sid) {
+		if (!filename || !sid) return null;
+		var src = "https://txy1.sayobot.cn/beatmaps/files/${sid}/${filename}";
+		return src.replace("${sid}", sid).replace("${filename}", filename);
+	}
 }
 
 let _ = new ApiHelper();

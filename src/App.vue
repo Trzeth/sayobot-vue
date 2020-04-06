@@ -3,6 +3,7 @@
 		<v-navigation-drawer
 			v-model="isDrawerOpen"
 			:mini-variant="isDrawerMiniNotSm"
+			:touchless="isTouchLess"
 			app
 			mobile-break-point="960"
 		>
@@ -47,7 +48,6 @@
 						</v-carousel-item>
 					</v-carousel>
 				</v-list-item>
-				<v-list-item></v-list-item>
 				<v-list-item-group>
 					<v-list-item to="/home">
 						<v-list-item-icon>
@@ -96,6 +96,7 @@
 			<router-view
 				:isDrawerOpen.sync="isDrawerOpen"
 				:isDrawerMini="isDrawerMiniNotSm"
+				:isTouchLess.sync="isTouchLess"
 			/>
 		</v-content>
 	</v-app>
@@ -108,6 +109,7 @@ export default {
 		return {
 			isDrawerMini: null,
 			isDrawerOpen: null,
+			isTouchLess: false,
 			colors: [
 				"indigo",
 				"warning",

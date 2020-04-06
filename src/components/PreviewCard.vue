@@ -32,7 +32,7 @@
 					class="play-btn iconfont"
 					v-bind:class="{
 						'icon-caret-right': !isPlaying,
-						'icon-pause': isPlaying
+						'icon-pause': isPlaying,
 					}"
 					@click="playPreviewAudio"
 				></span>
@@ -47,7 +47,7 @@
 				beatmapsetInfo.favourite_count
 			}}</span>
 			<span class="iconfont icon-play-circle-fill">{{
-				beatmapsetInfo.order
+				beatmapsetInfo.play_count
 			}}</span>
 		</footer>
 	</div>
@@ -60,12 +60,12 @@ export default {
 	name: "preview-card",
 	props: {
 		beatmapsetInfo: Object,
-		isPreviewAudioPlaying: Boolean
+		isPreviewAudioPlaying: Boolean,
 	},
-	data: function() {
+	data: function () {
 		return {
 			isPlaying: false,
-			isPrePlaying: null
+			isPrePlaying: null,
 		};
 	},
 	methods: {
@@ -83,32 +83,32 @@ export default {
 			this.$router.push({
 				name: "home",
 				params: {
-					queryMode: "search"
+					queryMode: "search",
 				},
 				query: {
 					keyword: this.beatmapsetInfo.artist,
-					subType: 2
-				}
+					subType: 2,
+				},
 			});
 			this.$gtag.event("Search", {
 				event_category: "PreviewCard",
-				event_label: "Artist"
+				event_label: "Artist",
 			});
 		},
 		creatorClick() {
 			this.$router.push({
 				name: "home",
 				params: {
-					queryMode: "search"
+					queryMode: "search",
 				},
 				query: {
 					keyword: this.beatmapsetInfo.creator,
-					subType: 4
-				}
+					subType: 4,
+				},
 			});
 			this.$gtag.event("Search", {
 				event_category: "PreviewCard",
-				event_label: "Creator"
+				event_label: "Creator",
 			});
 		},
 		downloadClick() {
@@ -126,7 +126,7 @@ export default {
 			}
 			this.$gtag.event("Download", {
 				event_category: "PreviewCard",
-				event_label: label
+				event_label: label,
 			});
 		},
 		detailClick() {
@@ -134,46 +134,46 @@ export default {
 				name: "home",
 				params: {
 					queryMode: "beatmapset",
-					sid: this.beatmapsetInfo.sid
-				}
+					sid: this.beatmapsetInfo.sid,
+				},
 			});
 			this.$emit("stop");
-		}
+		},
 	},
 	watch: {
-		isPreviewAudioPlaying: function(val) {
+		isPreviewAudioPlaying: function (val) {
 			if (val == false && this.isPlaying && !this.isPrePlaying)
 				this.isPlaying = false;
 			this.isPrePlaying = false;
-		}
+		},
 	},
 
 	computed: {
-		title: function() {
+		title: function () {
 			if (this.isUnicode == true && this.beatmapsetInfo.titleU != "") {
 				return this.beatmapsetInfo.titleU;
 			} else {
 				return this.beatmapsetInfo.title;
 			}
 		},
-		artist: function() {
+		artist: function () {
 			if (this.isUnicode == true && this.beatmapsetInfo.artistU != "") {
 				return this.beatmapsetInfo.artistU;
 			} else {
 				return this.beatmapsetInfo.artist;
 			}
 		},
-		downloadLink: function() {
+		downloadLink: function () {
 			return ApiHelper.GetDownloadUri(
 				this.beatmapsetInfo.sid,
 				this.downloadType,
 				this.downloadServer
 			);
 		},
-		previewCardBackgroundSrc: function() {
+		previewCardBackgroundSrc: function () {
 			return ApiHelper.GetPreviewBackgroundUri(this.beatmapsetInfo.sid);
 		},
-		approvedStatus: function() {
+		approvedStatus: function () {
 			var status;
 			switch (this.beatmapsetInfo.approved) {
 				case 0:
@@ -201,16 +201,16 @@ export default {
 			return status;
 		},
 		//local storage
-		isUnicode: function() {
+		isUnicode: function () {
 			return this.$ls.get("isUnicode");
 		},
-		downloadType: function() {
+		downloadType: function () {
 			return this.$ls.get("downloadType");
 		},
-		downloadServer: function() {
+		downloadServer: function () {
 			return this.$ls.get("downloadServer");
-		}
-	}
+		},
+	},
 };
 </script>
 
