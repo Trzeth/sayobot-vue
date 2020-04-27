@@ -89,7 +89,7 @@ export default {
 		DetailView,
 		HomeTitleBar,
 		DetailTitleBar,
-		SideDrawer
+		SideDrawer,
 	},
 	props: ["isDrawerOpen", "isDrawerMini"],
 	data: function() {
@@ -108,7 +108,7 @@ export default {
 					data: [],
 					yOffset: 0,
 					offset: 0,
-					end: false
+					end: false,
 				},
 				{
 					keyword: "热门谱面",
@@ -116,10 +116,10 @@ export default {
 					data: [],
 					yOffset: 0,
 					offset: 0,
-					end: false
-				}
+					end: false,
+				},
 			],
-			notices: []
+			notices: [],
 		};
 	},
 	computed: {
@@ -140,7 +140,7 @@ export default {
 				default:
 					return false;
 			}
-		}
+		},
 	},
 	watch: {
 		"$route.params": {
@@ -151,8 +151,8 @@ export default {
 					this.$router.replace({
 						name: "home",
 						params: {
-							queryMode: "new"
-						}
+							queryMode: "new",
+						},
 					});
 					return;
 				}
@@ -183,16 +183,16 @@ export default {
 								this.$router.replace({
 									name: "home",
 									params: {
-										queryMode: "new"
-									}
+										queryMode: "new",
+									},
 								});
 						} else {
 							this.search(query);
 							this.$router.replace({
 								name: "home",
 								params: {
-									queryMode: "search"
-								}
+									queryMode: "search",
+								},
 							});
 						}
 						break;
@@ -201,19 +201,19 @@ export default {
 						if (query && (query.bid == "true" || query.bid)) {
 							this.detailViewOptine = {
 								sid: null,
-								bid: val.sid
+								bid: val.sid,
 							};
 						} else {
 							this.detailViewOptine = {
 								sid: val.sid,
-								bid: null
+								bid: null,
 							};
 						}
 
 						this.openDetailView();
 						break;
 				}
-			}
+			},
 		},
 		tabNum: {
 			immediate: true,
@@ -227,10 +227,13 @@ export default {
 
 					axios
 						.get(this.toUri(this.tabs[val], this.limit))
-						.then(response => {
+						.then((response) => {
 							this.tabs[val].data = response.data.data;
 
-							if (response.data.endid == 0)
+							if (
+								response.data.status == -1 ||
+								response.data.endid == 0
+							)
 								this.tabs[this.tabNum].end = true;
 							else
 								this.tabs[this.tabNum].offset =
@@ -248,8 +251,8 @@ export default {
 				this.$nextTick(() => {
 					this.$vuetify.goTo(this.tabs[val].yOffset);
 				});
-			}
-		}
+			},
+		},
 	},
 	methods: {
 		search(val) {
@@ -318,7 +321,7 @@ export default {
 				if (!this.tabs[this.tabNum].end) {
 					axios
 						.get(this.toUri(this.tabs[this.tabNum], this.limit))
-						.then(newData => {
+						.then((newData) => {
 							this.tabs[this.tabNum].data = this.tabs[
 								this.tabNum
 							].data.concat(newData.data.data);
@@ -371,8 +374,8 @@ export default {
 				case 4:
 					return "search";
 			}
-		}
-	}
+		},
+	},
 };
 </script>
 

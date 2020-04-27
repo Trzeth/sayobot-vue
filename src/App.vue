@@ -49,6 +49,7 @@
 					</v-carousel>
 				</v-list-item>
 				<v-list-item-group>
+					<v-list-item></v-list-item>
 					<v-list-item to="/home">
 						<v-list-item-icon>
 							<v-icon>mdi-home</v-icon>
@@ -78,16 +79,24 @@
 
 			<template v-slot:append v-if="!isSm">
 				<div style="height:44px">
-					<v-btn
-						icon
-						large
-						absolute
-						right
-						@click="isDrawerMini = !isDrawerMini"
+					<v-row
+						no-gutters
+						:justify="isDrawerMiniNotSm ? 'center' : 'end'"
 					>
-						<v-icon v-show="!isDrawerMini">mdi-chevron-left</v-icon>
-						<v-icon v-show="isDrawerMini">mdi-chevron-right</v-icon>
-					</v-btn>
+						<v-btn
+							icon
+							large
+							@click="isDrawerMini = !isDrawerMini"
+							:class="isDrawerMiniNotSm ? '' : 'mr-2'"
+						>
+							<v-icon v-show="!isDrawerMini"
+								>mdi-chevron-left</v-icon
+							>
+							<v-icon v-show="isDrawerMini"
+								>mdi-chevron-right</v-icon
+							>
+						</v-btn>
+					</v-row>
 				</div>
 			</template>
 		</v-navigation-drawer>
@@ -117,9 +126,9 @@ export default {
 				"red lighten-1",
 				"deep-purple accent-4",
 				"indigo",
-				"warning"
+				"warning",
 			],
-			slides: ["V", "M", "I", "R", "R", "O", "R"]
+			slides: ["V", "M", "I", "R", "R", "O", "R"],
 		};
 	},
 	watch: {
@@ -127,8 +136,8 @@ export default {
 			handler: function(val) {
 				if (val == null) return;
 				this.$ls.set("isDrawerMini", val);
-			}
-		}
+			},
+		},
 	},
 	computed: {
 		isSm() {
@@ -146,11 +155,21 @@ export default {
 		},
 		isDrawerMiniNotSm() {
 			return this.isSm ? false : this.isDrawerMini;
-		}
+		},
 	},
 	mounted() {
 		this.isDrawerMini =
 			this.$ls.get("isDrawerMini") == "true" ? true : false;
-	}
+	},
 };
 </script>
+
+<style scss>
+/* Hard Code */
+.v-navigation-drawer {
+	transition: transform, -webkit-transform !important;
+}
+.v-content {
+	transition: none !important;
+}
+</style>

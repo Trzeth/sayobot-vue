@@ -42,13 +42,13 @@ export default {
 	name: "preview-card-list",
 	components: {
 		"preview-card": PreviewCard,
-		"shortcut-preview-card": ShortCutPreviewCard
+		"shortcut-preview-card": ShortCutPreviewCard,
 	},
 	data: function() {
 		return {
 			previewAudioBid: null,
 			isPreviewAudioPlaying: false,
-			previewCardName: ["preview-card", "shortcut-preview-card"]
+			previewCardName: ["preview-card", "shortcut-preview-card"],
 		};
 	},
 	props: ["beatmapsetList", "end"],
@@ -64,11 +64,12 @@ export default {
 		},
 		previewCardStyle: function() {
 			return this.$ls.get("previewCardStyle");
-		}
+		},
 	},
 	methods: {
 		OnPlay(bid) {
 			var preview = this.$refs.preview;
+			preview.volume = this.volume;
 
 			if (bid != this.previewAudioBid) {
 				if (this.isPreviewAudioPlaying) {
@@ -92,13 +93,13 @@ export default {
 		},
 		OnIntersect(entries) {
 			if (entries[0].isIntersecting == true) this.$emit("reach-bottom");
-		}
+		},
 	},
 	mounted: function() {
 		this.$refs.preview.onended = () => {
 			this.isPreviewAudioPlaying = false;
 		};
-	}
+	},
 };
 </script>
 <style lang="scss">

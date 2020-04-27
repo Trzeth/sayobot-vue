@@ -2,8 +2,7 @@ import Vue from "vue";
 import App from "./App.vue";
 import VueLocalStorage from "vue-localstorage";
 import _ from "loadsh";
-import "./assets/style/iconfont.css";
-import "./assets/style/style.scss";
+import "./styles/iconfont.css";
 import router from "./router";
 import vuetify from "./plugins/vuetify";
 import VueGtag from "vue-gtag";
@@ -11,7 +10,7 @@ import VueGtag from "vue-gtag";
 Vue.use(
 	VueGtag,
 	{
-		config: { id: "UA-158385317-1" }
+		config: { id: "UA-158385317-1" },
 	},
 	router
 );
@@ -20,7 +19,7 @@ Vue.config.productionTip = false;
 Vue.prototype._ = _;
 
 Vue.use(VueLocalStorage, {
-	name: "ls"
+	name: "ls",
 });
 
 if (!Vue.ls.get("isUnicode")) {
@@ -51,5 +50,5 @@ if (!Vue.ls.get("previewCardStyle")) {
 new Vue({
 	router,
 	vuetify,
-	render: h => h(App)
+	render: (h) => h(App),
 }).$mount("#app");
