@@ -70,7 +70,7 @@
 					</v-list-item>
 					<v-list-item to="/setting">
 						<v-list-item-icon>
-							<v-icon>mdi-settings</v-icon>
+							<v-icon>mdi-cog</v-icon>
 						</v-list-item-icon>
 						<v-list-item-content>设置</v-list-item-content>
 					</v-list-item>

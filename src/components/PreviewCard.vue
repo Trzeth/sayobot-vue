@@ -54,7 +54,6 @@
 </template>
 
 <script>
-import FileSaver from "file-saver";
 import ApiHelper from "../util/api";
 import { mapMutations } from "vuex";
 

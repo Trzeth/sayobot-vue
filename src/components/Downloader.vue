@@ -54,10 +54,9 @@
 
 <script>
 import { mapState } from "vuex";
-import JSZip from "jszip";
 import ApiHelper from "../util/api";
-import axios from "axios";
-import FileSaver from "file-saver";
+import ZIP from "../util/zip-stream";
+import StreamSaver from "streamsaver";
 
 export default {
 	name: "downloader",
@@ -74,24 +73,65 @@ export default {
 			)[0].offsetWidth;
 		},
 		save() {
-			var zip = new JSZip();
-			this.beatmapset.forEach((beatmap) => {
-				zip.file(
-					beatmap.sid +
-						" " +
-						beatmap.artist +
-						" - " +
-						beatmap.title +
-						".osz",
-					beatmap.data
-				);
-			});
 			this.loading = true;
 
-			zip.generateAsync({ type: "blob" }).then((content) => {
-				FileSaver.saveAs(content, "example.zip");
-				this.loading = false;
+			const fileStream = StreamSaver.createWriteStream("Package.zip");
+			var beatmapset = this.beatmapset;
+
+			const readableZipStream = new ZIP({
+				async pull(ctrl) {
+					// Gets executed everytime zip.js asks for more data
+					var promise = [];
+
+					beatmapset.forEach((s) => {
+						promise.push(
+							new Promise(async (resolve) => {
+								const res = await fetch(
+									ApiHelper.GetDownloadUri(
+										s.sid,
+										this.downloadType,
+										this.downloadServer
+									)
+								);
+
+								const stream = () => res.body;
+
+								var regex = /filename=([\s\S]*)/g;
+								var matches = regex.exec(res.url);
+
+								const name = decodeURI(matches[1]) + ".osz";
+								ctrl.enqueue({ name, stream });
+								resolve();
+							})
+						);
+					});
+					Promise.all(promise).then(() => {
+						ctrl.close();
+					});
+				},
 			});
+
+			// more optimized
+			if (window.WritableStream && readableZipStream.pipeTo) {
+				return readableZipStream.pipeTo(fileStream).then(() => {
+					this.loading = false;
+				});
+			}
+
+			// less optimized
+			const writer = fileStream.getWriter();
+			const reader = readableZipStream.getReader();
+			const pump = () =>
+				reader.read().then((res) =>
+					res.done
+						? () => {
+								writer.close();
+								this.loading = false;
+						  }
+						: writer.write(res.value).then(pump)
+				);
+
+			pump();
 		},
 	},
 	computed: {
@@ -113,26 +153,6 @@ export default {
 			set(val) {
 				this.$ls.set("isPackageDownload", val);
 				return val;
-			},
-		},
-	},
-	watch: {
-		beatmapset: {
-			handler: function(val, pre) {
-				if (pre && val.length < pre.length) return;
-
-				var beatmap = val[val.length - 1];
-				axios({
-					url: ApiHelper.GetDownloadUri(
-						beatmap.sid,
-						this.downloadType,
-						this.downloadServer
-					),
-					method: "GET",
-					responseType: "blob", // important
-				}).then((response) => {
-					beatmap.data = response.data;
-				});
 			},
 		},
 	},
