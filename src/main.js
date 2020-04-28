@@ -1,4 +1,5 @@
 import Vue from "vue";
+import store from "./store";
 import App from "./App.vue";
 import VueLocalStorage from "vue-localstorage";
 import _ from "loadsh";
@@ -47,8 +48,13 @@ if (!Vue.ls.get("previewCardStyle")) {
 	Vue.ls.set("previewCardStyle", 0);
 }
 
+if (!Vue.ls.get("isPackageDownload")) {
+	Vue.ls.set("isPackageDownload", false);
+}
+
 new Vue({
 	router,
 	vuetify,
+	store,
 	render: (h) => h(App),
 }).$mount("#app");

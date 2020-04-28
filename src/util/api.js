@@ -69,6 +69,4 @@ class ApiHelper {
 	}
 }
 
-let _ = new ApiHelper();
-
-export default _;
+export default new ApiHelper();

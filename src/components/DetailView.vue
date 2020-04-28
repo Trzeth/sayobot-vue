@@ -16,8 +16,8 @@
 							<a
 								class="display-1 mb-5 font-weight-medium black--text"
 								@click="titleClick"
-								>{{ title }}</a
-							>
+								>{{ title }}
+							</a>
 						</v-row>
 						<v-row no-gutters>
 							<a
@@ -315,7 +315,7 @@ export default {
 		Touch,
 	},
 	props: ["optine", "isOpen"],
-	data: function () {
+	data: function() {
 		return {
 			localOptine: null,
 
@@ -378,19 +378,19 @@ export default {
 			},
 		};
 	},
-	mounted: function () {
+	mounted: function() {
 		this.init();
 	},
 	watch: {
 		isOpen: {
-			handler: function () {
+			handler: function() {
 				this.pause();
 				this.snackBar.isOpen = false;
 			},
 		},
 		optine: {
 			immediate: true,
-			handler: function (newOptine) {
+			handler: function(newOptine) {
 				if (this.isNewDetail(newOptine, this.localOptine)) {
 					this.isWsInited = false;
 					this.currentBeatmapIndex = 0;
@@ -440,7 +440,7 @@ export default {
 			},
 		},
 		chartIndex: {
-			handler: function (val) {
+			handler: function(val) {
 				var curBeatmap = this.beatmapsetDetail.bid_data[
 					this.currentBeatmapIndex
 				];
@@ -455,7 +455,7 @@ export default {
 				}
 			},
 		},
-		currentBeatmapIndex: function (newV) {
+		currentBeatmapIndex: function(newV) {
 			var curBeatmap = this.beatmapsetDetail.bid_data[newV];
 			if (!curBeatmap) return;
 
@@ -502,21 +502,21 @@ export default {
 		},
 	},
 	computed: {
-		title: function () {
+		title: function() {
 			if (this.isUnicode == true && this.beatmapsetDetail.titleU != "") {
 				return this.beatmapsetDetail.titleU;
 			} else {
 				return this.beatmapsetDetail.title;
 			}
 		},
-		artist: function () {
+		artist: function() {
 			if (this.isUnicode == true && this.beatmapsetDetail.artistU != "") {
 				return this.beatmapsetDetail.artistU;
 			} else {
 				return this.beatmapsetDetail.artist;
 			}
 		},
-		detailCardBackgroundSrc: function () {
+		detailCardBackgroundSrc: function() {
 			if (
 				this.localOptine &&
 				this.localOptine.sid &&
@@ -535,7 +535,7 @@ export default {
 			}
 			return null;
 		},
-		currentBeatmapDetail: function () {
+		currentBeatmapDetail: function() {
 			if (
 				!this.beatmapsetDetail ||
 				!this.beatmapsetDetail.bid_data[this.currentBeatmapIndex]
@@ -543,7 +543,7 @@ export default {
 				return {};
 			return this.beatmapsetDetail.bid_data[this.currentBeatmapIndex];
 		},
-		downloadLink: function () {
+		downloadLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
 				return ApiHelper.GetDownloadUri(
 					this.localOptine.sid,
@@ -553,7 +553,7 @@ export default {
 			}
 			return null;
 		},
-		downloadWithoutVideoLink: function () {
+		downloadWithoutVideoLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
 				return ApiHelper.GetDownloadUri(
 					this.localOptine.sid,
@@ -563,7 +563,7 @@ export default {
 			}
 			return null;
 		},
-		downloadMiniLink: function () {
+		downloadMiniLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
 				return ApiHelper.GetDownloadUri(
 					this.localOptine.sid,
@@ -573,7 +573,7 @@ export default {
 			}
 			return null;
 		},
-		officialLink: function () {
+		officialLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
 				return ApiHelper.GetOfficialUri(
 					this.localOptine.sid,
@@ -582,16 +582,16 @@ export default {
 			}
 			return null;
 		},
-		isUnicode: function () {
+		isUnicode: function() {
 			return this.$ls.get("isUnicode");
 		},
-		volume: function () {
+		volume: function() {
 			return this.$ls.get("volume");
 		},
-		downloadType: function () {
+		downloadType: function() {
 			return this.$ls.get("downloadType");
 		},
-		downloadServer: function () {
+		downloadServer: function() {
 			return this.$ls.get("downloadServer");
 		},
 	},

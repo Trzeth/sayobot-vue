@@ -103,14 +103,14 @@ export default {
 				"mdi-information",
 				"mdi-exclamation",
 				"mdi-alert",
-				"mdi-check-circle"
+				"mdi-check-circle",
 			],
 			types: ["info", "warning", "error", "success"],
 			isNeedToConfirm: false,
 			isOverlayOpen: false,
 			isAgree: false,
 			noticeMd5: null,
-			confirmType: 0
+			confirmType: 0,
 		};
 	},
 	computed: {
@@ -123,8 +123,8 @@ export default {
 			set(val) {
 				this.$ls.set("lastConfirmedNotice", val);
 				return val;
-			}
-		}
+			},
+		},
 	},
 	watch: {
 		isOverlayOpen: {
@@ -136,18 +136,18 @@ export default {
 				else
 					document.getElementsByTagName("html")[0].style.overflow =
 						"auto";
-			}
-		}
+			},
+		},
 	},
 	methods: {
 		OnClick() {
 			this.isOverlayOpen = false;
 			this.lastConfirmedNotice = this.noticeMd5;
 			this.isNeedToConfirm = false;
-		}
+		},
 	},
 	mounted: function() {
-		axios.get("https://api.sayobot.cn/static/notice").then(response => {
+		axios.get("https://api.sayobot.cn/static/notice").then((response) => {
 			this.notices = response.data.data;
 
 			var lastImportance = this.notices[0].importance;
@@ -166,9 +166,9 @@ export default {
 		app: {
 			inserted: function(el) {
 				document.getElementById("app").appendChild(el);
-			}
-		}
-	}
+			},
+		},
+	},
 };
 </script>
 

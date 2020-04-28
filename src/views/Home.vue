@@ -62,11 +62,13 @@
 
 		<v-slide-x-reverse-transition>
 			<side-drawer v-show="isCurrentViewOpen" :left="sideDrawerLeft">
-				<detail-view
-					:isOpen="isCurrentViewOpen"
-					:optine="detailViewOptine"
-					@back="closeDetailViewAndBack"
-				></detail-view>
+				<keep-alive>
+					<detail-view
+						:isOpen="isCurrentViewOpen"
+						:optine="detailViewOptine"
+						@back="closeDetailViewAndBack"
+					></detail-view>
+				</keep-alive>
 			</side-drawer>
 		</v-slide-x-reverse-transition>
 	</div>

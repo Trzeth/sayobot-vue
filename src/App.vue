@@ -58,9 +58,9 @@
 					</v-list-item>
 					<v-list-item to="/search">
 						<v-list-item-icon>
-							<v-icon>mdi-layers-search</v-icon>
+							<v-icon>mdi-package</v-icon>
 						</v-list-item-icon>
-						<v-list-item-content>高级搜索</v-list-item-content>
+						<v-list-item-content>图包</v-list-item-content>
 					</v-list-item>
 					<v-list-item to="/support">
 						<v-list-item-icon>

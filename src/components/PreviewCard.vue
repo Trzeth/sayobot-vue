@@ -14,8 +14,8 @@
 				<a
 					@click="downloadClick"
 					class="iconfont icon-download download-btn"
-					v-bind:href="downloadLink"
-				></a>
+				>
+				</a>
 			</div>
 		</header>
 
@@ -54,7 +54,9 @@
 </template>
 
 <script>
+import FileSaver from "file-saver";
 import ApiHelper from "../util/api";
+import { mapMutations } from "vuex";
 
 export default {
 	name: "preview-card",
@@ -62,13 +64,14 @@ export default {
 		beatmapsetInfo: Object,
 		isPreviewAudioPlaying: Boolean,
 	},
-	data: function () {
+	data: function() {
 		return {
 			isPlaying: false,
 			isPrePlaying: null,
 		};
 	},
 	methods: {
+		...mapMutations("downloader", ["add"]),
 		playPreviewAudio() {
 			if (this.isPlaying) {
 				this.$emit("stop");
@@ -112,6 +115,15 @@ export default {
 			});
 		},
 		downloadClick() {
+			if (this.$ls.get("isPackageDownload") == "true") {
+				this.add(this.beatmapsetInfo);
+			} else {
+				var aEle = document.createElement("a");
+				aEle.href = this.downloadLink;
+				aEle.download = "";
+				aEle.click();
+			}
+
 			var label = null;
 			switch (this.downloadType) {
 				case 0:
@@ -141,7 +153,7 @@ export default {
 		},
 	},
 	watch: {
-		isPreviewAudioPlaying: function (val) {
+		isPreviewAudioPlaying: function(val) {
 			if (val == false && this.isPlaying && !this.isPrePlaying)
 				this.isPlaying = false;
 			this.isPrePlaying = false;
@@ -149,31 +161,31 @@ export default {
 	},
 
 	computed: {
-		title: function () {
+		title: function() {
 			if (this.isUnicode == true && this.beatmapsetInfo.titleU != "") {
 				return this.beatmapsetInfo.titleU;
 			} else {
 				return this.beatmapsetInfo.title;
 			}
 		},
-		artist: function () {
+		artist: function() {
 			if (this.isUnicode == true && this.beatmapsetInfo.artistU != "") {
 				return this.beatmapsetInfo.artistU;
 			} else {
 				return this.beatmapsetInfo.artist;
 			}
 		},
-		downloadLink: function () {
+		downloadLink: function() {
 			return ApiHelper.GetDownloadUri(
 				this.beatmapsetInfo.sid,
 				this.downloadType,
 				this.downloadServer
 			);
 		},
-		previewCardBackgroundSrc: function () {
+		previewCardBackgroundSrc: function() {
 			return ApiHelper.GetPreviewBackgroundUri(this.beatmapsetInfo.sid);
 		},
-		approvedStatus: function () {
+		approvedStatus: function() {
 			var status;
 			switch (this.beatmapsetInfo.approved) {
 				case 0:
@@ -201,13 +213,13 @@ export default {
 			return status;
 		},
 		//local storage
-		isUnicode: function () {
+		isUnicode: function() {
 			return this.$ls.get("isUnicode");
 		},
-		downloadType: function () {
+		downloadType: function() {
 			return this.$ls.get("downloadType");
 		},
-		downloadServer: function () {
+		downloadServer: function() {
 			return this.$ls.get("downloadServer");
 		},
 	},
