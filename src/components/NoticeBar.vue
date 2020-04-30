@@ -27,11 +27,28 @@
 					<v-divider :key="'d' + index" v-if="index != 0"></v-divider>
 					<v-list-item :key="index">
 						<v-list-item-content>
-							<v-row no-gutters justify="space-between">
+							<v-row
+								no-gutters
+								justify="space-between"
+								align="center"
+							>
 								<h2 class="title">{{ notice.title }}</h2>
-								<v-icon :color="types[notice.importance]">{{
-									icons[notice.importance]
-								}}</v-icon>
+								<v-col cols="auto">
+									<v-row align="center" no-gutters>
+										<h2
+											class="subtitle-1 mr-1"
+											style="margin-bottom:2px"
+										>
+											{{ notice.date }}
+										</h2>
+										<v-icon
+											:color="types[notice.importance]"
+											>{{
+												icons[notice.importance]
+											}}</v-icon
+										>
+									</v-row>
+								</v-col>
 							</v-row>
 							<pre
 								class="body-1 my-1"

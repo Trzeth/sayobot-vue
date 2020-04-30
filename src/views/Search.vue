@@ -28,6 +28,10 @@
 						v-model="packageDownload"
 					></v-checkbox>
 				</v-row>
+				<v-row
+					><v-btn @click="readOsudb()"></v-btn
+					><v-file-input v-model="file"></v-file-input
+				></v-row>
 				<v-row>
 					<v-list>
 						<v-list-item v-for="p in packages" :key="p.packageId">
@@ -74,6 +78,8 @@ import ApiHelper from "../util/api";
 import ZIP from "../util/zip-stream";
 import StreamSaver from "streamsaver";
 import axios from "axios";
+import OsuDBParser from "osu-db-parser";
+var Buffer = require("buffer/").Buffer;
 
 export default {
 	name: "search",
@@ -83,6 +89,7 @@ export default {
 			type: null,
 			packages: null,
 			packageDownload: true,
+			file: null,
 		};
 	},
 	watch: {
@@ -113,6 +120,21 @@ export default {
 		},
 	},
 	methods: {
+		async readOsudb() {
+			let osuCollectionBuffer = Buffer.from(
+				await this.file.arrayBuffer()
+			);
+			let collectionDB, osuCollectionData;
+			try {
+				collectionDB = new OsuDBParser(null, osuCollectionBuffer);
+				osuCollectionData = collectionDB.getCollectionData();
+			} catch (e) {
+				collectionDB = new OsuDBParser(osuCollectionBuffer);
+				osuCollectionData = collectionDB.getOsuDBData();
+			}
+
+			console.log(osuCollectionData);
+		},
 		download(p) {
 			this.$set(p, "done", false);
 

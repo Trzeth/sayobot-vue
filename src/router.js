@@ -2,12 +2,12 @@ import Vue from "vue";
 import Router from "vue-router";
 
 import Home from "./views/Home";
-import Search from "./views/Search";
+//import Search from "./views/Search";
 import Setting from "./views/Setting";
 import Support from "./views/Support";
 
 // const Home = () => import("./views/Home");
-// const Search = () => import("./views/Search");
+const Search = () => import("./views/Search");
 // const Setting = () => import("./views/Setting");
 // const Support = () => import("./views/Support");
 
@@ -19,26 +19,26 @@ export default new Router({
 		{
 			path: "/search/:queryMode?",
 			name: "search",
-			component: Search
+			component: Search,
 		},
 		{
 			path: "/setting/:queryMode?",
 			name: "setting",
-			component: Setting
+			component: Setting,
 		},
 		{
 			path: "/support",
 			name: "support",
-			component: Support
+			component: Support,
 		},
 		{
 			path: "/home/:queryMode?/:sid(\\d+)?",
 			name: "home",
-			component: Home
+			component: Home,
 		},
 		{
 			path: "/",
-			redirect: "/home"
-		}
-	]
+			redirect: "/home",
+		},
+	],
 });
