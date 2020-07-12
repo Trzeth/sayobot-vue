@@ -14,20 +14,24 @@ import json
 
 from bs4 import BeautifulSoup
 
+proxy = {
+    "http": "http://127.0.0.1:2080"
+}
 
 # In[13]:
 
 
 packages = []
-for page in range(1,7):
-    html = requests.get("https://osu.ppy.sh/beatmaps/packs?type=artist&page=" + str(page))
-    soup=BeautifulSoup(html.text,'html.parser')    
+for page in range(1, 5):
+    html = requests.get(
+        "https://osu.ppy.sh/beatmaps/packs?type=chart&page=" + str(page), proxies=proxy)
+    soup = BeautifulSoup(html.text, 'html.parser')
     data = soup.select(".beatmap-packs > .beatmap-pack")
     for da in data:
         packages.append({
-            'packageId':da['data-pack-id'],
-            'title':da.div.text,
-            'beatmap':[]
+            'packageId': da['data-pack-id'],
+            'title': da.div.text,
+            'beatmap': []
         })
 
 
@@ -35,19 +39,20 @@ for page in range(1,7):
 
 
 for pa in packages:
-    beatmap=[]
-    html=requests.get("https://osu.ppy.sh/beatmaps/packs/"+ pa["packageId"] +"/raw")
-    soup=BeautifulSoup(html.text,'lxml')
-    data=soup.select(".beatmap-pack-items__set")
+    beatmap = []
+    html = requests.get(
+        "https://osu.ppy.sh/beatmaps/packs/" + pa["packageId"] + "/raw", proxies=proxy)
+    soup = BeautifulSoup(html.text, 'lxml')
+    data = soup.select(".beatmap-pack-items__set")
     for item in data:
-        beatmap.append(re.findall("\d+",item.a["href"])[0])
-    pa['beatmap']=beatmap
+        beatmap.append(re.findall("\d+", item.a["href"])[0])
+    pa['beatmap'] = beatmap
 
 
 # In[15]:
 
 
-f = open('e:/artist1-6.json','w')
+f = open('e:/chart1-4.json', 'w')
 
 
 # In[16]:
@@ -63,7 +68,3 @@ f.close()
 
 
 # In[ ]:
-
-
-
-
