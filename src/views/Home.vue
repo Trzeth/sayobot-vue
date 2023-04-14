@@ -62,10 +62,13 @@
 
 		<v-slide-x-reverse-transition>
 			<side-drawer v-show="isCurrentViewOpen" :left="sideDrawerLeft">
-				<detail-view
-					:isOpen="isCurrentViewOpen"
-					:optine="detailViewOptine"
-				></detail-view>
+				<keep-alive>
+					<detail-view
+						:isOpen="isCurrentViewOpen"
+						:optine="detailViewOptine"
+						@back="closeDetailViewAndBack"
+					></detail-view>
+				</keep-alive>
 			</side-drawer>
 		</v-slide-x-reverse-transition>
 	</div>
@@ -88,7 +91,7 @@ export default {
 		DetailView,
 		HomeTitleBar,
 		DetailTitleBar,
-		SideDrawer
+		SideDrawer,
 	},
 	props: ["isDrawerOpen", "isDrawerMini"],
 	data: function() {
@@ -107,7 +110,7 @@ export default {
 					data: [],
 					yOffset: 0,
 					offset: 0,
-					end: false
+					end: false,
 				},
 				{
 					keyword: "热门谱面",
@@ -115,18 +118,31 @@ export default {
 					data: [],
 					yOffset: 0,
 					offset: 0,
-					end: false
-				}
+					end: false,
+				},
 			],
-			notices: []
+			notices: [],
 		};
 	},
 	computed: {
 		sideDrawerLeft() {
-			if (!this.isDrawerOpen) return 0;
+			if (!this.isDrawerOpen || this.isSm) return 0;
 			if (this.isDrawerMini) return 56;
 			return 256;
-		}
+		},
+		isSm() {
+			switch (this.$vuetify.breakpoint.name) {
+				case "xs":
+				case "sm":
+					return true;
+				case "md":
+				case "lg":
+				case "xl":
+					return false;
+				default:
+					return false;
+			}
+		},
 	},
 	watch: {
 		"$route.params": {
@@ -137,8 +153,8 @@ export default {
 					this.$router.replace({
 						name: "home",
 						params: {
-							queryMode: "new"
-						}
+							queryMode: "new",
+						},
 					});
 					return;
 				}
@@ -169,16 +185,16 @@ export default {
 								this.$router.replace({
 									name: "home",
 									params: {
-										queryMode: "new"
-									}
+										queryMode: "new",
+									},
 								});
 						} else {
 							this.search(query);
 							this.$router.replace({
 								name: "home",
 								params: {
-									queryMode: "search"
-								}
+									queryMode: "search",
+								},
 							});
 						}
 						break;
@@ -187,19 +203,19 @@ export default {
 						if (query && (query.bid == "true" || query.bid)) {
 							this.detailViewOptine = {
 								sid: null,
-								bid: val.sid
+								bid: val.sid,
 							};
 						} else {
 							this.detailViewOptine = {
 								sid: val.sid,
-								bid: null
+								bid: null,
 							};
 						}
 
 						this.openDetailView();
 						break;
 				}
-			}
+			},
 		},
 		tabNum: {
 			immediate: true,
@@ -213,10 +229,13 @@ export default {
 
 					axios
 						.get(this.toUri(this.tabs[val], this.limit))
-						.then(response => {
+						.then((response) => {
 							this.tabs[val].data = response.data.data;
 
-							if (response.data.endid == 0)
+							if (
+								response.data.status == -1 ||
+								response.data.endid == 0
+							)
 								this.tabs[this.tabNum].end = true;
 							else
 								this.tabs[this.tabNum].offset =
@@ -234,8 +253,8 @@ export default {
 				this.$nextTick(() => {
 					this.$vuetify.goTo(this.tabs[val].yOffset);
 				});
-			}
-		}
+			},
+		},
 	},
 	methods: {
 		search(val) {
@@ -268,6 +287,7 @@ export default {
 		},
 		openDetailView() {
 			this.isCurrentViewOpen = true;
+			this.$emit("update:isTouchLess", true);
 			document.getElementsByTagName("html")[0].style.overflow = "hidden";
 		},
 		closeDetailViewAndBack() {
@@ -281,6 +301,7 @@ export default {
 		},
 		closeDetailView() {
 			this.isCurrentViewOpen = false;
+			this.$emit("update:isTouchLess", false);
 			document.getElementsByTagName("html")[0].style.overflow = "auto";
 		},
 		closeTab(val) {
@@ -302,7 +323,7 @@ export default {
 				if (!this.tabs[this.tabNum].end) {
 					axios
 						.get(this.toUri(this.tabs[this.tabNum], this.limit))
-						.then(newData => {
+						.then((newData) => {
 							this.tabs[this.tabNum].data = this.tabs[
 								this.tabNum
 							].data.concat(newData.data.data);
@@ -355,8 +376,8 @@ export default {
 				case 4:
 					return "search";
 			}
-		}
-	}
+		},
+	},
 };
 </script>
 

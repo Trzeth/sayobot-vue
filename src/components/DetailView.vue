@@ -1,5 +1,10 @@
 <template>
-	<div class="detail-card">
+	<div
+		class="detail-card"
+		v-touch="{
+			right: () => this.$emit('back'),
+		}"
+	>
 		<div
 			class="up-warpper elevation-4"
 			:style="{ backgroundImage: 'url(' + detailCardBackgroundSrc + ')' }"
@@ -11,8 +16,8 @@
 							<a
 								class="display-1 mb-5 font-weight-medium black--text"
 								@click="titleClick"
-								>{{ title }}</a
-							>
+								>{{ title }}
+							</a>
 						</v-row>
 						<v-row no-gutters>
 							<a
@@ -81,7 +86,7 @@
 										v-bind:class="{
 											inited: isWsInited,
 											'icon-caret-right': !isWsPlaying,
-											'icon-pause': isWsPlaying
+											'icon-pause': isWsPlaying,
 										}"
 									></span>
 								</v-col>
@@ -218,7 +223,7 @@
 							>
 						</v-btn-toggle>
 					</v-row>
-					<v-row style="position: relative">
+					<v-row style="position: relative;">
 						<v-overlay
 							absolute
 							color="transprant"
@@ -231,7 +236,7 @@
 						<v-chart
 							:options="chartOptine"
 							autoresize
-							style="width:100%"
+							style="width: 100%;"
 						>
 						</v-chart> </v-row
 				></v-col>
@@ -294,6 +299,7 @@
 </template>
 
 <script>
+import { Touch } from "vuetify/lib";
 import axios from "axios";
 import ApiHelper from "../util/api";
 import WaveSurfer from "wavesurfer.js";
@@ -303,7 +309,10 @@ import "echarts/lib/chart/line";
 export default {
 	name: "detail-view",
 	components: {
-		"v-chart": ECharts
+		"v-chart": ECharts,
+	},
+	directives: {
+		Touch,
 	},
 	props: ["optine", "isOpen"],
 	data: function() {
@@ -314,13 +323,13 @@ export default {
 				isOpen: false,
 				color: null,
 				text: null,
-				timeOut: null
+				timeOut: null,
 			},
 			currentBeatmapIndex: 0,
 
 			beatmapsetDetail: {
 				//去除 error
-				bid_data: [{}]
+				bid_data: [{}],
 			},
 
 			isWsInited: false,
@@ -333,40 +342,40 @@ export default {
 
 			chartOptine: {
 				title: {
-					text: "难度曲线"
+					text: "难度曲线",
 				},
 				tooltip: {},
 				grid: {
-					left: 24
+					left: 24,
 				},
 				xAxis: {
 					type: "category",
 					show: true,
 					axisTick: {
-						show: false
+						show: false,
 					},
 					axisLine: {
-						show: false
-					}
+						show: false,
+					},
 				},
 				yAxis: {
 					type: "value",
 					show: true,
 					axisTick: {
-						show: false
+						show: false,
 					},
 					axisLine: {
-						show: false
-					}
+						show: false,
+					},
 				},
 				series: [
 					{
 						data: null,
 						type: "line",
-						smooth: true
-					}
-				]
-			}
+						smooth: true,
+					},
+				],
+			},
 		};
 	},
 	mounted: function() {
@@ -377,7 +386,7 @@ export default {
 			handler: function() {
 				this.pause();
 				this.snackBar.isOpen = false;
-			}
+			},
 		},
 		optine: {
 			immediate: true,
@@ -393,14 +402,11 @@ export default {
 
 					this.localOptine = _.clone(newOptine);
 
-					var uri = "https://api.sayobot.cn/v2/beatmapinfo?0=";
-					if (this.localOptine.sid) {
-						uri += this.localOptine.sid;
-					} else {
-						uri += this.localOptine.bid + "&1=1";
-					}
+					var uri = this.localOptine.sid
+						? ApiHelper.GetBeatmapInfo(this.localOptine.sid)
+						: ApiHelper.GetBeatmapInfo(this.localOptine.bid, true);
 
-					axios.get(uri).then(response => {
+					axios.get(uri).then((response) => {
 						if (response.data.status == -1) {
 							this.beatmapsetDetail = { bid_data: [] };
 							this.PushMessage("未找到 Beatmap", "error", 0);
@@ -422,8 +428,8 @@ export default {
 								name: "home",
 								params: {
 									queryMode: "beatmapset",
-									sid: this.localOptine.sid
-								}
+									sid: this.localOptine.sid,
+								},
 							});
 						}
 
@@ -431,7 +437,7 @@ export default {
 							this.beatmapsetDetail.bid_data.length - 1;
 					});
 				}
-			}
+			},
 		},
 		chartIndex: {
 			handler: function(val) {
@@ -447,7 +453,7 @@ export default {
 							curBeatmap.strain_speed;
 					}
 				}
-			}
+			},
 		},
 		currentBeatmapIndex: function(newV) {
 			var curBeatmap = this.beatmapsetDetail.bid_data[newV];
@@ -493,7 +499,7 @@ export default {
 					? curBeatmap.strain_aimArr
 					: curBeatmap.strain_speedArr;
 			}
-		}
+		},
 	},
 	computed: {
 		title: function() {
@@ -511,8 +517,21 @@ export default {
 			}
 		},
 		detailCardBackgroundSrc: function() {
-			if (this.localOptine && this.localOptine.sid) {
-				return ApiHelper.GetPreviewBackgroundUri(this.localOptine.sid);
+			if (
+				this.localOptine &&
+				this.localOptine.sid &&
+				this.beatmapsetDetail
+			) {
+				var src = ApiHelper.GetBeatmapFile(
+					this.beatmapsetDetail.bid_data[this.currentBeatmapIndex].bg,
+					this.localOptine.sid
+				);
+				if (!src)
+					src = ApiHelper.GetPreviewBackgroundUri(
+						this.localOptine.sid
+					);
+
+				return src;
 			}
 			return null;
 		},
@@ -556,7 +575,7 @@ export default {
 		},
 		officialLink: function() {
 			if (this.localOptine && this.localOptine.sid) {
-				ApiHelper.GetOfficialUri(
+				return ApiHelper.GetOfficialUri(
 					this.localOptine.sid,
 					this.beatmapsetDetail.bid_data[this.currentBeatmapIndex].bid
 				);
@@ -574,7 +593,7 @@ export default {
 		},
 		downloadServer: function() {
 			return this.$ls.get("downloadServer");
-		}
+		},
 	},
 	methods: {
 		PushMessage(message, color, timeout = 6000) {
@@ -634,7 +653,7 @@ export default {
 				height: 128,
 				barWidth: 2,
 				barHeight: 1,
-				barGap: null
+				barGap: null,
 			});
 			this.ws.setVolume(this.volume);
 		},
@@ -655,10 +674,10 @@ export default {
 					1
 				);
 			});
-			this.ws.on("audioprocess", value => {
+			this.ws.on("audioprocess", (value) => {
 				this.currentDuration = parseFloat(value).toFixed(1);
 			});
-			this.ws.on("seek", value => {
+			this.ws.on("seek", (value) => {
 				this.currentDuration = parseFloat(
 					value * this.totalDuration
 				).toFixed(1);
@@ -680,48 +699,48 @@ export default {
 			this.$router.push({
 				name: "home",
 				params: {
-					queryMode: "search"
+					queryMode: "search",
 				},
 				query: {
 					keyword: this.beatmapsetDetail.title,
-					subType: 1
-				}
+					subType: 1,
+				},
 			});
 			this.$gtag.event("Search", {
 				event_category: "DetailView",
-				event_label: "Title"
+				event_label: "Title",
 			});
 		},
 		artistClick() {
 			this.$router.push({
 				name: "home",
 				params: {
-					queryMode: "search"
+					queryMode: "search",
 				},
 				query: {
 					keyword: this.beatmapsetDetail.artist,
-					subType: 2
-				}
+					subType: 2,
+				},
 			});
 			this.$gtag.event("Search", {
 				event_category: "DetailView",
-				event_label: "Artist"
+				event_label: "Artist",
 			});
 		},
 		creatorClick() {
 			this.$router.push({
 				name: "home",
 				params: {
-					queryMode: "search"
+					queryMode: "search",
 				},
 				query: {
 					keyword: this.beatmapsetDetail.creator,
-					subType: 4
-				}
+					subType: 4,
+				},
 			});
 			this.$gtag.event("Search", {
 				event_category: "DetailView",
-				event_label: "Creator"
+				event_label: "Creator",
 			});
 		},
 		downloadClick(type) {
@@ -739,13 +758,13 @@ export default {
 			}
 			this.$gtag.event("Download", {
 				event_category: "DetailView",
-				event_label: label
+				event_label: label,
 			});
 		},
 		star(num) {
 			return parseFloat(num).toFixed(2);
-		}
-	}
+		},
+	},
 };
 </script>
 

@@ -27,11 +27,28 @@
 					<v-divider :key="'d' + index" v-if="index != 0"></v-divider>
 					<v-list-item :key="index">
 						<v-list-item-content>
-							<v-row no-gutters justify="space-between">
+							<v-row
+								no-gutters
+								justify="space-between"
+								align="center"
+							>
 								<h2 class="title">{{ notice.title }}</h2>
-								<v-icon :color="types[notice.importance]">{{
-									icons[notice.importance]
-								}}</v-icon>
+								<v-col cols="auto">
+									<v-row align="center" no-gutters>
+										<h2
+											class="subtitle-1 mr-1"
+											style="margin-bottom:2px"
+										>
+											{{ notice.date }}
+										</h2>
+										<v-icon
+											:color="types[notice.importance]"
+											>{{
+												icons[notice.importance]
+											}}</v-icon
+										>
+									</v-row>
+								</v-col>
 							</v-row>
 							<pre
 								class="body-1 my-1"
@@ -103,14 +120,14 @@ export default {
 				"mdi-information",
 				"mdi-exclamation",
 				"mdi-alert",
-				"mdi-check-circle"
+				"mdi-check-circle",
 			],
 			types: ["info", "warning", "error", "success"],
 			isNeedToConfirm: false,
 			isOverlayOpen: false,
 			isAgree: false,
 			noticeMd5: null,
-			confirmType: 0
+			confirmType: 0,
 		};
 	},
 	computed: {
@@ -123,8 +140,8 @@ export default {
 			set(val) {
 				this.$ls.set("lastConfirmedNotice", val);
 				return val;
-			}
-		}
+			},
+		},
 	},
 	watch: {
 		isOverlayOpen: {
@@ -136,18 +153,18 @@ export default {
 				else
 					document.getElementsByTagName("html")[0].style.overflow =
 						"auto";
-			}
-		}
+			},
+		},
 	},
 	methods: {
 		OnClick() {
 			this.isOverlayOpen = false;
 			this.lastConfirmedNotice = this.noticeMd5;
 			this.isNeedToConfirm = false;
-		}
+		},
 	},
 	mounted: function() {
-		axios.get("https://api.sayobot.cn/static/notice").then(response => {
+		axios.get("https://api.sayobot.cn/static/notice").then((response) => {
 			this.notices = response.data.data;
 
 			var lastImportance = this.notices[0].importance;
@@ -166,9 +183,9 @@ export default {
 		app: {
 			inserted: function(el) {
 				document.getElementById("app").appendChild(el);
-			}
-		}
-	}
+			},
+		},
+	},
 };
 </script>
 

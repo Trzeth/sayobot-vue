@@ -14,8 +14,8 @@
 				<a
 					@click="downloadClick"
 					class="iconfont icon-download download-btn"
-					v-bind:href="downloadLink"
-				></a>
+				>
+				</a>
 			</div>
 		</header>
 
@@ -32,7 +32,7 @@
 					class="play-btn iconfont"
 					v-bind:class="{
 						'icon-caret-right': !isPlaying,
-						'icon-pause': isPlaying
+						'icon-pause': isPlaying,
 					}"
 					@click="playPreviewAudio"
 				></span>
@@ -47,7 +47,7 @@
 				beatmapsetInfo.favourite_count
 			}}</span>
 			<span class="iconfont icon-play-circle-fill">{{
-				beatmapsetInfo.order
+				beatmapsetInfo.play_count
 			}}</span>
 		</footer>
 	</div>
@@ -55,20 +55,22 @@
 
 <script>
 import ApiHelper from "../util/api";
+import { mapMutations } from "vuex";
 
 export default {
 	name: "preview-card",
 	props: {
 		beatmapsetInfo: Object,
-		isPreviewAudioPlaying: Boolean
+		isPreviewAudioPlaying: Boolean,
 	},
 	data: function() {
 		return {
 			isPlaying: false,
-			isPrePlaying: null
+			isPrePlaying: null,
 		};
 	},
 	methods: {
+		...mapMutations("downloader", ["add"]),
 		playPreviewAudio() {
 			if (this.isPlaying) {
 				this.$emit("stop");
@@ -83,35 +85,44 @@ export default {
 			this.$router.push({
 				name: "home",
 				params: {
-					queryMode: "search"
+					queryMode: "search",
 				},
 				query: {
 					keyword: this.beatmapsetInfo.artist,
-					subType: 2
-				}
+					subType: 2,
+				},
 			});
 			this.$gtag.event("Search", {
 				event_category: "PreviewCard",
-				event_label: "Artist"
+				event_label: "Artist",
 			});
 		},
 		creatorClick() {
 			this.$router.push({
 				name: "home",
 				params: {
-					queryMode: "search"
+					queryMode: "search",
 				},
 				query: {
 					keyword: this.beatmapsetInfo.creator,
-					subType: 4
-				}
+					subType: 4,
+				},
 			});
 			this.$gtag.event("Search", {
 				event_category: "PreviewCard",
-				event_label: "Creator"
+				event_label: "Creator",
 			});
 		},
 		downloadClick() {
+			if (this.$ls.get("isPackageDownload") == "true") {
+				this.add(this.beatmapsetInfo);
+			} else {
+				var aEle = document.createElement("a");
+				aEle.href = this.downloadLink;
+				aEle.download = "";
+				aEle.click();
+			}
+
 			var label = null;
 			switch (this.downloadType) {
 				case 0:
@@ -126,7 +137,7 @@ export default {
 			}
 			this.$gtag.event("Download", {
 				event_category: "PreviewCard",
-				event_label: label
+				event_label: label,
 			});
 		},
 		detailClick() {
@@ -134,18 +145,18 @@ export default {
 				name: "home",
 				params: {
 					queryMode: "beatmapset",
-					sid: this.beatmapsetInfo.sid
-				}
+					sid: this.beatmapsetInfo.sid,
+				},
 			});
 			this.$emit("stop");
-		}
+		},
 	},
 	watch: {
 		isPreviewAudioPlaying: function(val) {
 			if (val == false && this.isPlaying && !this.isPrePlaying)
 				this.isPlaying = false;
 			this.isPrePlaying = false;
-		}
+		},
 	},
 
 	computed: {
@@ -209,12 +220,12 @@ export default {
 		},
 		downloadServer: function() {
 			return this.$ls.get("downloadServer");
-		}
-	}
+		},
+	},
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .preview-card-list {
 	.preview-card {
 		a {
